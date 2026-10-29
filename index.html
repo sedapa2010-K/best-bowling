@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Best Bowling</title>
+  <meta name="description" content="Best Bowling — 볼링 점수 기록, 팀전, 핸디캡, 비용 정산">
+  <meta name="theme-color" content="#0c0e13">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Best Bowling">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="icons/icon.svg" alt=""><span>Best <em>Bowling</em></span></div>
+  </header>
+  <main id="view"></main>
+  <div id="keypad" class="keypad" hidden></div>
+  <nav id="tabbar" class="tabbar"></nav>
+  <div id="modal" class="modal" hidden></div>
+  <div id="toast" class="toast" role="status"></div>
+  <input id="importFile" type="file" accept="application/json,.json" hidden>
+  <script src="js/app.js"></script>
+</body>
+</html>
