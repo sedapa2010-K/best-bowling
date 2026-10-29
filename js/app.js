@@ -20,7 +20,7 @@
       today: '오늘', recent: '최근 기록', noRecent: '아직 저장된 기록이 없어요', gamesPeople: '{0}게임 · {1}명',
       selectedDate: '선택한 날짜', participants: '참가 멤버', nPeople: '{0}명',
       noMembers: '등록된 멤버가 없어요. 아래에서 바로 추가해 보세요.', newMemberPh: '새 멤버 이름', hdcp: '핸디', add: '추가',
-      individual: '개인전', teamMatch: '팀전', teamCount: '팀 수', teamHint: '팀 배지를 누르면 팀이 바뀌어요.', teamName: '{0}팀',
+      individual: '개인전', teamMatch: '팀전', teamCount: '팀 수', teamHint: '멤버 옆의 팀 버튼(A·B…)을 눌러 팀을 옮길 수 있어요.', teamEmpty: '아직 멤버가 없어요', teamName: '{0}팀',
       pickHint: '참가할 멤버를 선택하면\n사람별로 점수를 입력할 수 있어요.',
       finalMode: '최종결과 입력', frameMode: '프레임별 입력',
       gameN: '{0}게임', deleteGame: '{0}게임 삭제', confirmDelGame: '{0}게임 기록을 삭제할까요?',
@@ -55,7 +55,7 @@
       today: 'Today', recent: 'Recent', noRecent: 'No saved records yet', gamesPeople: '{0} games · {1}',
       selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players',
       noMembers: 'No members yet. Add one right below.', newMemberPh: 'New member name', hdcp: 'HDCP', add: 'Add',
-      individual: 'Singles', teamMatch: 'Teams', teamCount: 'Teams', teamHint: 'Tap a team badge to switch teams.', teamName: 'Team {0}',
+      individual: 'Singles', teamMatch: 'Teams', teamCount: 'Teams', teamHint: 'Tap a team letter next to a player to move them.', teamEmpty: 'No players yet', teamName: 'Team {0}',
       pickHint: 'Select the players\nto start entering scores.',
       finalMode: 'Final Score', frameMode: 'By Frame',
       gameN: 'Game {0}', deleteGame: 'Delete game {0}', confirmDelGame: 'Delete game {0}?',
@@ -123,6 +123,7 @@
     date: ymd(now),
     calY: now.getFullYear(),
     calM: now.getMonth(),
+    calOpen: false,    // month calendar expanded
     kp: null,          // { pid } while the frame keypad is open
     kpScroll: false,
     editId: null,      // member being edited
@@ -159,6 +160,9 @@
     shoe: '<path d="M2.5 17.5V9.5l3.5-1 2 2.5 3-1.5 3 3.5 5.3 1.4a2 2 0 0 1 1.5 1.9v1.7z"/><path d="M2.5 20.5h19"/>',
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     next: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    calendar: '<rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+    down: '<path d="M6 9l6 6 6-6"/>',
+    up: '<path d="M18 15l-6-6-6 6"/>',
   };
   const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
 
@@ -250,7 +254,8 @@
   }
 
   /* ───────── Sessions ───────── */
-  const blankSession = (date) => ({ date, teamMode: false, teamCount: 2, players: [], games: [{ mode: 'final', entries: {} }], active: 0 });
+  const DEFAULT_GAMES = 4;
+  const blankSession = (date) => ({ date, teamMode: false, teamCount: 2, players: [], games: Array.from({ length: DEFAULT_GAMES }, () => ({ mode: 'final', entries: {} })), active: 0 });
   const hasRecord = (s) => !!(s && s.players && s.players.length);
   function sess() {
     if (db.sessions[ui.date]) return db.sessions[ui.date];
@@ -269,11 +274,18 @@
     ? `<span class="team-badge t${p.team}">${TEAMS[p.team]}</span>`
     : `<span class="avatar">${esc(initial(pname(p)))}</span>`);
   const curGame = (s) => s.games[s.active] || s.games[0];
+  // Games up to the last one that has any score (at least 1) — empty trailing games are left out of results.
+  const gameHasScore = (s, g) => s.players.some((p) => entryScore(g, p.id) !== null);
+  function usedGames(s) {
+    let n = 0;
+    s.games.forEach((g, i) => { if (gameHasScore(s, g)) n = i + 1; });
+    return s.games.slice(0, Math.max(1, n));
+  }
   const rollsOf = (g, pid) => (g.entries[pid] && g.entries[pid].rolls) || [];
 
   function playerStats(s) {
     return s.players.map((p) => {
-      const scores = s.games.map((g) => entryScore(g, p.id));
+      const scores = usedGames(s).map((g) => entryScore(g, p.id));
       const played = scores.filter((v) => v !== null);
       const scratch = played.reduce((a, b) => a + b, 0);
       const hd = (toInt(p.hdcp)) * played.length;
@@ -284,7 +296,7 @@
     const out = [];
     for (let ti = 0; ti < s.teamCount; ti++) {
       const ps = s.players.filter((p) => p.team === ti);
-      const games = s.games.map((g) => {
+      const games = usedGames(s).map((g) => {
         let sum = null;
         ps.forEach((p) => { const v = entryScore(g, p.id); if (v !== null) sum = (sum || 0) + v + toInt(p.hdcp); });
         return sum;
@@ -325,6 +337,17 @@
 
   /* ───────── Render: record tab ───────── */
   function calendarHTML() {
+    if (!ui.calOpen) {
+      const isToday = ui.date === ymd(new Date());
+      return `<div class="card cal-bar">
+        <button class="cal-open" data-act="calToggle" aria-expanded="false">
+          <span class="set-ic">${ic('calendar')}</span>
+          <span class="cal-txt"><small>${isToday ? t('today') : t('selectedDate')}</small><b>${dateLong(ui.date)}</b></span>
+          ${ic('down')}
+        </button>
+        ${isToday ? '' : `<button class="cal-today" data-act="calToday">${t('today')}</button>`}
+      </div>`;
+    }
     const y = ui.calY, m = ui.calM;
     const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
     const today = ymd(new Date());
@@ -333,10 +356,11 @@
     for (let d = 1; d <= days; d++) {
       const k = `${y}-${pad(m + 1)}-${pad(d)}`;
       const cls = ['cal-d', (first + d - 1) % 7 === 0 && 'sun', k === today && 'today', hasRecord(db.sessions[k]) && 'has', k === ui.date && 'sel'].filter(Boolean).join(' ');
-      cells += `<button class="${cls}" data-act="pick" data-date="${k}">${d}</button>`;
+      cells += `<button class="${cls}" data-act="pick" data-date="${k}"><span>${d}</span></button>`;
     }
     return `<div class="card cal">
       <div class="cal-h">
+        <button class="cal-nav" data-act="calToggle" aria-expanded="true" aria-label="close">${ic('up')}</button>
         <b>${monthLabel(y, m)}</b>
         <button class="cal-today" data-act="calToday">${t('today')}</button>
         <button class="cal-nav" data-act="calMove" data-d="-1" aria-label="prev">${ic('left')}</button>
@@ -350,9 +374,9 @@
     const list = Object.values(db.sessions).filter(hasRecord).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
     const chips = list.map((s) => {
       const d = dateShort(s.date);
-      const n = s.games.filter((g) => s.players.some((p) => entryScore(g, p.id) !== null)).length || s.games.length;
+      const n = s.games.filter((g) => gameHasScore(s, g)).length;
       return `<button class="rchip ${s.date === ui.date ? 'on' : ''}" data-act="pick" data-date="${s.date}" data-scroll="1">
-        <b>${d.main} <small>${d.wd}</small></b><small>${t('gamesPeople', n, s.players.length)}</small></button>`;
+        <b>${d.main} <small>${d.wd}</small></b><small>${n ? t('gamesPeople', n, s.players.length) : t('nPeople', s.players.length)}</small></button>`;
     }).join('');
     return `<div class="sec-label"><span>${t('recent')}</span></div>
       <div class="recent">${chips || `<div class="recent-empty">${t('noRecent')}</div>`}</div>`;
@@ -375,17 +399,28 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
+      const hdInput = (p) => `<label class="hd">${t('hdcp')}<input class="field num sm" type="number" inputmode="numeric" data-inp="hdcp" data-id="${p.id}" value="${toInt(p.hdcp)}"></label>`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
-            <span class="hint">${t('teamHint')}</span>
+            <span class="label">${t('teamCount')}</span>
             <div class="stepper"><button data-act="teamCount" data-d="-1">−</button><b>${s.teamCount}</b><button data-act="teamCount" data-d="1">+</button></div>
+          </div>
+          <p class="hint" style="margin-top:6px">${t('teamHint')}</p>`;
+        for (let ti = 0; ti < s.teamCount; ti++) {
+          const ps = s.players.filter((p) => p.team === ti);
+          const moves = (p) => `<div class="tmove">${TEAMS.slice(0, s.teamCount).map((L, j) =>
+            `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${p.id}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
+          h += `<div class="tsec tc${ti}">
+            <div class="tsec-h"><span class="team-badge t${ti}">${TEAMS[ti]}</span><b>${t('teamName', TEAMS[ti])}</b><span class="muted">${t('nPeople', ps.length)}</span></div>
+            ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow">
+              <span class="pname">${esc(pname(p))}</span>${moves(p)}${hdInput(p)}</div>`).join('')}</div>`
+              : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
           </div>`;
+        }
+      } else {
+        h += `<div class="plist">${s.players.map((p) => `<div class="prow">${avatar(s, p)}
+            <span class="pname">${esc(pname(p))}</span>${hdInput(p)}</div>`).join('')}</div>`;
       }
-      h += `<div class="plist">${s.players.map((p) => `<div class="prow">
-          ${s.teamMode ? `<button class="team-badge t${p.team}" data-act="cycleTeam" data-id="${p.id}">${TEAMS[p.team]}</button>` : avatar(s, p)}
-          <span class="pname">${esc(pname(p))}</span>
-          <label class="hd">${t('hdcp')}<input class="field num sm" type="number" inputmode="numeric" data-inp="hdcp" data-id="${p.id}" value="${toInt(p.hdcp)}"></label>
-        </div>`).join('')}</div>`;
     }
     return h + '</div>';
   }
@@ -434,7 +469,7 @@
   }
   function summaryInner(s) {
     const st = playerStats(s);
-    const gh = s.games.map((_, i) => `<th>G${i + 1}</th>`).join('');
+    const gh = usedGames(s).map((_, i) => `<th>G${i + 1}</th>`).join('');
     let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}</h3></div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
@@ -587,7 +622,7 @@
   function rowsFromSession(s) {
     return s.players.map((p) => {
       const played = s.games.filter((g) => entryScore(g, p.id) !== null).length;
-      return { id: p.id, name: pname(p), on: true, games: played || s.games.length, shoes: true };
+      return { id: p.id, name: pname(p), on: true, games: played || 1, shoes: true };
     });
   }
   function costDoc() {
@@ -828,7 +863,7 @@
   function recordBlocks(s) {
     const st = playerStats(s);
     const cols = [{ t: '#', w: 0.8, al: 'c', rank: true }, { t: t('name'), w: 2.6, al: 'l', bold: true }]
-      .concat(s.games.map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' })))
+      .concat(usedGames(s).map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' })))
       .concat([{ t: t('hdcp'), w: 1, al: 'c', dim: true }, { t: t('total'), w: 1.3, al: 'c', gold: true }, { t: t('avg'), w: 1.1, al: 'c' }]);
     const blocks = [{
       type: 'table', title: t('results'), cols,
@@ -841,7 +876,7 @@
       const ts = teamStats(s).sort((a, b) => b.total - a.total);
       blocks.push({
         type: 'table', title: t('teamResults'),
-        cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(s.games.map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' }))).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
+        cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(usedGames(s).map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' }))).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
         rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${t('teamName', TEAMS[x.ti])} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
       });
     }
@@ -906,7 +941,7 @@
 
   /* ───────── Actions ───────── */
   function pickDate(k, scroll) {
-    ui.date = k; ui.kp = null;
+    ui.date = k; ui.kp = null; ui.calOpen = false;
     const d = parseYmd(k); ui.calY = d.getFullYear(); ui.calM = d.getMonth();
     render();
     if (scroll) { const el = $('#sess'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); }
@@ -926,6 +961,11 @@
 
   const actions = {
     tab(el) { ui.tab = el.dataset.tab; ui.kp = null; ui.editId = null; render(); window.scrollTo(0, 0); },
+    calToggle() {
+      ui.calOpen = !ui.calOpen;
+      if (ui.calOpen) { const d = parseYmd(ui.date); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); }
+      render();
+    },
     calMove(el) { const d = new Date(ui.calY, ui.calM + toInt(el.dataset.d), 1); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); render(); },
     calToday() { pickDate(ymd(new Date())); },
     pick(el) { pickDate(el.dataset.date, !!el.dataset.scroll); },
@@ -944,6 +984,7 @@
       s.players.forEach((p) => { if (p.team >= s.teamCount) p.team = s.teamCount - 1; });
       commit(s); render();
     },
+    setTeam(el) { const s = sess(), p = s.players.find((x) => x.id === el.dataset.id); p.team = toInt(el.dataset.t); commit(s); render(); },
     cycleTeam(el) { const s = sess(), p = s.players.find((x) => x.id === el.dataset.id); p.team = (p.team + 1) % s.teamCount; commit(s); render(); },
     game(el) { const s = sess(); s.active = toInt(el.dataset.i); ui.kp = null; commit(s); render(); },
     addGame() { const s = sess(); s.games.push({ mode: curGame(s).mode, entries: {} }); s.active = s.games.length - 1; ui.kp = null; commit(s); render(); },
@@ -998,7 +1039,7 @@
     costRemove(el) { const c = costDoc(); c.rows = c.rows.filter((x) => x.id !== el.dataset.id); commitCost(c); render(); },
     costAdd(el) {
       const c = costDoc(), m = memberById(el.dataset.id), s = db.sessions[ui.date];
-      c.rows.push({ id: m.id, name: m.name, on: true, games: hasRecord(s) ? s.games.length : 1, shoes: true });
+      c.rows.push({ id: m.id, name: m.name, on: true, games: hasRecord(s) ? s.games.filter((g) => gameHasScore(s, g)).length || 1 : 1, shoes: true });
       commitCost(c); render();
     },
     costImg(el) {
