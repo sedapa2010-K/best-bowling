@@ -536,3 +536,21 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .tbl th.prac { color: var(--muted); font-style: italic; }
 .tbl td.prac { text-decoration: line-through; text-decoration-color: var(--line-strong); }
 .stat-pick { margin-bottom: 14px; }
+
+/* ── Team results fit the phone width; team settlement ── */
+.teams { grid-template-columns: minmax(0, 1fr); }
+.team-card { min-width: 0; align-items: flex-start; }
+.team-card .tt { padding-top: 2px; }
+.tg { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 6px; }
+.tg span { font-size: 11.5px; color: var(--muted); padding: 2px 7px; border-radius: 7px; background: var(--surface); border: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.team-card .tm .tg span b { display: inline; font-size: 11.5px; color: var(--text); font-weight: 700; }
+.tg span.prac { opacity: .6; font-style: italic; }
+.tcosts .tsec:first-child { margin-top: 0; }
+.tsec.tcx { --tc: #8f8a80; }
+.tsec-h .amt { font-size: 18px; }
+.tcost-meta { font-size: 12px; color: var(--muted); margin: 4px 0 0 40px; }
+.tcost-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.tcost-row { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.tcost-row .pname { font-size: 14px; }
+.tcost-row small { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.tcost-row b { font-size: 14px; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }

@@ -17,7 +17,7 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
-      allPlayers: '전체', teamShort: '{0}팀', practice: '연습', firstPractice: '첫 경기는 연습',
+      allPlayers: '전체', teamShort: '{0}팀', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
@@ -57,7 +57,7 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
-      allPlayers: 'All', teamShort: '{0}', practice: 'Practice', firstPractice: '1st game is practice',
+      allPlayers: 'All', teamShort: '{0}', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
@@ -139,6 +139,7 @@
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
     statView: 'game',  // 'game' | 'final'
+    costView: 'person', // cost tab in team matches: 'person' | 'team'
     entryTeam: 'all',  // score-entry filter in team matches: 'all' or a team index
     busy: false,
     draft: null,       // unsaved empty session for the selected date
@@ -288,10 +289,7 @@
   }
   const memberById = (id) => db.members.find((m) => m.id === id);
   const pname = (p) => (memberById(p.id) ? memberById(p.id).name : p.name || '?');
-  const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
-  const avatar = (s, p) => (s.teamMode
-    ? `<span class="team-badge t${p.team}">${TEAMS[p.team]}</span>`
-    : `<span class="avatar">${esc(initial(pname(p)))}</span>`);
+  const avatar = (s, p) => (s.teamMode ? `<span class="team-badge t${p.team}">${TEAMS[p.team]}</span>` : '');
   const curGame = (s) => s.games[s.active] || s.games[0];
   // Games up to the last one that has any score (at least 1) — empty trailing games are left out of results.
   const gameHasScore = (s, g) => s.players.some((p) => entryScore(g, p.id) !== null);
@@ -529,7 +527,7 @@
           <span class="team-badge t${x.ti}">${TEAMS[x.ti]}</span>
           <div class="tm"><b>${t('teamName', TEAMS[x.ti])}${x.win ? ic('crown') : ''}</b>
             <small>${x.ps.map((p) => esc(pname(p))).join(', ') || '—'}</small>
-            <small>${x.games.map((v, i) => `${isPractice(s, i) ? t('practice') : `G${i + 1}`} ${v ?? '-'}`).join(' · ')}</small></div>
+            <div class="tg">${x.games.map((v, i) => `<span class="${isPractice(s, i) ? 'prac' : ''}">${isPractice(s, i) ? t('practice') : `G${i + 1}`} <b>${v ?? '-'}</b></span>`).join('')}</div></div>
           <div class="tt">${x.total}<small>${x.win ? t('win') : x.draw ? t('draw') : ''}</small></div></div>`).join('')}</div>`;
     }
     return h;
@@ -686,6 +684,30 @@
     const on = c.rows.filter((r) => r.on);
     return { people: on.length, games: on.reduce((a, r) => a + r.games, 0), total: Math.round(on.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 };
   }
+  // Team view of the cost sheet: rows grouped by the team each person played on that day.
+  function costTeams(c) {
+    const s = db.sessions[c.date];
+    if (!hasRecord(s) || !s.teamMode) return null;
+    const teamOf = (id) => { const p = s.players.find((x) => x.id === id); return p ? p.team : -1; };
+    const groups = [];
+    for (let ti = -1; ti < s.teamCount; ti++) {
+      const rows = c.rows.filter((r) => r.on && teamOf(r.id) === ti);
+      if (ti === -1 && !rows.length) continue;
+      groups.push({ ti, rows, games: rows.reduce((a, r) => a + r.games, 0), total: Math.round(rows.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 });
+    }
+    return groups.sort((a, b) => (a.ti === -1) - (b.ti === -1));
+  }
+  const costTeamLabel = (ti) => (ti === -1 ? t('noTeam') : t('teamName', TEAMS[ti]));
+  function costTeamsHTML(c, groups) {
+    return `<div class="tcosts">${groups.map((g) => `<div class="tsec ${g.ti >= 0 ? 'tc' + g.ti : 'tcx'}">
+        <div class="tsec-h">${g.ti >= 0 ? `<span class="team-badge t${g.ti}">${TEAMS[g.ti]}</span>` : ''}<b>${costTeamLabel(g.ti)}</b>
+          <span class="amt">${fmtMoney(g.total)}</span></div>
+        <div class="tcost-meta">${t('nPeople', g.rows.length)} · ${g.games}${t('gUnit')}</div>
+        ${g.rows.length ? `<div class="tcost-list">${g.rows.map((r) => `<div class="tcost-row"><span class="pname">${esc(rowName(r))}</span>
+          <small>${r.games}G${r.shoes ? ' · ' + t('shoes') : ''}</small><b>${fmtMoney(rowAmount(r, c))}</b></div>`).join('')}</div>`
+          : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
+      </div>`).join('')}</div>`;
+  }
   function costTotalsHTML(c) {
     const x = costTotals(c);
     return `<div class="eyebrow">${t('grandTotal')}</div>
@@ -707,6 +729,7 @@
           <button class="x-btn" data-act="costRemove" data-id="${r.id}" aria-label="${t('delete')}">${ic('x')}</button>
         </div></div>`).join('');
     const others = db.members.filter((m) => !inRows.has(m.id));
+    const groups = costTeams(c), teamView = !!groups && ui.costView === 'team';
     return `<div class="page-h"><div><div class="eyebrow">Settlement</div><h2 class="display">${t('costTitle')}</h2></div></div>
       <div class="card">
         <div class="row between"><span class="label">${t('date')}</span><input type="date" class="field date-field" data-inp="costDate" value="${ui.date}"></div>
@@ -716,9 +739,12 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-h"><h3>${ic('users')}${t('perPersonTitle')}</h3><button class="btn sm ghost" data-act="costLoad">${ic('download')}${t('loadFromRecord')}</button></div>
-        ${rows ? `<div class="clist">${rows}</div>` : `<p class="hint">${t('costEmpty')}</p>`}
-        ${others.length ? `<div class="divider"></div><div class="field-l">${t('addPerson')}</div>
+        <div class="card-h"><h3>${ic('users')}${teamView ? t('teamSettle') : t('perPersonTitle')}</h3><button class="btn sm ghost" data-act="costLoad">${ic('download')}${t('loadFromRecord')}</button></div>
+        ${groups ? `<div class="seg" style="margin-bottom:12px">
+          <button class="${teamView ? '' : 'on'}" data-act="costView" data-v="person">${ic('users')}${t('byPerson')}</button>
+          <button class="${teamView ? 'on' : ''}" data-act="costView" data-v="team">${ic('crown')}${t('byTeam')}</button></div>` : ''}
+        ${teamView ? costTeamsHTML(c, groups) : rows ? `<div class="clist">${rows}</div>` : `<p class="hint">${t('costEmpty')}</p>`}
+        ${others.length && !teamView ? `<div class="divider"></div><div class="field-l">${t('addPerson')}</div>
           <div class="chips">${others.map((m) => `<button class="chip dashed" data-act="costAdd" data-id="${m.id}">${ic('plus')}${esc(m.name)}</button>`).join('')}</div>` : ''}
       </div>
       <div class="card hero" id="costTotals">${costTotalsHTML(c)}</div>
@@ -731,6 +757,8 @@
     const c = costDoc();
     c.rows.forEach((r) => { const el = $(`#amt-${r.id}`); if (el) el.textContent = fmtMoney(rowAmount(r, c)); });
     $('#costTotals').innerHTML = costTotalsHTML(c);
+    const tc = $('.tcosts'), groups = tc && costTeams(c);
+    if (groups) tc.outerHTML = costTeamsHTML(c, groups);
   }
 
   /* ───────── Render: stats tab ───────── */
@@ -1055,6 +1083,24 @@
   }
   function costBlocks(c) {
     const on = c.rows.filter((r) => r.on), x = costTotals(c);
+    const groups = costTeams(c);
+    if (groups && ui.costView === 'team') {
+      const teamName = (id) => { const g = groups.find((gg) => gg.rows.some((r) => r.id === id)); return g && g.ti >= 0 ? `${TEAMS[g.ti]} · ` : ''; };
+      return [
+        { type: 'kv', items: [[`${t('gameFee')} · ${t('perGame')}`, fmtMoney(c.gameFee)], [`${t('shoeFee')} · ${t('perPerson')}`, fmtMoney(c.shoeFee)]] },
+        {
+          type: 'table', title: t('teamSettle'),
+          cols: [{ t: t('team'), w: 2.2, al: 'l', bold: true }, { t: t('people'), w: 1, al: 'c' }, { t: t('games'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+          rows: groups.map((g) => ({ cells: [costTeamLabel(g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
+        },
+        {
+          type: 'table', title: t('perPersonTitle'),
+          cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+          rows: groups.flatMap((g) => g.rows).map((r) => ({ cells: [teamName(r.id) + rowName(r), r.games, r.shoes ? '✓' : '–', fmtMoney(rowAmount(r, c))] })),
+        },
+        { type: 'kv', big: true, items: [[t('people'), String(x.people)], [t('totalGames'), String(x.games)], [t('grandTotal'), fmtMoney(x.total)]] },
+      ];
+    }
     return [
       { type: 'kv', items: [[`${t('gameFee')} · ${t('perGame')}`, fmtMoney(c.gameFee)], [`${t('shoeFee')} · ${t('perPerson')}`, fmtMoney(c.shoeFee)]] },
       {
@@ -1144,6 +1190,7 @@
       pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
     },
     entryTeam(el) { ui.entryTeam = el.dataset.v === 'all' ? 'all' : toInt(el.dataset.v); ui.kp = null; render(); },
+    costView(el) { ui.costView = el.dataset.v; render(); },
     practice() { const s = sess(); s.firstPractice = !s.firstPractice; commit(s); render(); },
     statPick(el) { ui.statId = el.dataset.id; render(); },
     statView(el) { ui.statView = el.dataset.v; render(); },
