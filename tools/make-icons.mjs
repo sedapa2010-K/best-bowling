@@ -12,10 +12,10 @@ mkdirSync(out, { recursive: true });
 
 const defs = `
 <defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf8"/><stop offset=".55" stop-color="#f6efe1"/><stop offset="1" stop-color="#e8dbc0"/></linearGradient>
-  <radialGradient id="spot" cx="0.5" cy="0.36" r="0.62"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".6" stop-color="#ffffff" stop-opacity=".2"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b7f9e"/><stop offset=".55" stop-color="#34536f"/><stop offset="1" stop-color="#1f3449"/></linearGradient>
+  <radialGradient id="spot" cx="0.5" cy="0.36" r="0.62"><stop offset="0" stop-color="#cfe2f2" stop-opacity=".35"/><stop offset=".6" stop-color="#cfe2f2" stop-opacity=".08"/><stop offset="1" stop-color="#cfe2f2" stop-opacity="0"/></radialGradient>
   <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbedc4"/><stop offset=".35" stop-color="#e2c27e"/><stop offset=".7" stop-color="#b88f45"/><stop offset="1" stop-color="#8a6428"/></linearGradient>
-  <linearGradient id="goldH" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="100" y2="0"><stop offset="0" stop-color="#c9a052" stop-opacity="0"/><stop offset="1" stop-color="#a87d34"/></linearGradient>
+  <linearGradient id="goldH" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="100" y2="0"><stop offset="0" stop-color="#e2c27e" stop-opacity="0"/><stop offset="1" stop-color="#f1d79c"/></linearGradient>
   <radialGradient id="ball" cx=".34" cy=".28" r=".9"><stop offset="0" stop-color="#fff6d8"/><stop offset=".25" stop-color="#f0d38f"/><stop offset=".6" stop-color="#cfa252"/><stop offset=".85" stop-color="#9c7230"/><stop offset="1" stop-color="#6e4e1c"/></radialGradient>
   <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset=".4" stop-color="#fff3cf" stop-opacity="0"/><stop offset="1" stop-color="#fff3cf" stop-opacity=".9"/></linearGradient>
   <radialGradient id="shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
@@ -30,7 +30,7 @@ const defs = `
 </defs>`;
 
 const art = `
-  <ellipse cx="270" cy="418" rx="200" ry="15" fill="#6e4e1c" opacity=".18"/>
+  <ellipse cx="270" cy="418" rx="200" ry="15" fill="#0b1622" opacity=".4"/>
   <path d="M86 416 H456" stroke="url(#gold)" stroke-width="2" opacity=".55"/>
   <use xlink:href="#pin" transform="translate(436 410) rotate(8)"/>
   <use xlink:href="#pin" transform="translate(320 412) rotate(36)"/>

@@ -1,5 +1,5 @@
 // Offline support: network first, falling back to the cache (so updates show up right away when online).
-const CACHE = 'best-bowling-v4';
+const CACHE = 'best-bowling-v5';
 const ASSETS = [
   './', './index.html', './css/style.css', './js/app.js', './manifest.webmanifest',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'

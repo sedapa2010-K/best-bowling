@@ -17,6 +17,7 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
+      allPlayers: '전체', teamShort: '{0}팀', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
@@ -56,6 +57,7 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
+      allPlayers: 'All', teamShort: '{0}', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
@@ -137,6 +139,7 @@
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
     statView: 'game',  // 'game' | 'final'
+    entryTeam: 'all',  // score-entry filter in team matches: 'all' or a team index
     busy: false,
     draft: null,       // unsaved empty session for the selected date
     cdraft: null,      // unsaved cost sheet for the selected date
@@ -298,11 +301,19 @@
     return s.games.slice(0, Math.max(1, n));
   }
   const rollsOf = (g, pid) => (g.entries[pid] && g.entries[pid].rolls) || [];
+  // "First game is practice": game 1 of that day is shown but left out of totals and averages.
+  const isPractice = (s, gi) => !!s.firstPractice && gi === 0;
+  // Players on the score-entry screen: everyone (grouped by team), or just the team picked in the filter.
+  function entryPlayers(s) {
+    if (!s.teamMode) return s.players;
+    if (ui.entryTeam === 'all' || ui.entryTeam >= s.teamCount) return s.players.slice().sort((a, b) => a.team - b.team);
+    return s.players.filter((p) => p.team === ui.entryTeam);
+  }
 
   function playerStats(s) {
     return s.players.map((p) => {
       const scores = usedGames(s).map((g) => entryScore(g, p.id));
-      const played = scores.filter((v) => v !== null);
+      const played = scores.filter((v, gi) => v !== null && !isPractice(s, gi));
       const scratch = played.reduce((a, b) => a + b, 0);
       const hd = (toInt(p.hdcp)) * played.length;
       return { p, scores, played: played.length, scratch, hdcp: hd, total: scratch + hd, avg: played.length ? Math.round(scratch / played.length) : 0 };
@@ -317,7 +328,7 @@
         ps.forEach((p) => { const v = entryScore(g, p.id); if (v !== null) sum = (sum || 0) + v + toInt(p.hdcp); });
         return sum;
       });
-      out.push({ ti, ps, games, total: games.reduce((a, b) => a + (b || 0), 0) });
+      out.push({ ti, ps, games, total: games.reduce((a, b, gi) => a + (isPractice(s, gi) ? 0 : b || 0), 0) });
     }
     const max = Math.max(...out.map((x) => x.total));
     const winners = out.filter((x) => x.total === max && max > 0).length;
@@ -329,7 +340,7 @@
     let n = 0, sum = 0, hi = 0;
     Object.values(db.sessions).forEach((s) => {
       if (!s.players.some((p) => p.id === id)) return;
-      s.games.forEach((g) => { const v = entryScore(g, id); if (v !== null) { n++; sum += v; hi = Math.max(hi, v); } });
+      s.games.forEach((g, gi) => { const v = entryScore(g, id); if (v !== null && !isPractice(s, gi)) { n++; sum += v; hi = Math.max(hi, v); } });
     });
     return { n, avg: n ? Math.round(sum / n) : 0, hi };
   }
@@ -441,8 +452,8 @@
             `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${p.id}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
           h += `<div class="tsec tc${ti}">
             <div class="tsec-h"><span class="team-badge t${ti}">${TEAMS[ti]}</span><b>${t('teamName', TEAMS[ti])}</b><span class="muted">${t('nPeople', ps.length)}</span></div>
-            ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow">
-              <span class="pname">${esc(pname(p))}</span>${moves(p)}${hdInput(p)}</div>`).join('')}</div>`
+            ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow ${s.teamCount > 2 ? 'trow' : ''}">
+              <span class="pname">${esc(pname(p))}</span>${hdInput(p)}${moves(p)}</div>`).join('')}</div>`
               : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
           </div>`;
         }
@@ -458,7 +469,7 @@
     return hd ? `${sc + hd}<small>${sc} +${hd}</small>` : `${sc}`;
   }
   function finalEntries(s, g) {
-    return `<div class="elist">${s.players.map((p) => {
+    return `<div class="elist">${entryPlayers(s).map((p) => {
       const e = g.entries[p.id];
       const v = e && e.score !== null && e.score !== undefined ? e.score : '';
       return `<div class="erow">${avatar(s, p)}<span class="pname">${esc(pname(p))}</span>
@@ -467,7 +478,7 @@
     }).join('')}</div>`;
   }
   function frameEntries(s, g) {
-    return `<p class="tap-hint">${t('tapToInput')}</p><div class="elist">${s.players.map((p) => {
+    return `<p class="tap-hint">${t('tapToInput')}</p><div class="elist">${entryPlayers(s).map((p) => {
       const rolls = rollsOf(g, p.id), st = frameState(rolls), cum = cumScores(rolls);
       const active = ui.kp && ui.kp.pid === p.id;
       const cells = splitFrames(rolls).map((f, i) => {
@@ -485,26 +496,32 @@
   }
   function gameCard(s) {
     const g = curGame(s);
-    const tabs = s.games.map((x, i) => `<button class="gtab ${i === s.active ? 'on' : ''}" data-act="game" data-i="${i}">${t('gameN', i + 1)}</button>`).join('');
+    const tabs = s.games.map((x, i) => `<button class="gtab ${i === s.active ? 'on' : ''}" data-act="game" data-i="${i}">${t('gameN', i + 1)}${isPractice(s, i) ? `<small class="prac-tag">${t('practice')}</small>` : ''}</button>`).join('');
+    const filter = s.teamMode ? `<div class="seg entry-filter">
+        <button class="${ui.entryTeam === 'all' ? 'on' : ''}" data-act="entryTeam" data-v="all">${t('allPlayers')}</button>
+        ${TEAMS.slice(0, s.teamCount).map((L, j) => `<button class="${ui.entryTeam === j ? 'on' : ''}" data-act="entryTeam" data-v="${j}"><span class="tdot t${j}"></span>${t('teamShort', L)}</button>`).join('')}
+      </div>` : '';
     return `<div class="card">
       <div class="mode-switch">
         <button class="mode ${g.mode === 'final' ? 'on' : ''}" data-act="mode" data-v="final">${ic('edit')}<span>${t('finalMode')}</span></button>
         <button class="mode ${g.mode === 'frame' ? 'on' : ''}" data-act="mode" data-v="frame">${ic('frames')}<span>${t('frameMode')}</span></button>
       </div>
       <div class="gtabs">${tabs}<button class="gtab add" data-act="addGame" aria-label="add game">+</button></div>
+      ${filter}
       ${g.mode === 'frame' ? frameEntries(s, g) : finalEntries(s, g)}
       ${s.games.length > 1 ? `<button class="link danger" data-act="delGame">${t('deleteGame', s.active + 1)}</button>` : ''}
     </div>`;
   }
   function summaryInner(s) {
     const st = playerStats(s);
-    const gh = usedGames(s).map((_, i) => `<th>G${i + 1}</th>`).join('');
-    let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}</h3></div>
+    const gh = usedGames(s).map((_, i) => (isPractice(s, i) ? `<th class="prac">${t('practice')}</th>` : `<th>G${i + 1}</th>`)).join('');
+    let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}</h3>
+        <button class="mini-toggle ${s.firstPractice ? 'on' : ''}" data-act="practice" aria-pressed="${!!s.firstPractice}">${ic('check')}${t('firstPractice')}</button></div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
         <td><span class="rk ${x.played && i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
         <td class="nm">${s.teamMode ? `<span style="color:var(--gold)">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
-        ${x.scores.map((v) => `<td class="${v === null ? 'dim' : ''}">${v === null ? '-' : v}</td>`).join('')}
+        ${x.scores.map((v, gi) => `<td class="${v === null || isPractice(s, gi) ? 'dim' : ''} ${isPractice(s, gi) ? 'prac' : ''}">${v === null ? '-' : v}</td>`).join('')}
         <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.total}</td><td>${x.avg}</td></tr>`).join('')}
       </tbody></table></div>`;
     if (s.teamMode) {
@@ -512,7 +529,7 @@
           <span class="team-badge t${x.ti}">${TEAMS[x.ti]}</span>
           <div class="tm"><b>${t('teamName', TEAMS[x.ti])}${x.win ? ic('crown') : ''}</b>
             <small>${x.ps.map((p) => esc(pname(p))).join(', ') || '—'}</small>
-            <small>${x.games.map((v, i) => `G${i + 1} ${v ?? '-'}`).join(' · ')}</small></div>
+            <small>${x.games.map((v, i) => `${isPractice(s, i) ? t('practice') : `G${i + 1}`} ${v ?? '-'}`).join(' · ')}</small></div>
           <div class="tt">${x.total}<small>${x.win ? t('win') : x.draw ? t('draw') : ''}</small></div></div>`).join('')}</div>`;
     }
     return h;
@@ -579,7 +596,7 @@
     }
   }
   function moveToNextPlayer(s, g) {
-    const ids = s.players.map((p) => p.id);
+    const ids = entryPlayers(s).map((p) => p.id);
     const i = ids.indexOf(ui.kp.pid);
     for (let k = 1; k <= ids.length; k++) {
       const id = ids[(i + k) % ids.length];
@@ -725,7 +742,7 @@
       if (!p) return;
       usedGames(s).forEach((g, gi) => {
         const v = entryScore(g, id);
-        if (v !== null) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp) });
+        if (v !== null && !isPractice(s, gi)) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp) });
       });
     });
     return out;
@@ -768,7 +785,7 @@
     }
     let h = `<div class="page-h"><div><div class="eyebrow">Statistics</div><h2 class="display">${t('statsTitle')}</h2></div></div>`;
     if (!ui.statId) return h + `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`;
-    h += `<div class="recent stat-pick">${withGames.map(({ m, games }) =>
+    h += `<div class="chips stat-pick">${withGames.map(({ m, games }) =>
       `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${m.id}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
 
     const m = memberById(ui.statId), games = memberGames(m.id), scores = games.map((g) => g.score);
@@ -1012,10 +1029,12 @@
     x.textAlign = 'left';
     return c;
   }
+  // Image columns per game; a practice game is labelled and greyed out.
+  const gameCols = (s) => usedGames(s).map((_, i) => (isPractice(s, i) ? { t: t('practice'), w: 1.4, al: 'c', dim: true } : { t: `G${i + 1}`, w: 1, al: 'c' }));
   function recordBlocks(s) {
     const st = playerStats(s);
     const cols = [{ t: '#', w: 0.8, al: 'c', rank: true }, { t: t('name'), w: 2.6, al: 'l', bold: true }]
-      .concat(usedGames(s).map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' })))
+      .concat(gameCols(s))
       .concat([{ t: t('hdcp'), w: 1, al: 'c', dim: true }, { t: t('total'), w: 1.3, al: 'c', gold: true }, { t: t('avg'), w: 1.1, al: 'c' }]);
     const blocks = [{
       type: 'table', title: t('results'), cols,
@@ -1028,7 +1047,7 @@
       const ts = teamStats(s).sort((a, b) => b.total - a.total);
       blocks.push({
         type: 'table', title: t('teamResults'),
-        cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(usedGames(s).map((_, i) => ({ t: `G${i + 1}`, w: 1, al: 'c' }))).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
+        cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(gameCols(s)).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
         rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${t('teamName', TEAMS[x.ti])} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
       });
     }
@@ -1124,6 +1143,8 @@
       if (el.dataset.goto) { ui.tab = el.dataset.goto; window.scrollTo(0, 0); }
       pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
     },
+    entryTeam(el) { ui.entryTeam = el.dataset.v === 'all' ? 'all' : toInt(el.dataset.v); ui.kp = null; render(); },
+    practice() { const s = sess(); s.firstPractice = !s.firstPractice; commit(s); render(); },
     statPick(el) { ui.statId = el.dataset.id; render(); },
     statView(el) { ui.statView = el.dataset.v; render(); },
     togglePlayer(el) {
