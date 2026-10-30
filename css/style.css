@@ -598,7 +598,7 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .period-note .ic { width: 14px; height: 14px; color: var(--gold); }
 
 /* ── Stats: scrollable all-games table (≈10 rows), line chart ── */
-.tbl-scroll { max-height: 452px; overflow-y: auto; overscroll-behavior: contain; border-radius: 10px; }
+.tbl-scroll { max-height: 452px; overflow-y: auto; border-radius: 10px; }
 .tbl-scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--surface); }
 .chart.line .chart-plot { overflow: visible; }
 .chart-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -643,3 +643,30 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .erow .etot { font-size: 16px; }
 .erow .etot small { font-size: 10px; }
 .elist { gap: 6px; }
+
+/* ── Slimmer player / handicap rows and score rows ── */
+.plist { gap: 6px; }
+.prow { padding: 4px 8px 4px 10px; gap: 8px; border-radius: 12px; min-height: 40px; }
+.prow .avatar, .prow .team-badge { width: 26px; height: 26px; font-size: 11.5px; border-radius: 8px; }
+.prow .pname { font-size: 14.5px; }
+.prow .field.sm { height: 30px; width: 54px; font-size: 15px; border-radius: 9px; }
+.tsec .prow { padding-left: 10px; }
+.prow.trow { row-gap: 4px; padding-bottom: 6px; }
+.prow.trow .tmove button { height: 26px; }
+.erow { padding: 3px 8px 3px 8px; border-radius: 12px; }
+.erow .team-badge { width: 26px; height: 26px; font-size: 11.5px; border-radius: 8px; }
+.erow .score-in { height: 32px; width: 72px; font-size: 17px; border-radius: 9px; }
+.erow .etot { font-size: 15px; }
+.elist { gap: 5px; }
+
+/* ── Visible horizontal scroll bar for wide tables ── */
+.tbl-wrap::-webkit-scrollbar { height: 0; }
+.tbl-wrap { scrollbar-width: none; }
+.hbar { position: relative; height: 4px; margin: 8px 2px 0; border-radius: 2px; background: var(--line); }
+.hbar i { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--gold); opacity: .75; }
+
+/* ── Results table: rank and name stay put while scrolling sideways ── */
+.tbl.pin2 th:nth-child(1), .tbl.pin2 td:nth-child(1) { position: sticky; left: 0; z-index: 1; width: 32px; min-width: 32px; background: var(--surface); }
+.tbl.pin2 th:nth-child(2), .tbl.pin2 td:nth-child(2) { position: sticky; left: 32px; z-index: 1; background: var(--surface); }
+.tbl-wrap.scrollable .tbl.pin2 td:nth-child(2), .tbl-wrap.scrollable .tbl.pin2 th:nth-child(2) { box-shadow: 6px 0 8px -6px rgba(0, 0, 0, .45); }
+.tbl-wrap:has(.tbl.pin2) { margin: 0; padding: 0; }

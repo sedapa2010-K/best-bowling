@@ -418,6 +418,7 @@
       : ui.tab === 'stats' ? renderStats()
       : renderSettings();
     keepGameTabInView(tabsScroll);
+    updateScrollBars();
     applyLock();
     renderKeypad();
   }
@@ -588,7 +589,7 @@
     const gh = usedGames(s).map((_, i) => (isPractice(s, i) ? `<th class="prac">${t('practice')}</th>` : `<th>G${i + 1}</th>`)).join('');
     let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}</h3>
         <button class="mini-toggle ${s.firstPractice ? 'on' : ''}" data-act="practice" aria-pressed="${!!s.firstPractice}">${ic('check')}${t('firstPractice')}</button></div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
+      <div class="tbl-wrap"><table class="tbl pin2"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
         <td><span class="rk ${x.played && i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
         <td class="nm">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
@@ -629,11 +630,35 @@
     }
     return h + '</section>';
   }
+  // Phones hide scrollbars, so tables wider than the screen get their own always-visible bar underneath.
+  function updateScrollBars() {
+    $$('.tbl-wrap').forEach((w) => {
+      let bar = w.nextElementSibling;
+      if (!bar || !bar.classList.contains('hbar')) {
+        bar = document.createElement('div');
+        bar.className = 'hbar';
+        bar.innerHTML = '<i></i>';
+        w.after(bar);
+      }
+      syncScrollBar(w);
+    });
+  }
+  function syncScrollBar(w) {
+    const bar = w.nextElementSibling;
+    if (!bar || !bar.classList.contains('hbar')) return;
+    const over = w.scrollWidth - w.clientWidth > 2;
+    bar.hidden = !over;
+    w.classList.toggle('scrollable', over);
+    if (!over) return;
+    const thumb = bar.firstElementChild, ratio = w.clientWidth / w.scrollWidth;
+    thumb.style.width = `${ratio * 100}%`;
+    thumb.style.left = `${(w.scrollLeft / w.scrollWidth) * 100}%`;
+  }
   function refreshRecordNumbers() {
     const s = sess(), g = curGame(s);
     s.players.forEach((p) => { const el = $(`#et-${p.id}`); if (el) el.innerHTML = totHTML(entryScore(g, p.id), toInt(p.hdcp)); });
     const sum = $('#summary');
-    if (sum) sum.innerHTML = summaryInner(s);
+    if (sum) { sum.innerHTML = summaryInner(s); updateScrollBars(); }
   }
 
   /* ───────── Frame keypad ───────── */
@@ -973,7 +998,7 @@
             <span class="order-v ${avgOf(arr) === bestAvg ? 'best' : ''}">${avgOf(arr)}</span>
             <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}</small></div>` : '')).join('')}</div></div>
         <div class="card"><div class="card-h"><h3>${ic('pin')}${t('allGames')}</h3><span class="muted">${games.length}</span></div>
-          <div class="tbl-wrap tbl-scroll"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
+          <div class="tbl-wrap ${games.length > 10 ? 'tbl-scroll' : ''}"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
           ${games.slice().reverse().map((g) => `<tr><td class="nm">${sd(g.date)} <small class="muted">${dateShort(g.date).wd}</small></td><td>G${g.gi + 1}</td>
             <td class="${g.score >= 200 ? 'tot' : ''}">${g.score}</td><td class="dim">${g.hdcp ? '+' + g.hdcp : 0}</td><td><b>${g.score + g.hdcp}</b></td></tr>`).join('')}
           </tbody></table></div></div>`;
@@ -1461,6 +1486,8 @@
     $('.chart-tip', chart).textContent = bar.dataset.tip;
   };
   document.addEventListener('pointerover', showTip);
+  document.addEventListener('scroll', (e) => { if (e.target.classList && e.target.classList.contains('tbl-wrap')) syncScrollBar(e.target); }, true);
+  window.addEventListener('resize', updateScrollBars);
   document.addEventListener('click', showTip);
   document.addEventListener('input', (e) => {
     const el = e.target.closest('[data-inp]');
