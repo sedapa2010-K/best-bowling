@@ -344,12 +344,24 @@
     document.documentElement.lang = lang();
     renderTabbar();
     const v = $('#view');
+    const prevTabs = $('.gtabs');
+    const tabsScroll = prevTabs ? prevTabs.scrollLeft : 0;
     v.innerHTML = ui.tab === 'record' ? renderRecord()
       : ui.tab === 'members' ? renderMembers()
       : ui.tab === 'cost' ? renderCost()
       : ui.tab === 'stats' ? renderStats()
       : renderSettings();
+    keepGameTabInView(tabsScroll);
     renderKeypad();
+  }
+  // Re-rendering resets the game-tab strip's horizontal scroll; restore it and keep the selected game visible.
+  function keepGameTabInView(scrollLeft) {
+    const strip = $('.gtabs'), on = strip && $('.gtab.on', strip);
+    if (!on) return;
+    strip.scrollLeft = scrollLeft;
+    const l = on.offsetLeft - strip.offsetLeft, r = l + on.offsetWidth;
+    if (l < strip.scrollLeft) strip.scrollLeft = l - 8;
+    else if (r > strip.scrollLeft + strip.clientWidth) strip.scrollLeft = r - strip.clientWidth + 48;
   }
 
   /* ───────── Render: record tab ───────── */
@@ -601,13 +613,13 @@
   function renderMembers() {
     const list = db.members.map((m) => {
       if (ui.editId === m.id) {
-        return `<div class="mcard"><div class="mavatar">${esc(initial(m.name))}</div>
+        return `<div class="mcard">
           <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" inputmode="numeric" value="${toInt(m.handicap)}"></div>
           <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${m.id}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
           <button class="icon-btn" data-act="cancelEdit" aria-label="${t('cancel')}">${ic('x')}</button></div></div>`;
       }
       const st = memberStats(m.id);
-      return `<div class="mcard"><div class="mavatar">${esc(initial(m.name))}</div>
+      return `<div class="mcard">
         <div class="minfo"><b><span>${esc(m.name)}</span><em class="tag">${t('hdcp')} ${toInt(m.handicap)}</em></b>
           <div class="mstats">${st.n ? t('statLine', st.n, st.avg, st.hi) : t('noGames')}</div></div>
         <div class="mbtns"><button class="icon-btn" data-act="editMember" data-id="${m.id}" aria-label="edit">${ic('edit')}</button>
@@ -917,7 +929,9 @@
     else { x.textAlign = 'center'; x.fillText(s, X + w / 2, cy); }
     x.textAlign = 'left'; x.textBaseline = 'alphabetic';
   }
-  const W = 1080, PADX = 64, RH = 66, HH = 58;
+  const PADX = 64, RH = 66, HH = 58;
+  const COL_UNIT = 92; // minimum px per column weight, so 3-digit scores never get cut off
+  let W = 1080;        // widened per image when a table has many columns
   function drawTable(x, b, y) {
     const tw = W - 2 * PADX;
     if (b.title) { x.fillStyle = '#e9cf95'; x.font = `700 32px ${IMG_SANS}`; x.fillText(b.title, PADX + 4, y + 38); y += 66; }
@@ -968,6 +982,8 @@
   }
   async function buildImage(subtitle, blocks) {
     try { await document.fonts.ready; } catch (e) { /* ignore */ }
+    W = Math.max(1080, ...blocks.filter((b) => b.type === 'table')
+      .map((b) => Math.ceil(2 * PADX + b.cols.reduce((a, c) => a + c.w, 0) * COL_UNIT)));
     const bh = (b) => (b.type === 'table' ? (b.title ? 66 : 0) + HH + b.rows.length * RH + 36 : 168);
     const H = Math.round(250 + blocks.reduce((a, b) => a + bh(b), 0) + 70);
     const c = document.createElement('canvas');

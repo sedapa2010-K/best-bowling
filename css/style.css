@@ -373,7 +373,7 @@ body.kp-open .tabbar { display: none; }
 .field-l { display: block; font-size: 11.5px; font-weight: 700; color: var(--muted); margin: 0 0 6px 2px; }
 .mlist { display: flex; flex-direction: column; gap: 10px; }
 .mcard {
-  display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px;
+  display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 18px; border-radius: 18px;
   background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
 }
 .mavatar {
