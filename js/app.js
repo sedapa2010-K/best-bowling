@@ -491,11 +491,13 @@
   }
   function playersCard(s) {
     const sel = new Set(s.players.map((p) => p.id));
-    const chips = db.members.map((m) =>
+    const chips = isLocked(s)
+      ? s.players.map((p) => `<span class="chip on">${ic('check')}${esc(pname(p))}</span>`).join('')
+      : db.members.map((m) =>
       `<button class="chip ${sel.has(m.id) ? 'on' : ''}" data-act="togglePlayer" data-id="${esc(m.id)}">${sel.has(m.id) ? ic('check') : ''}${esc(m.name)}</button>`).join('');
     let h = `<div class="card">
       <div class="card-h"><h3>${ic('users')}${t('participants')}</h3><span class="muted">${t('nPeople', s.players.length)}</span></div>
-      ${db.members.length ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
+      ${chips ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
       <div class="quick">
         <input id="qName" class="field" placeholder="${t('newMemberPh')}" maxlength="20" enterkeyhint="done">
         <input id="qH" class="field num" type="number" inputmode="numeric" placeholder="${t('hdcp')}">
@@ -591,7 +593,7 @@
         <button class="mini-toggle ${s.firstPractice ? 'on' : ''}" data-act="practice" aria-pressed="${!!s.firstPractice}">${ic('check')}${t('firstPractice')}</button></div>
       <div class="tbl-wrap"><table class="tbl pin2"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
-        <td><span class="rk ${x.played && i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
+        <td class="rkn ${x.played && i === 0 ? 'top' : ''}">${i + 1}</td>
         <td class="nm">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
         ${x.scores.map((v, gi) => `<td class="${v === null || isPractice(s, gi) ? 'dim' : ''} ${isPractice(s, gi) ? 'prac' : ''}">${v === null ? '-' : v}</td>`).join('')}
         <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.total}</td><td>${x.avg}</td></tr>`).join('')}
@@ -919,10 +921,12 @@
     for (let v = lo; v <= hi; v += 50) grid.push(v);
     const every = Math.ceil(n / 6);
     const maxIdx = vals.lastIndexOf(max);
+    const avg = Math.round(vals.reduce((a, b) => a + b, 0) / n);
     return `<div class="chart line" role="img" aria-label="${esc(title)}">
-      <div class="chart-tip">${esc(points[n - 1].tip)}</div>
+      <div class="chart-top"><div class="chart-tip">${esc(points[n - 1].tip)}</div><span class="chart-avg-key"><i></i>${t('avg')} ${avg}</span></div>
       <div class="chart-plot">
         ${grid.map((v) => `<div class="chart-grid" style="bottom:${y(v)}%"><span>${v}</span></div>`).join('')}
+        <div class="chart-avg" style="bottom:${y(avg)}%"></div>
         <svg class="chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <polyline points="${points.map((p, i) => `${x(i)},${100 - y(p.value)}`).join(' ')}" vector-effect="non-scaling-stroke"/>
         </svg>
