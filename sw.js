@@ -1,12 +1,17 @@
 // Offline support: network first, falling back to the cache (so updates show up right away when online).
-const CACHE = 'best-bowling-v8';
+// App files are always revalidated with the server so the browser's HTTP cache can't serve an old version.
+const CACHE = 'best-bowling-v9';
 const ASSETS = [
   './', './index.html', './css/style.css', './js/docs.js', './js/app.js', './manifest.webmanifest', './privacy.html',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -19,8 +24,10 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  const sameOrigin = new URL(e.request.url).origin === self.location.origin;
+  const req = sameOrigin ? new Request(e.request.url, { cache: 'no-cache', credentials: 'same-origin' }) : e.request;
   e.respondWith(
-    fetch(e.request)
+    fetch(req)
       .then((res) => {
         if (res && (res.ok || res.type === 'opaque')) {
           const copy = res.clone();

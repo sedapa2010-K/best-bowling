@@ -785,6 +785,13 @@
     if (ui.statPeriod === 'year') return `${d.getFullYear()}-01-01`;
     return '';
   }
+  // "2026.10.01 ~ 2026.10.30" for the selected period (all time starts at the first record).
+  function periodRange() {
+    const dot = (k) => k.replace(/-/g, '.');
+    const first = Object.values(db.sessions).filter(hasRecord).map((x) => x.date).sort()[0];
+    const from = periodFrom() || first;
+    return from ? `${dot(from)} ~ ${dot(ymd(new Date()))}` : t('noStats');
+  }
   function memberGames(id) {
     const out = [], from = periodFrom();
     Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
@@ -835,7 +842,8 @@
     }
     let h = `<div class="page-h"><div><div class="eyebrow">Statistics</div><h2 class="display">${t('statsTitle')}</h2></div></div>
       <div class="seg period">${[['all', 'periodAll'], ['month', 'periodMonth'], ['3m', 'period3m'], ['year', 'periodYear']].map(([v, k]) =>
-        `<button class="${ui.statPeriod === v ? 'on' : ''}" data-act="statPeriod" data-v="${v}">${t(k)}</button>`).join('')}</div>`;
+        `<button class="${ui.statPeriod === v ? 'on' : ''}" data-act="statPeriod" data-v="${v}">${t(k)}</button>`).join('')}</div>
+      <p class="period-note">${ic('calendar')}${periodRange()}</p>`;
     if (!ui.statId) return h + `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`;
     h += `<div class="chips stat-pick">${withGames.map(({ m, games }) =>
       `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${m.id}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
@@ -1399,6 +1407,15 @@
   render();
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    // When an updated service worker takes over, reload once so the new app files are used right away.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then((reg) => reg.update()).catch(() => {}));
   }
 })();
