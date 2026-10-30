@@ -16,7 +16,7 @@ const defs = `
   <radialGradient id="spot" cx="0.5" cy="0.36" r="0.62"><stop offset="0" stop-color="#cfe2f2" stop-opacity=".35"/><stop offset=".6" stop-color="#cfe2f2" stop-opacity=".08"/><stop offset="1" stop-color="#cfe2f2" stop-opacity="0"/></radialGradient>
   <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbedc4"/><stop offset=".35" stop-color="#e2c27e"/><stop offset=".7" stop-color="#b88f45"/><stop offset="1" stop-color="#8a6428"/></linearGradient>
   <linearGradient id="goldH" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="100" y2="0"><stop offset="0" stop-color="#e2c27e" stop-opacity="0"/><stop offset="1" stop-color="#f1d79c"/></linearGradient>
-  <radialGradient id="ball" cx=".34" cy=".28" r=".9"><stop offset="0" stop-color="#fff6d8"/><stop offset=".25" stop-color="#f0d38f"/><stop offset=".6" stop-color="#cfa252"/><stop offset=".85" stop-color="#9c7230"/><stop offset="1" stop-color="#6e4e1c"/></radialGradient>
+  <radialGradient id="ball" cx=".34" cy=".28" r=".9"><stop offset="0" stop-color="#fff1c4"/><stop offset=".22" stop-color="#f2c45e"/><stop offset=".58" stop-color="#c98a24"/><stop offset=".85" stop-color="#8a5612"/><stop offset="1" stop-color="#4f2f07"/></radialGradient>
   <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset=".4" stop-color="#fff3cf" stop-opacity="0"/><stop offset="1" stop-color="#fff3cf" stop-opacity=".9"/></linearGradient>
   <radialGradient id="shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
   <linearGradient id="ivory" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f7f4ee"/><stop offset="1" stop-color="#d3cbbb"/></linearGradient>
@@ -45,18 +45,45 @@ const art = `
   <g stroke="url(#gold)" stroke-width="5" stroke-linecap="round">
     <path d="M286 262l-4-16"/><path d="M300 270l12-12"/><path d="M306 288l16-4"/>
   </g>
-  <circle cx="190" cy="322" r="96" fill="url(#ball)" stroke="#8a6428" stroke-width="2.5"/>
+  <circle cx="190" cy="322" r="96" fill="url(#ball)" stroke="#5c3a0e" stroke-width="3"/>
   <circle cx="190" cy="322" r="94.5" fill="none" stroke="url(#rim)" stroke-width="3.5"/>
   <ellipse cx="152" cy="268" rx="36" ry="20" fill="url(#shine)" transform="rotate(-36 152 268)"/>
   <g fill="#5a3f14" stroke="#fff3cf" stroke-opacity=".6" stroke-width="2">
     <circle cx="180" cy="258" r="8.5"/><circle cx="204" cy="252" r="8.5"/><circle cx="190" cy="280" r="9.5"/>
   </g>`;
 
+
+// Wooden lane floor in perspective (boards, arrows, gutters) behind the ball and pins.
+const floor = (clip) => `
+  <defs>
+    <clipPath id="round"><rect width="512" height="512" rx="112"/></clipPath>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98a52"/><stop offset=".45" stop-color="#dcb57c"/><stop offset="1" stop-color="#f3d7a3"/></linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34536f" stop-opacity="1"/><stop offset="1" stop-color="#34536f" stop-opacity="0"/></linearGradient>
+  </defs>
+  <g ${clip ? 'clip-path="url(#round)"' : ''}>
+    <rect x="0" y="252" width="512" height="260" fill="#1d3044"/>
+    <polygon points="148,252 364,252 600,512 -88,512" fill="url(#wood)"/>
+    <g stroke="#7a5626" stroke-opacity=".28" stroke-width="1.4">
+      ${Array.from({ length: 15 }, (_, i) => { const k = (i + 1) / 16; return `<line x1="${148 + 216 * k}" y1="252" x2="${-88 + 688 * k}" y2="512"/>`; }).join('')}
+    </g>
+    <g stroke="#7a5626" stroke-opacity=".18" stroke-width="1">
+      <line x1="${(148 - 88) / 2}" y1="382" x2="${(364 + 600) / 2}" y2="382"/>
+    </g>
+    <g fill="#5a3f14" fill-opacity=".55">
+      ${[-2, -1, 0, 1, 2].map((j) => { const cx = 256 + j * 58, cy = 478 - Math.abs(j) * 10; return `<polygon points="${cx},${cy - 14} ${cx - 7},${cy + 6} ${cx + 7},${cy + 6}"/>`; }).join('')}
+    </g>
+    <polygon points="148,252 364,252 600,512 -88,512" fill="url(#gloss)"/>
+    <polygon points="148,252 156,252 -60,512 -88,512" fill="#0f1d2b" opacity=".55"/>
+    <polygon points="356,252 364,252 600,512 572,512" fill="#0f1d2b" opacity=".55"/>
+    <rect x="0" y="246" width="512" height="44" fill="url(#fade)"/>
+  </g>`;
 const svg = (body) => `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">${defs}${body}</svg>`;
 
 const icon = svg(`
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <rect width="512" height="512" rx="112" fill="url(#spot)"/>
+  ${floor(true)}
   ${art}
   <rect x="10" y="10" width="492" height="492" rx="104" fill="none" stroke="url(#gold)" stroke-width="5"/>
   <rect x="22" y="22" width="468" height="468" rx="94" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".55"/>`);
@@ -65,6 +92,7 @@ const icon = svg(`
 const square = (scale) => svg(`
   <rect width="512" height="512" fill="url(#bg)"/>
   <rect width="512" height="512" fill="url(#spot)"/>
+  ${floor(false)}
   <g transform="translate(${256 - 256 * scale} ${256 - 256 * scale}) scale(${scale})">${art}</g>`);
 
 writeFileSync(join(out, 'icon.svg'), icon);
