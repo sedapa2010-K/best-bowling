@@ -17,7 +17,8 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
-      allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
+      allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
+      noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
@@ -57,7 +58,8 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
-      allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
+      allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
+      noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
@@ -139,6 +141,7 @@
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
     statView: 'game',  // 'game' | 'final'
+    statPeriod: 'all', // 'all' | 'month' | '3m' | 'year'
     editTeam: null,    // team index whose name is being edited
     costView: 'person', // cost tab in team matches: 'person' | 'team'
     entryTeam: 'all',  // score-entry filter in team matches: 'all' or a team index
@@ -176,6 +179,10 @@
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     next: '<path d="M5 12h14M13 6l6 6-6 6"/>',
     chart: '<path d="M3 20h18"/><path d="M6 16v-5M11 16V6M16 16v-8M21 16v-3" stroke-width="2.4"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    fileText: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+    code: '<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>',
     calendar: '<rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
     down: '<path d="M6 9l6 6 6-6"/>',
     up: '<path d="M18 15l-6-6-6 6"/>',
@@ -770,11 +777,19 @@
 
   /* ───────── Render: stats tab ───────── */
   // Every scored game a member played, oldest first.
+  // Start date (inclusive) of the selected stats period; '' means all time.
+  function periodFrom() {
+    const d = new Date();
+    if (ui.statPeriod === 'month') return ymd(new Date(d.getFullYear(), d.getMonth(), 1));
+    if (ui.statPeriod === '3m') return ymd(new Date(d.getFullYear(), d.getMonth() - 3, d.getDate() + 1));
+    if (ui.statPeriod === 'year') return `${d.getFullYear()}-01-01`;
+    return '';
+  }
   function memberGames(id) {
-    const out = [];
+    const out = [], from = periodFrom();
     Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
       const p = s.players.find((x) => x.id === id);
-      if (!p) return;
+      if (!p || s.date < from) return;
       usedGames(s).forEach((g, gi) => {
         const v = entryScore(g, id);
         if (v !== null && !isPractice(s, gi)) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp) });
@@ -818,18 +833,20 @@
       const best = withGames.slice().sort((a, b) => b.games.length - a.games.length)[0];
       ui.statId = best ? best.m.id : null;
     }
-    let h = `<div class="page-h"><div><div class="eyebrow">Statistics</div><h2 class="display">${t('statsTitle')}</h2></div></div>`;
+    let h = `<div class="page-h"><div><div class="eyebrow">Statistics</div><h2 class="display">${t('statsTitle')}</h2></div></div>
+      <div class="seg period">${[['all', 'periodAll'], ['month', 'periodMonth'], ['3m', 'period3m'], ['year', 'periodYear']].map(([v, k]) =>
+        `<button class="${ui.statPeriod === v ? 'on' : ''}" data-act="statPeriod" data-v="${v}">${t(k)}</button>`).join('')}</div>`;
     if (!ui.statId) return h + `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`;
     h += `<div class="chips stat-pick">${withGames.map(({ m, games }) =>
       `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${m.id}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
 
     const m = memberById(ui.statId), games = memberGames(m.id), scores = games.map((g) => g.score);
-    if (!games.length) return h + `<div class="empty">${t('noStats')}</div>` + leaderboard(withGames);
+    if (!games.length) return h + `<div class="empty">${ui.statPeriod === 'all' ? t('noStats') : t('noStatsPeriod')}</div>` + leaderboard(withGames);
     const sessions = bySession(games);
     const sd = (k) => dateShort(k).main;
     h += `<div class="card hero">
-        <div class="row between"><div class="eyebrow">${esc(m.name)} · ${t('avg')}</div><span class="tag">${t('hdcp')} ${toInt(m.handicap)}</span></div>
-        <div class="hero-total">${avgOf(scores)}</div>
+        <div class="row between"><div class="hero-name">${esc(m.name)}</div><span class="tag">${t('hdcp')} ${toInt(m.handicap)}</span></div>
+        <div class="hero-avg"><span>${t('avg')}</span><div class="hero-total">${avgOf(scores)}</div></div>
         <div class="hero-grid four">
           <div><small>${t('games')}</small><b>${games.length}</b></div>
           <div><small>${t('high')}</small><b>${Math.max(...scores)}</b></div>
@@ -915,7 +932,28 @@
           <button class="btn outline-red" data-act="reset">${ic('trash')}${t('resetData')}</button>
         </div>
       </div>
-      <div class="about"><img src="icons/icon.svg" alt=""><h2>Best <em>Bowling</em></h2><p>VERSION 1.0</p></div>`;
+      <div class="card">
+        <div class="set-row"><span class="set-ic">${ic('info')}</span><div><b>${t('appInfo')}</b><small>${t('appInfoSub')}</small></div></div>
+        <div class="link-list">${[['guide', 'book'], ['privacy', 'shield'], ['terms', 'fileText'], ['oss', 'code']].map(([k, i]) =>
+          `<button class="link-item" data-act="doc" data-k="${k}">${ic(i)}<span>${docOf(k).title}</span>${ic('right')}</button>`).join('')}</div>
+      </div>
+      <div class="about"><img src="icons/icon.svg" alt=""><h2>Best <em>Bowling</em></h2><p>VERSION ${APP_VERSION}</p></div>`;
+  }
+
+  /* ───────── Documents (guide, policies) ───────── */
+  const APP_VERSION = '1.0';
+  const docOf = (k) => (window.BB_DOCS[lang()] || window.BB_DOCS.ko)[k];
+  function showDoc(k) {
+    const d = docOf(k), m = $('#modal');
+    m.className = 'modal doc-modal';
+    m.innerHTML = `<div class="doc" role="dialog" aria-label="${esc(d.title)}">
+        <div class="doc-h"><h2>${esc(d.title)}</h2><button class="icon-btn" data-r="1" aria-label="${t('close')}">${ic('x')}</button></div>
+        <div class="doc-body">${d.html}</div></div>`;
+    m.hidden = false;
+    m.onclick = (e) => {
+      if (!e.target.closest('[data-r]') && e.target !== m) return;
+      m.hidden = true; m.onclick = null; m.className = 'modal';
+    };
   }
 
   /* ───────── Theme ───────── */
@@ -1206,6 +1244,8 @@
     },
     costView(el) { ui.costView = el.dataset.v; render(); },
     practice() { const s = sess(); s.firstPractice = !s.firstPractice; commit(s); render(); },
+    statPeriod(el) { ui.statPeriod = el.dataset.v; render(); },
+    doc(el) { showDoc(el.dataset.k); },
     statPick(el) { ui.statId = el.dataset.id; render(); },
     statView(el) { ui.statView = el.dataset.v; render(); },
     togglePlayer(el) {
