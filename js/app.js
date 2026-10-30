@@ -16,7 +16,11 @@
   /* ───────── i18n ───────── */
   const I18N = {
     ko: {
-      tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabSettings: '설정',
+      tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
+      statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
+      sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
+      gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
+      finalTable: '날짜별 최종 점수', tapRowHint: '날짜를 누르면 그날 기록으로 이동해요', leaderboard: '전체 순위', byAvg: '평균 기준',
       today: '오늘', recent: '최근 기록', noRecent: '아직 저장된 기록이 없어요', gamesPeople: '{0}게임 · {1}명',
       selectedDate: '선택한 날짜', participants: '참가 멤버', nPeople: '{0}명',
       noMembers: '등록된 멤버가 없어요. 아래에서 바로 추가해 보세요.', newMemberPh: '새 멤버 이름', hdcp: '핸디', add: '추가',
@@ -51,7 +55,11 @@
       storageErr: '저장 공간이 부족해 저장하지 못했어요', fee: '경기비 {0} · 신발비 {1}',
     },
     en: {
-      tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabSettings: 'Settings',
+      tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
+      statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
+      sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
+      gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
+      finalTable: 'Final scores by date', tapRowHint: 'Tap a date to open that day\'s scores', leaderboard: 'Leaderboard', byAvg: 'by average',
       today: 'Today', recent: 'Recent', noRecent: 'No saved records yet', gamesPeople: '{0} games · {1}',
       selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players',
       noMembers: 'No members yet. Add one right below.', newMemberPh: 'New member name', hdcp: 'HDCP', add: 'Add',
@@ -127,6 +135,8 @@
     kp: null,          // { pid } while the frame keypad is open
     kpScroll: false,
     editId: null,      // member being edited
+    statId: null,      // member shown on the stats tab
+    statView: 'game',  // 'game' | 'final'
     busy: false,
     draft: null,       // unsaved empty session for the selected date
     cdraft: null,      // unsaved cost sheet for the selected date
@@ -160,6 +170,7 @@
     shoe: '<path d="M2.5 17.5V9.5l3.5-1 2 2.5 3-1.5 3 3.5 5.3 1.4a2 2 0 0 1 1.5 1.9v1.7z"/><path d="M2.5 20.5h19"/>',
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     next: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    chart: '<path d="M3 20h18"/><path d="M6 16v-5M11 16V6M16 16v-8M21 16v-3" stroke-width="2.4"/>',
     calendar: '<rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
     down: '<path d="M6 9l6 6 6-6"/>',
     up: '<path d="M18 15l-6-6-6 6"/>',
@@ -178,8 +189,13 @@
     return { main: `${d.getMonth() + 1}.${pad(d.getDate())}`, wd: WD[lang()][d.getDay()] };
   }
   const monthLabel = (y, m) => (lang() === 'ko' ? `${y}년 ${m + 1}월` : `${MON[m]} ${y}`);
-  const fmtMoney = (n) => (lang() === 'ko' ? `${(n || 0).toLocaleString('ko-KR')}원` : `₩${(n || 0).toLocaleString('en-US')}`);
-  const curUnit = () => (lang() === 'ko' ? '원' : '₩');
+  // Korean shows won (whole numbers); English shows US dollars (up to cents).
+  const fmtMoney = (n) => (lang() === 'ko'
+    ? `${Math.round(n || 0).toLocaleString('ko-KR')}원`
+    : `$${(n || 0).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n || 0) ? 0 : 2, maximumFractionDigits: 2 })}`);
+  const moneyInput = (k, v) => (lang() === 'ko'
+    ? `<div class="money"><input type="number" inputmode="numeric" data-inp="fee" data-k="${k}" value="${v}"><em>원</em></div>`
+    : `<div class="money"><em>$</em><input type="number" inputmode="decimal" step="0.01" data-inp="fee" data-k="${k}" value="${v}"></div>`);
 
   /* ───────── Bowling scoring ───────── */
   // Where the next ball goes: frame index, ball within frame, pins standing.
@@ -320,7 +336,7 @@
 
   /* ───────── Render: shell ───────── */
   function renderTabbar() {
-    const tabs = [['record', 'pin', 'tabRecord'], ['members', 'users', 'tabMembers'], ['cost', 'receipt', 'tabCost'], ['settings', 'gear', 'tabSettings']];
+    const tabs = [['record', 'pin', 'tabRecord'], ['members', 'users', 'tabMembers'], ['cost', 'receipt', 'tabCost'], ['stats', 'chart', 'tabStats'], ['settings', 'gear', 'tabSettings']];
     $('#tabbar').innerHTML = tabs.map(([id, icon, label]) =>
       `<button class="${ui.tab === id ? 'on' : ''}" data-act="tab" data-tab="${id}" aria-label="${t(label)}">${ic(icon)}<span>${t(label)}</span></button>`).join('');
   }
@@ -331,6 +347,7 @@
     v.innerHTML = ui.tab === 'record' ? renderRecord()
       : ui.tab === 'members' ? renderMembers()
       : ui.tab === 'cost' ? renderCost()
+      : ui.tab === 'stats' ? renderStats()
       : renderSettings();
     renderKeypad();
   }
@@ -634,11 +651,11 @@
     return ui.cdraft;
   }
   const commitCost = (c) => { db.costs[c.date] = c; save(); };
-  const rowAmount = (r, c) => (r.on ? r.games * c.gameFee + (r.shoes ? c.shoeFee : 0) : 0);
+  const rowAmount = (r, c) => (r.on ? Math.round((r.games * c.gameFee + (r.shoes ? c.shoeFee : 0)) * 100) / 100 : 0);
   const rowName = (r) => (memberById(r.id) ? memberById(r.id).name : r.name);
   function costTotals(c) {
     const on = c.rows.filter((r) => r.on);
-    return { people: on.length, games: on.reduce((a, r) => a + r.games, 0), total: on.reduce((a, r) => a + rowAmount(r, c), 0) };
+    return { people: on.length, games: on.reduce((a, r) => a + r.games, 0), total: Math.round(on.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 };
   }
   function costTotalsHTML(c) {
     const x = costTotals(c);
@@ -665,8 +682,8 @@
       <div class="card">
         <div class="row between"><span class="label">${t('date')}</span><input type="date" class="field date-field" data-inp="costDate" value="${ui.date}"></div>
         <div class="fee-grid">
-          <label class="fee"><span>${t('gameFee')} <small>· ${t('perGame')}</small></span><div class="money"><input type="number" inputmode="numeric" data-inp="fee" data-k="gameFee" value="${c.gameFee}"><em>${curUnit()}</em></div></label>
-          <label class="fee"><span>${t('shoeFee')} <small>· ${t('perPerson')}</small></span><div class="money"><input type="number" inputmode="numeric" data-inp="fee" data-k="shoeFee" value="${c.shoeFee}"><em>${curUnit()}</em></div></label>
+          <label class="fee"><span>${t('gameFee')} <small>· ${t('perGame')}</small></span>${moneyInput('gameFee', c.gameFee)}</label>
+          <label class="fee"><span>${t('shoeFee')} <small>· ${t('perPerson')}</small></span>${moneyInput('shoeFee', c.shoeFee)}</label>
         </div>
       </div>
       <div class="card">
@@ -685,6 +702,125 @@
     const c = costDoc();
     c.rows.forEach((r) => { const el = $(`#amt-${r.id}`); if (el) el.textContent = fmtMoney(rowAmount(r, c)); });
     $('#costTotals').innerHTML = costTotalsHTML(c);
+  }
+
+  /* ───────── Render: stats tab ───────── */
+  // Every scored game a member played, oldest first.
+  function memberGames(id) {
+    const out = [];
+    Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
+      const p = s.players.find((x) => x.id === id);
+      if (!p) return;
+      usedGames(s).forEach((g, gi) => {
+        const v = entryScore(g, id);
+        if (v !== null) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp) });
+      });
+    });
+    return out;
+  }
+  function bySession(games) {
+    const map = new Map();
+    games.forEach((g) => {
+      const x = map.get(g.date) || { date: g.date, games: 0, sum: 0, hdcp: 0, high: 0 };
+      x.games++; x.sum += g.score; x.hdcp += g.hdcp; x.high = Math.max(x.high, g.score);
+      map.set(g.date, x);
+    });
+    return [...map.values()].map((x) => ({ ...x, final: x.sum + x.hdcp, avg: Math.round(x.sum / x.games) }));
+  }
+  const avgOf = (arr) => (arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0);
+
+  // Single-series bar chart (baseline 0, thin rounded bars, max value labelled, tap/hover for value).
+  function barChart(points, title) {
+    if (!points.length) return '';
+    const max = Math.max(...points.map((p) => p.value));
+    const top = Math.max(100, Math.ceil((max * 1.12) / 50) * 50);
+    const grid = [100, 200, 300].filter((v) => v < top);
+    const every = Math.ceil(points.length / 6);
+    const maxIdx = points.findIndex((p) => p.value === max);
+    return `<div class="chart" role="img" aria-label="${esc(title)}">
+      <div class="chart-tip">${esc(points[points.length - 1].tip)}</div>
+      <div class="chart-plot">
+        ${grid.map((v) => `<div class="chart-grid" style="bottom:${(v / top) * 100}%"><span>${v}</span></div>`).join('')}
+        <div class="chart-bars">${points.map((p, i) => `<button class="chart-bar" data-tip="${esc(p.tip)}" aria-label="${esc(p.tip)}">
+          ${i === maxIdx ? `<em style="bottom:${(p.value / top) * 100}%">${p.value}</em>` : ''}
+          <i style="height:${Math.max(1.5, (p.value / top) * 100)}%"></i></button>`).join('')}</div>
+      </div>
+      <div class="chart-x">${points.map((p, i) => `<span>${(points.length - 1 - i) % every === 0 ? esc(p.label) : ''}</span>`).join('')}</div>
+    </div>`;
+  }
+  function renderStats() {
+    const withGames = db.members.map((m) => ({ m, games: memberGames(m.id) }));
+    if (!ui.statId || !memberById(ui.statId)) {
+      const best = withGames.slice().sort((a, b) => b.games.length - a.games.length)[0];
+      ui.statId = best ? best.m.id : null;
+    }
+    let h = `<div class="page-h"><div><div class="eyebrow">Statistics</div><h2 class="display">${t('statsTitle')}</h2></div></div>`;
+    if (!ui.statId) return h + `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`;
+    h += `<div class="recent stat-pick">${withGames.map(({ m, games }) =>
+      `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${m.id}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
+
+    const m = memberById(ui.statId), games = memberGames(m.id), scores = games.map((g) => g.score);
+    if (!games.length) return h + `<div class="empty">${t('noStats')}</div>` + leaderboard(withGames);
+    const sessions = bySession(games);
+    const sd = (k) => dateShort(k).main;
+    h += `<div class="card hero">
+        <div class="row between"><div class="eyebrow">${esc(m.name)} · ${t('avg')}</div><span class="tag">${t('hdcp')} ${toInt(m.handicap)}</span></div>
+        <div class="hero-total">${avgOf(scores)}</div>
+        <div class="hero-grid four">
+          <div><small>${t('games')}</small><b>${games.length}</b></div>
+          <div><small>${t('high')}</small><b>${Math.max(...scores)}</b></div>
+          <div><small>${t('low')}</small><b>${Math.min(...scores)}</b></div>
+          <div><small>${t('over200')}</small><b>${scores.filter((v) => v >= 200).length}</b></div>
+        </div>
+        <p class="hero-note">${t('hdcpAvg')} <b>${avgOf(games.map((g) => g.score + g.hdcp))}</b> · ${t('sessionsN', sessions.length)}</p>
+      </div>
+      <div class="seg" style="margin-bottom:14px">
+        <button class="${ui.statView !== 'final' ? 'on' : ''}" data-act="statView" data-v="game">${ic('frames')}${t('byGame')}</button>
+        <button class="${ui.statView === 'final' ? 'on' : ''}" data-act="statView" data-v="final">${ic('crown')}${t('byFinal')}</button>
+      </div>`;
+
+    if (ui.statView !== 'final') {
+      const recent = games.slice(-20);
+      const order = [];
+      games.forEach((g) => { (order[g.gi] = order[g.gi] || []).push(g.score); });
+      const bestAvg = Math.max(...order.filter(Boolean).map(avgOf));
+      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
+          ${barChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
+        <div class="card"><div class="card-h"><h3>${ic('frames')}${t('gameOrder')}</h3></div>
+          <div class="order-list">${order.map((arr, i) => (arr ? `<div class="order-row">
+            <span class="order-n">${t('gameN', i + 1)}</span>
+            <div class="order-bar"><i style="width:${(avgOf(arr) / 300) * 100}%"></i></div>
+            <span class="order-v ${avgOf(arr) === bestAvg ? 'best' : ''}">${avgOf(arr)}</span>
+            <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}</small></div>` : '')).join('')}</div></div>
+        <div class="card"><div class="card-h"><h3>${ic('pin')}${t('allGames')}</h3><span class="muted">${games.length}</span></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
+          ${games.slice().reverse().map((g) => `<tr><td class="nm">${sd(g.date)} <small class="muted">${dateShort(g.date).wd}</small></td><td>G${g.gi + 1}</td>
+            <td class="${g.score >= 200 ? 'tot' : ''}">${g.score}</td><td class="dim">${g.hdcp ? '+' + g.hdcp : 0}</td><td><b>${g.score + g.hdcp}</b></td></tr>`).join('')}
+          </tbody></table></div></div>`;
+    } else {
+      const recent = sessions.slice(-12);
+      const bestFinal = Math.max(...sessions.map((x) => x.final));
+      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendFinal')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
+          ${barChart(recent.map((x) => ({ value: x.avg, label: sd(x.date), tip: `${sd(x.date)} · ${t('avg')} ${x.avg} · ${t('total')} ${x.final}` })), t('trendFinal'))}</div>
+        <div class="card"><div class="card-h"><h3>${ic('crown')}${t('finalTable')}</h3><span class="muted">${t('sessionsN', sessions.length)}</span></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('games')}</th><th>${t('scratch')}</th><th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
+          ${sessions.slice().reverse().map((x) => `<tr class="link-row" data-act="pick" data-date="${x.date}" data-goto="record"><td class="nm">${sd(x.date)} <small class="muted">${dateShort(x.date).wd}</small></td><td>${x.games}</td><td>${x.sum}</td>
+            <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.final === bestFinal ? '♛ ' : ''}${x.final}</td><td>${x.avg}</td></tr>`).join('')}
+          </tbody></table></div><p class="hint" style="margin-top:8px">${t('tapRowHint')}</p></div>`;
+    }
+    return h + leaderboard(withGames);
+  }
+  function leaderboard(withGames) {
+    const rows = withGames.filter((x) => x.games.length).map(({ m, games }) => {
+      const sc = games.map((g) => g.score);
+      return { m, n: sc.length, avg: avgOf(sc), high: Math.max(...sc) };
+    }).sort((a, b) => b.avg - a.avg || b.high - a.high);
+    if (!rows.length) return '';
+    return `<div class="card"><div class="card-h"><h3>${ic('users')}${t('leaderboard')}</h3><span class="muted">${t('byAvg')}</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th><th>${t('games')}</th><th>${t('avg')}</th><th>${t('high')}</th></tr></thead><tbody>
+      ${rows.map((x, i) => `<tr class="link-row ${x.m.id === ui.statId ? 'sel' : ''}" data-act="statPick" data-id="${x.m.id}"><td><span class="rk ${i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
+        <td class="nm">${esc(x.m.name)}</td><td>${x.n}</td><td class="tot">${x.avg}</td><td>${x.high}</td></tr>`).join('')}
+      </tbody></table></div></div>`;
   }
 
   /* ───────── Render: settings tab ───────── */
@@ -968,7 +1104,12 @@
     },
     calMove(el) { const d = new Date(ui.calY, ui.calM + toInt(el.dataset.d), 1); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); render(); },
     calToday() { pickDate(ymd(new Date())); },
-    pick(el) { pickDate(el.dataset.date, !!el.dataset.scroll); },
+    pick(el) {
+      if (el.dataset.goto) { ui.tab = el.dataset.goto; window.scrollTo(0, 0); }
+      pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
+    },
+    statPick(el) { ui.statId = el.dataset.id; render(); },
+    statView(el) { ui.statView = el.dataset.v; render(); },
     togglePlayer(el) {
       const s = sess(), id = el.dataset.id, i = s.players.findIndex((p) => p.id === id);
       if (i >= 0) s.players.splice(i, 1);
@@ -1067,6 +1208,17 @@
     const fn = actions[el.dataset.act];
     if (fn) fn(el);
   });
+  // Chart tooltips: hovering or tapping a bar shows its value above the plot.
+  const showTip = (e) => {
+    const bar = e.target.closest && e.target.closest('[data-tip]');
+    if (!bar) return;
+    const chart = bar.closest('.chart');
+    $$('.chart-bar.on', chart).forEach((b) => b.classList.remove('on'));
+    bar.classList.add('on');
+    $('.chart-tip', chart).textContent = bar.dataset.tip;
+  };
+  document.addEventListener('pointerover', showTip);
+  document.addEventListener('click', showTip);
   document.addEventListener('input', (e) => {
     const el = e.target.closest('[data-inp]');
     if (!el) return;
@@ -1082,7 +1234,7 @@
       (g.entries[el.dataset.id] || (g.entries[el.dataset.id] = { score: null, rolls: [] })).score = v;
       commit(s); refreshRecordNumbers();
     } else if (k === 'fee') {
-      const c = costDoc(), v = Math.max(0, toInt(el.value));
+      const c = costDoc(), v = Math.max(0, Math.round((parseFloat(el.value) || 0) * 100) / 100);
       c[el.dataset.k] = v; db.feeDefaults[el.dataset.k] = v;
       commitCost(c); refreshCostNumbers();
     }

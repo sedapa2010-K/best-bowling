@@ -1,39 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
 <defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#252c46"/><stop offset="1" stop-color="#0b0d15"/></linearGradient>
-  <radialGradient id="spot" cx="0.66" cy="0.42" r="0.55"><stop offset="0" stop-color="#f3dca6" stop-opacity=".30"/><stop offset="1" stop-color="#f3dca6" stop-opacity="0"/></radialGradient>
-  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2b0"/><stop offset=".5" stop-color="#d4ae64"/><stop offset="1" stop-color="#9c7536"/></linearGradient>
-  <radialGradient id="ball" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#9aa8ff"/><stop offset=".45" stop-color="#4c50d4"/><stop offset="1" stop-color="#1b1c62"/></radialGradient>
-  <linearGradient id="pinfill" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".65" stop-color="#f5f2eb"/><stop offset="1" stop-color="#d6cfc0"/></linearGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c2131"/><stop offset=".55" stop-color="#0e1119"/><stop offset="1" stop-color="#06070b"/></linearGradient>
+  <radialGradient id="spot" cx="0.5" cy="0.36" r="0.62"><stop offset="0" stop-color="#f3dca6" stop-opacity=".26"/><stop offset=".6" stop-color="#f3dca6" stop-opacity=".05"/><stop offset="1" stop-color="#f3dca6" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbedc4"/><stop offset=".35" stop-color="#e2c27e"/><stop offset=".7" stop-color="#b88f45"/><stop offset="1" stop-color="#8a6428"/></linearGradient>
+  <linearGradient id="goldH" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="100" y2="0"><stop offset="0" stop-color="#8a6428" stop-opacity="0"/><stop offset="1" stop-color="#f1d79c"/></linearGradient>
+  <radialGradient id="ball" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#5d6580"/><stop offset=".32" stop-color="#262b3d"/><stop offset=".75" stop-color="#0d0f17"/><stop offset="1" stop-color="#050609"/></radialGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset=".45" stop-color="#e2c27e" stop-opacity="0"/><stop offset="1" stop-color="#f1d79c" stop-opacity=".95"/></linearGradient>
+  <radialGradient id="shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="ivory" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f7f4ee"/><stop offset="1" stop-color="#d3cbbb"/></linearGradient>
   <path id="pinpath" d="M0,-150 C14,-150 19,-137 19,-123 C19,-109 11,-101 10,-91 C9,-80 27,-63 31,-40 C35,-17 25,-4 19,0 L-19,0 C-25,-4 -35,-17 -31,-40 C-27,-63 -9,-80 -10,-91 C-11,-101 -19,-109 -19,-123 C-19,-137 -14,-150 0,-150 Z"/>
   <g id="pin">
-    <use xlink:href="#pinpath" fill="url(#pinfill)" stroke="#0b0d15" stroke-opacity=".35" stroke-width="3"/>
-    <path d="M-11,-108 Q0,-104 11,-108" stroke="#e0484f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-    <path d="M-10,-97 Q0,-93 10,-97" stroke="#e0484f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+    <use xlink:href="#pinpath" fill="url(#ivory)" stroke="#b88f45" stroke-opacity=".75" stroke-width="2.5"/>
+    <path d="M-11,-108 Q0,-104 11,-108" stroke="url(#gold)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M-10,-97 Q0,-93 10,-97" stroke="url(#gold)" stroke-width="5" fill="none" stroke-linecap="round"/>
   </g>
+  <path id="spark" d="M0,-1 C.12,-.12 .12,-.12 1,0 C.12,.12 .12,.12 0,1 C-.12,.12 -.12,.12 -1,0 C-.12,-.12 -.12,-.12 0,-1Z"/>
 </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <rect width="512" height="512" rx="112" fill="url(#spot)"/>
   
-  <ellipse cx="275" cy="414" rx="205" ry="20" fill="#000" opacity=".38"/>
-  <use xlink:href="#pin" transform="translate(432 408) rotate(9)"/>
-  <use xlink:href="#pin" transform="translate(318 410) rotate(36)"/>
-  <g stroke="url(#gold)" stroke-width="6" stroke-linecap="round"><path d="M284 262l-4-16"/><path d="M298 270l12-12"/><path d="M304 288l16-4"/></g>
-  <use xlink:href="#pin" transform="translate(372 236) rotate(-62) scale(.74)"/>
-  <use xlink:href="#pin" transform="translate(300 150) rotate(38) scale(.58)"/>
-  <path d="M424 112 l7 18 18 7 -18 7 -7 18 -7 -18 -18 -7 18 -7z" fill="url(#gold)"/>
-  <path d="M232 112 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4z" fill="url(#gold)" opacity=".85"/>
-  <path d="M468 228 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="url(#gold)" opacity=".9"/>
-  <g stroke="url(#gold)" stroke-width="10" stroke-linecap="round">
-    <path d="M44 286h40"/><path d="M28 326h52"/><path d="M48 366h34"/>
+  <ellipse cx="270" cy="416" rx="200" ry="16" fill="#000" opacity=".5"/>
+  <path d="M86 416 H456" stroke="url(#gold)" stroke-width="2" opacity=".55"/>
+  <use xlink:href="#pin" transform="translate(436 410) rotate(8)"/>
+  <use xlink:href="#pin" transform="translate(320 412) rotate(36)"/>
+  <use xlink:href="#pin" transform="translate(374 236) rotate(-60) scale(.72)"/>
+  <use xlink:href="#pin" transform="translate(306 152) rotate(36) scale(.56)"/>
+  <use xlink:href="#spark" transform="translate(428 124) scale(20)" fill="url(#gold)"/>
+  <use xlink:href="#spark" transform="translate(236 118) scale(11)" fill="url(#gold)" opacity=".85"/>
+  <use xlink:href="#spark" transform="translate(470 232) scale(10)" fill="url(#gold)" opacity=".9"/>
+  <g stroke="url(#goldH)" stroke-linecap="round">
+    <path d="M36 288h52" stroke-width="7"/><path d="M22 326h62" stroke-width="9"/><path d="M42 364h44" stroke-width="7"/>
   </g>
-  <circle cx="190" cy="322" r="94" fill="url(#ball)"/>
-  <circle cx="190" cy="322" r="93" fill="none" stroke="#0b0c30" stroke-opacity=".4" stroke-width="3"/>
-  <ellipse cx="150" cy="262" rx="26" ry="13" fill="#fff" opacity=".28" transform="rotate(-38 150 262)"/>
-  <circle cx="178" cy="258" r="9" fill="#12134a"/><circle cx="202" cy="252" r="9" fill="#12134a"/><circle cx="188" cy="280" r="10" fill="#12134a"/>
-  <ellipse cx="212" cy="320" rx="12" ry="15" fill="#fff"/><ellipse cx="252" cy="316" rx="12" ry="15" fill="#fff"/>
-  <circle cx="216" cy="322" r="7" fill="#15151f"/><circle cx="256" cy="318" r="7" fill="#15151f"/>
-  <circle cx="218.5" cy="318.5" r="2.4" fill="#fff"/><circle cx="258.5" cy="314.5" r="2.4" fill="#fff"/>
-  <ellipse cx="198" cy="346" rx="11" ry="6.5" fill="#ff8fb3" opacity=".8"/><ellipse cx="268" cy="340" rx="9" ry="6" fill="#ff8fb3" opacity=".8"/>
-  <path d="M222 346 Q237 362 252 342" stroke="#15151f" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-  <rect x="12" y="12" width="488" height="488" rx="102" fill="none" stroke="url(#gold)" stroke-width="5" opacity=".85"/></svg>
+  <g stroke="url(#gold)" stroke-width="5" stroke-linecap="round">
+    <path d="M286 262l-4-16"/><path d="M300 270l12-12"/><path d="M306 288l16-4"/>
+  </g>
+  <circle cx="190" cy="322" r="96" fill="url(#ball)"/>
+  <circle cx="190" cy="322" r="94.5" fill="none" stroke="url(#rim)" stroke-width="3.5"/>
+  <ellipse cx="152" cy="268" rx="36" ry="20" fill="url(#shine)" transform="rotate(-36 152 268)"/>
+  <g fill="#05060a" stroke="url(#gold)" stroke-width="2.6">
+    <circle cx="180" cy="258" r="8.5"/><circle cx="204" cy="252" r="8.5"/><circle cx="190" cy="280" r="9.5"/>
+  </g>
+  <g fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round">
+    <path d="M204 322 Q213 312 222 322"/><path d="M240 318 Q249 308 258 318"/>
+    <path d="M220 340 Q233 354 247 338"/>
+  </g>
+  <ellipse cx="208" cy="338" rx="8" ry="4.5" fill="#e8a6a0" opacity=".35"/><ellipse cx="262" cy="333" rx="7" ry="4.5" fill="#e8a6a0" opacity=".35"/>
+  <rect x="10" y="10" width="492" height="492" rx="104" fill="none" stroke="url(#gold)" stroke-width="5"/>
+  <rect x="22" y="22" width="468" height="468" rx="94" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".55"/></svg>
