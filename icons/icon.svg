@@ -6,6 +6,7 @@
   <linearGradient id="goldH" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="100" y2="0"><stop offset="0" stop-color="#e2c27e" stop-opacity="0"/><stop offset="1" stop-color="#f1d79c"/></linearGradient>
   <radialGradient id="ball" cx=".34" cy=".28" r=".9"><stop offset="0" stop-color="#fff1c4"/><stop offset=".22" stop-color="#f2c45e"/><stop offset=".58" stop-color="#c98a24"/><stop offset=".85" stop-color="#8a5612"/><stop offset="1" stop-color="#4f2f07"/></radialGradient>
   <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset=".4" stop-color="#fff3cf" stop-opacity="0"/><stop offset="1" stop-color="#fff3cf" stop-opacity=".9"/></linearGradient>
+  <radialGradient id="hole" cx=".42" cy=".35" r=".7"><stop offset="0" stop-color="#1c1003"/><stop offset=".7" stop-color="#3d2608"/><stop offset="1" stop-color="#6b4612"/></radialGradient>
   <radialGradient id="shine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
   <linearGradient id="ivory" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f7f4ee"/><stop offset="1" stop-color="#d3cbbb"/></linearGradient>
   <path id="pinpath" d="M0,-150 C14,-150 19,-137 19,-123 C19,-109 11,-101 10,-91 C9,-80 27,-63 31,-40 C35,-17 25,-4 19,0 L-19,0 C-25,-4 -35,-17 -31,-40 C-27,-63 -9,-80 -10,-91 C-11,-101 -19,-109 -19,-123 C-19,-137 -14,-150 0,-150 Z"/>
@@ -61,8 +62,11 @@
   <circle cx="190" cy="322" r="96" fill="url(#ball)" stroke="#5c3a0e" stroke-width="3"/>
   <circle cx="190" cy="322" r="94.5" fill="none" stroke="url(#rim)" stroke-width="3.5"/>
   <ellipse cx="152" cy="268" rx="36" ry="20" fill="url(#shine)" transform="rotate(-36 152 268)"/>
-  <g fill="#5a3f14" stroke="#fff3cf" stroke-opacity=".6" stroke-width="2">
-    <circle cx="180" cy="258" r="8.5"/><circle cx="204" cy="252" r="8.5"/><circle cx="190" cy="280" r="9.5"/>
+  <!-- Finger holes: two fingers side by side, thumb hole larger and further down, tilted to follow the ball's curve -->
+  <g transform="rotate(-38 218 276)">
+    <g fill="url(#hole)" stroke="#fff3cf" stroke-opacity=".55" stroke-width="1.8">
+      <ellipse cx="206" cy="252" rx="8.5" ry="9.5"/><ellipse cx="230" cy="252" rx="8.5" ry="9.5"/><ellipse cx="218" cy="304" rx="11" ry="12"/>
+    </g>
   </g>
   <rect x="10" y="10" width="492" height="492" rx="104" fill="none" stroke="url(#gold)" stroke-width="5"/>
   <rect x="22" y="22" width="468" height="468" rx="94" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".55"/></svg>
