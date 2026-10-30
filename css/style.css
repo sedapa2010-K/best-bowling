@@ -596,3 +596,16 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .doc-body pre { white-space: pre-wrap; font-size: 11.5px; line-height: 1.5; color: var(--muted); background: var(--surface2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .period-note { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); margin: -2px 4px 12px; font-variant-numeric: tabular-nums; }
 .period-note .ic { width: 14px; height: 14px; color: var(--gold); }
+
+/* ── Stats: scrollable all-games table (≈10 rows), line chart ── */
+.tbl-scroll { max-height: 452px; overflow-y: auto; overscroll-behavior: contain; border-radius: 10px; }
+.tbl-scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--surface); }
+.chart.line .chart-plot { overflow: visible; }
+.chart-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.chart-svg polyline { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart-pt { position: absolute; top: 0; bottom: 0; transform: translateX(-50%); min-width: 0; }
+.chart-pt::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px dashed transparent; }
+.chart-pt:hover::before, .chart-pt.on::before { border-left-color: var(--line-strong); }
+.chart-pt i { position: absolute; left: 50%; width: 8px; height: 8px; margin: 0 0 -4px -4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--surface); transition: transform .12s; }
+.chart-pt:hover i, .chart-pt.on i { transform: scale(1.35); }
+.chart-pt em { position: absolute; left: 50%; transform: translate(-50%, -10px); font-style: normal; font-size: 10.5px; font-weight: 800; color: var(--text); white-space: nowrap; pointer-events: none; }

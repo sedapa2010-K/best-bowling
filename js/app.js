@@ -816,6 +816,34 @@
   const avgOf = (arr) => (arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0);
 
   // Single-series bar chart (baseline 0, thin rounded bars, max value labelled, tap/hover for value).
+  // Single-series line chart: SVG path stretched to the plot box, dots/labels as HTML so they stay round.
+  // Y axis is fitted to the data in 50-point steps; tap/hover a point (wide hit area) to see its value.
+  function lineChart(points, title) {
+    if (!points.length) return '';
+    const vals = points.map((p) => p.value);
+    const max = Math.max(...vals), min = Math.min(...vals);
+    let lo = Math.max(0, Math.floor((min - 10) / 50) * 50), hi = Math.min(300, Math.ceil((max + 10) / 50) * 50);
+    if (hi - lo < 100) { hi = Math.min(300, lo + 100); lo = Math.max(0, hi - 100); }
+    const n = points.length;
+    const x = (i) => ((i + 0.5) / n) * 100;
+    const y = (v) => ((v - lo) / (hi - lo)) * 100;
+    const grid = [];
+    for (let v = lo; v <= hi; v += 50) grid.push(v);
+    const every = Math.ceil(n / 6);
+    const maxIdx = vals.lastIndexOf(max);
+    return `<div class="chart line" role="img" aria-label="${esc(title)}">
+      <div class="chart-tip">${esc(points[n - 1].tip)}</div>
+      <div class="chart-plot">
+        ${grid.map((v) => `<div class="chart-grid" style="bottom:${y(v)}%"><span>${v}</span></div>`).join('')}
+        <svg class="chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="${points.map((p, i) => `${x(i)},${100 - y(p.value)}`).join(' ')}" vector-effect="non-scaling-stroke"/>
+        </svg>
+        ${points.map((p, i) => `<button class="chart-pt ${i === n - 1 ? 'on' : ''}" style="left:${x(i)}%;width:${100 / n}%" data-tip="${esc(p.tip)}" aria-label="${esc(p.tip)}">
+          <i style="bottom:${y(p.value)}%"></i>${i === maxIdx ? `<em style="bottom:${y(p.value)}%">${p.value}</em>` : ''}</button>`).join('')}
+      </div>
+      <div class="chart-x">${points.map((p, i) => `<span>${(n - 1 - i) % every === 0 ? esc(p.label) : ''}</span>`).join('')}</div>
+    </div>`;
+  }
   function barChart(points, title) {
     if (!points.length) return '';
     const max = Math.max(...points.map((p) => p.value));
@@ -874,7 +902,7 @@
       games.forEach((g) => { (order[g.gi] = order[g.gi] || []).push(g.score); });
       const bestAvg = Math.max(...order.filter(Boolean).map(avgOf));
       h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
-          ${barChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
+          ${lineChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
         <div class="card"><div class="card-h"><h3>${ic('frames')}${t('gameOrder')}</h3></div>
           <div class="order-list">${order.map((arr, i) => (arr ? `<div class="order-row">
             <span class="order-n">${t('gameN', i + 1)}</span>
@@ -882,7 +910,7 @@
             <span class="order-v ${avgOf(arr) === bestAvg ? 'best' : ''}">${avgOf(arr)}</span>
             <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}</small></div>` : '')).join('')}</div></div>
         <div class="card"><div class="card-h"><h3>${ic('pin')}${t('allGames')}</h3><span class="muted">${games.length}</span></div>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
+          <div class="tbl-wrap tbl-scroll"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
           ${games.slice().reverse().map((g) => `<tr><td class="nm">${sd(g.date)} <small class="muted">${dateShort(g.date).wd}</small></td><td>G${g.gi + 1}</td>
             <td class="${g.score >= 200 ? 'tot' : ''}">${g.score}</td><td class="dim">${g.hdcp ? '+' + g.hdcp : 0}</td><td><b>${g.score + g.hdcp}</b></td></tr>`).join('')}
           </tbody></table></div></div>`;
@@ -1359,7 +1387,7 @@
     const bar = e.target.closest && e.target.closest('[data-tip]');
     if (!bar) return;
     const chart = bar.closest('.chart');
-    $$('.chart-bar.on', chart).forEach((b) => b.classList.remove('on'));
+    $$('[data-tip].on', chart).forEach((b) => b.classList.remove('on'));
     bar.classList.add('on');
     $('.chart-tip', chart).textContent = bar.dataset.tip;
   };
