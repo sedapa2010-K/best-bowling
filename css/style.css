@@ -554,3 +554,14 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .tcost-row .pname { font-size: 14px; }
 .tcost-row small { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
 .tcost-row b { font-size: 14px; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+
+/* ── Team cards: per-game chips use the full card width; team rename ── */
+.team-card { flex-wrap: wrap; }
+.team-card .tg { flex: 0 0 100%; margin-top: 2px; }
+.tsec-h .icon-btn.sm { width: 30px; height: 30px; border-radius: 9px; }
+.tsec-h .icon-btn.sm .ic { width: 15px; height: 15px; }
+.tsec-h b + .icon-btn.sm { margin-right: auto; }
+.tsec-h:has(.icon-btn.sm) b { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-btn.gold-ic { color: var(--gold); border-color: var(--gold); }
+.tname-in { flex: 1; height: 36px; font-size: 15px; }
+.entry-filter .fl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

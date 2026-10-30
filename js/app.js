@@ -17,7 +17,7 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
-      allPlayers: '전체', teamShort: '{0}팀', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
+      allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
@@ -57,7 +57,7 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
-      allPlayers: 'All', teamShort: '{0}', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
+      allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
@@ -139,6 +139,7 @@
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
     statView: 'game',  // 'game' | 'final'
+    editTeam: null,    // team index whose name is being edited
     costView: 'person', // cost tab in team matches: 'person' | 'team'
     entryTeam: 'all',  // score-entry filter in team matches: 'all' or a team index
     busy: false,
@@ -291,6 +292,8 @@
   const pname = (p) => (memberById(p.id) ? memberById(p.id).name : p.name || '?');
   const avatar = (s, p) => (s.teamMode ? `<span class="team-badge t${p.team}">${TEAMS[p.team]}</span>` : '');
   const curGame = (s) => s.games[s.active] || s.games[0];
+  // A team's display name: the custom name set for that day, or "A팀" / "Team A".
+  const teamLabel = (s, ti) => (s.teamNames && s.teamNames[ti]) || t('teamName', TEAMS[ti]);
   // Games up to the last one that has any score (at least 1) — empty trailing games are left out of results.
   const gameHasScore = (s, g) => s.players.some((p) => entryScore(g, p.id) !== null);
   function usedGames(s) {
@@ -449,7 +452,11 @@
           const moves = (p) => `<div class="tmove">${TEAMS.slice(0, s.teamCount).map((L, j) =>
             `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${p.id}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
           h += `<div class="tsec tc${ti}">
-            <div class="tsec-h"><span class="team-badge t${ti}">${TEAMS[ti]}</span><b>${t('teamName', TEAMS[ti])}</b><span class="muted">${t('nPeople', ps.length)}</span></div>
+            <div class="tsec-h"><span class="team-badge t${ti}">${TEAMS[ti]}</span>${ui.editTeam === ti
+              ? `<input id="teamNameIn" class="field tname-in" maxlength="12" value="${esc((s.teamNames && s.teamNames[ti]) || '')}" placeholder="${t('teamName', TEAMS[ti])}" enterkeyhint="done">
+                 <button class="icon-btn sm gold-ic" data-act="saveTeamName" data-t="${ti}" aria-label="${t('save')}">${ic('check')}</button>`
+              : `<b>${esc(teamLabel(s, ti))}</b><button class="icon-btn sm" data-act="editTeamName" data-t="${ti}" aria-label="${t('editTeamName')}">${ic('edit')}</button>
+                 <span class="muted">${t('nPeople', ps.length)}</span>`}</div>
             ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow ${s.teamCount > 2 ? 'trow' : ''}">
               <span class="pname">${esc(pname(p))}</span>${hdInput(p)}${moves(p)}</div>`).join('')}</div>`
               : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
@@ -497,7 +504,7 @@
     const tabs = s.games.map((x, i) => `<button class="gtab ${i === s.active ? 'on' : ''}" data-act="game" data-i="${i}">${t('gameN', i + 1)}${isPractice(s, i) ? `<small class="prac-tag">${t('practice')}</small>` : ''}</button>`).join('');
     const filter = s.teamMode ? `<div class="seg entry-filter">
         <button class="${ui.entryTeam === 'all' ? 'on' : ''}" data-act="entryTeam" data-v="all">${t('allPlayers')}</button>
-        ${TEAMS.slice(0, s.teamCount).map((L, j) => `<button class="${ui.entryTeam === j ? 'on' : ''}" data-act="entryTeam" data-v="${j}"><span class="tdot t${j}"></span>${t('teamShort', L)}</button>`).join('')}
+        ${TEAMS.slice(0, s.teamCount).map((L, j) => `<button class="${ui.entryTeam === j ? 'on' : ''}" data-act="entryTeam" data-v="${j}"><span class="tdot t${j}"></span><span class="fl">${s.teamNames && s.teamNames[j] ? esc(s.teamNames[j]) : t('teamShort', L)}</span></button>`).join('')}
       </div>` : '';
     return `<div class="card">
       <div class="mode-switch">
@@ -525,10 +532,10 @@
     if (s.teamMode) {
       h += `<div class="teams">${teamStats(s).map((x) => `<div class="team-card ${x.win ? 'win' : ''}">
           <span class="team-badge t${x.ti}">${TEAMS[x.ti]}</span>
-          <div class="tm"><b>${t('teamName', TEAMS[x.ti])}${x.win ? ic('crown') : ''}</b>
-            <small>${x.ps.map((p) => esc(pname(p))).join(', ') || '—'}</small>
-            <div class="tg">${x.games.map((v, i) => `<span class="${isPractice(s, i) ? 'prac' : ''}">${isPractice(s, i) ? t('practice') : `G${i + 1}`} <b>${v ?? '-'}</b></span>`).join('')}</div></div>
-          <div class="tt">${x.total}<small>${x.win ? t('win') : x.draw ? t('draw') : ''}</small></div></div>`).join('')}</div>`;
+          <div class="tm"><b>${esc(teamLabel(s, x.ti))}${x.win ? ic('crown') : ''}</b>
+            <small>${x.ps.map((p) => esc(pname(p))).join(', ') || '—'}</small></div>
+          <div class="tt">${x.total}<small>${x.win ? t('win') : x.draw ? t('draw') : ''}</small></div>
+          <div class="tg">${x.games.map((v, i) => `<span class="${isPractice(s, i) ? 'prac' : ''}">${isPractice(s, i) ? t('practice') : `G${i + 1}`} <b>${v ?? '-'}</b></span>`).join('')}</div></div>`).join('')}</div>`;
     }
     return h;
   }
@@ -697,10 +704,10 @@
     }
     return groups.sort((a, b) => (a.ti === -1) - (b.ti === -1));
   }
-  const costTeamLabel = (ti) => (ti === -1 ? t('noTeam') : t('teamName', TEAMS[ti]));
+  const costTeamLabel = (c, ti) => (ti === -1 ? t('noTeam') : teamLabel(db.sessions[c.date], ti));
   function costTeamsHTML(c, groups) {
     return `<div class="tcosts">${groups.map((g) => `<div class="tsec ${g.ti >= 0 ? 'tc' + g.ti : 'tcx'}">
-        <div class="tsec-h">${g.ti >= 0 ? `<span class="team-badge t${g.ti}">${TEAMS[g.ti]}</span>` : ''}<b>${costTeamLabel(g.ti)}</b>
+        <div class="tsec-h">${g.ti >= 0 ? `<span class="team-badge t${g.ti}">${TEAMS[g.ti]}</span>` : ''}<b>${esc(costTeamLabel(c, g.ti))}</b>
           <span class="amt">${fmtMoney(g.total)}</span></div>
         <div class="tcost-meta">${t('nPeople', g.rows.length)} · ${g.games}${t('gUnit')}</div>
         ${g.rows.length ? `<div class="tcost-list">${g.rows.map((r) => `<div class="tcost-row"><span class="pname">${esc(rowName(r))}</span>
@@ -731,9 +738,9 @@
     const others = db.members.filter((m) => !inRows.has(m.id));
     const groups = costTeams(c), teamView = !!groups && ui.costView === 'team';
     return `<div class="page-h"><div><div class="eyebrow">Settlement</div><h2 class="display">${t('costTitle')}</h2></div></div>
+      ${calendarHTML()}
       <div class="card">
-        <div class="row between"><span class="label">${t('date')}</span><input type="date" class="field date-field" data-inp="costDate" value="${ui.date}"></div>
-        <div class="fee-grid">
+        <div class="fee-grid" style="margin-top:0">
           <label class="fee"><span>${t('gameFee')} <small>· ${t('perGame')}</small></span>${moneyInput('gameFee', c.gameFee)}</label>
           <label class="fee"><span>${t('shoeFee')} <small>· ${t('perPerson')}</small></span>${moneyInput('shoeFee', c.shoeFee)}</label>
         </div>
@@ -1076,7 +1083,7 @@
       blocks.push({
         type: 'table', title: t('teamResults'),
         cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(gameCols(s)).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
-        rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${t('teamName', TEAMS[x.ti])} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
+        rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${teamLabel(s, x.ti)} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
       });
     }
     return blocks;
@@ -1091,7 +1098,7 @@
         {
           type: 'table', title: t('teamSettle'),
           cols: [{ t: t('team'), w: 2.2, al: 'l', bold: true }, { t: t('people'), w: 1, al: 'c' }, { t: t('games'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
-          rows: groups.map((g) => ({ cells: [costTeamLabel(g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
+          rows: groups.map((g) => ({ cells: [costTeamLabel(c, g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
         },
         {
           type: 'table', title: t('perPersonTitle'),
@@ -1190,6 +1197,13 @@
       pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
     },
     entryTeam(el) { ui.entryTeam = el.dataset.v === 'all' ? 'all' : toInt(el.dataset.v); ui.kp = null; render(); },
+    editTeamName(el) { ui.editTeam = toInt(el.dataset.t); render(); const i = $('#teamNameIn'); if (i) { i.focus(); i.select(); } },
+    saveTeamName(el) {
+      const s = sess(), ti = toInt(el.dataset.t), name = ($('#teamNameIn') || {}).value || '';
+      s.teamNames = s.teamNames || [];
+      s.teamNames[ti] = name.trim();
+      ui.editTeam = null; commit(s); render();
+    },
     costView(el) { ui.costView = el.dataset.v; render(); },
     practice() { const s = sess(); s.firstPractice = !s.firstPractice; commit(s); render(); },
     statPick(el) { ui.statId = el.dataset.id; render(); },
@@ -1324,7 +1338,6 @@
     }
   });
   document.addEventListener('change', (e) => {
-    if (e.target.dataset && e.target.dataset.inp === 'costDate' && e.target.value) { pickDate(e.target.value); return; }
     if (e.target.id === 'importFile') importData(e.target.files[0]);
   });
   document.addEventListener('keydown', (e) => {
@@ -1332,6 +1345,7 @@
     const id = e.target.id;
     if (id === 'qName' || id === 'qH') { e.preventDefault(); quickAdd(); }
     else if (id === 'mName' || id === 'mH') { e.preventDefault(); actions.addMember(); }
+    else if (id === 'teamNameIn') { e.preventDefault(); const b = $('[data-act="saveTeamName"]'); if (b) actions.saveTeamName(b); }
     else if (id === 'eName' || id === 'eH') { e.preventDefault(); const b = $('[data-act="saveMember"]'); if (b) actions.saveMember(b); }
     else if (e.target.dataset.inp === 'score') {
       e.preventDefault();
