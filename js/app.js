@@ -359,10 +359,15 @@
   // "First game is practice": game 1 of that day is shown but left out of totals and averages.
   const isPractice = (s, gi) => !!s.firstPractice && gi === 0;
   // Players on the score-entry screen: everyone (grouped by team), or just the team picked in the filter.
+  // Lists are shown in name order (Korean collation in Korean, English otherwise); stored order is untouched.
+  const byName = (a, b) => a.localeCompare(b, lang() === 'ko' ? 'ko' : 'en', { numeric: true, sensitivity: 'base' });
+  const membersByName = () => db.members.slice().sort((a, b) => byName(a.name, b.name));
+  const playersByName = (s) => s.players.slice().sort((a, b) => byName(pname(a), pname(b)));
+  const rowsByName = (rows) => rows.slice().sort((a, b) => byName(rowName(a), rowName(b)));
   function entryPlayers(s) {
-    if (!s.teamMode) return s.players;
-    if (ui.entryTeam === 'all' || ui.entryTeam >= s.teamCount) return s.players.slice().sort((a, b) => a.team - b.team);
-    return s.players.filter((p) => p.team === ui.entryTeam);
+    if (!s.teamMode) return playersByName(s);
+    if (ui.entryTeam === 'all' || ui.entryTeam >= s.teamCount) return playersByName(s).sort((a, b) => a.team - b.team);
+    return playersByName(s).filter((p) => p.team === ui.entryTeam);
   }
 
   function playerStats(s) {
@@ -492,8 +497,8 @@
   function playersCard(s) {
     const sel = new Set(s.players.map((p) => p.id));
     const chips = isLocked(s)
-      ? s.players.map((p) => `<span class="chip on">${ic('check')}${esc(pname(p))}</span>`).join('')
-      : db.members.map((m) =>
+      ? playersByName(s).map((p) => `<span class="chip on">${ic('check')}${esc(pname(p))}</span>`).join('')
+      : membersByName().map((m) =>
       `<button class="chip ${sel.has(m.id) ? 'on' : ''}" data-act="togglePlayer" data-id="${esc(m.id)}">${sel.has(m.id) ? ic('check') : ''}${esc(m.name)}</button>`).join('');
     let h = `<div class="card">
       <div class="card-h"><h3>${ic('users')}${t('participants')}</h3><span class="muted">${t('nPeople', s.players.length)}</span></div>
@@ -517,7 +522,7 @@
           </div>
           <p class="hint" style="margin-top:6px">${t('teamHint')}</p>`;
         for (let ti = 0; ti < s.teamCount; ti++) {
-          const ps = s.players.filter((p) => p.team === ti);
+          const ps = playersByName(s).filter((p) => p.team === ti);
           const moves = (p) => `<div class="tmove">${TEAMS.slice(0, s.teamCount).map((L, j) =>
             `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${esc(p.id)}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
           h += `<div class="tsec tc${ti}">
@@ -532,7 +537,7 @@
           </div>`;
         }
       } else {
-        h += `<div class="plist">${s.players.map((p) => `<div class="prow">${avatar(s, p)}
+        h += `<div class="plist">${playersByName(s).map((p) => `<div class="prow">${avatar(s, p)}
             <span class="pname">${esc(pname(p))}</span>${hdInput(p)}</div>`).join('')}</div>`;
       }
     }
@@ -730,7 +735,7 @@
 
   /* ───────── Render: members tab ───────── */
   function renderMembers() {
-    const list = db.members.map((m) => {
+    const list = membersByName().map((m) => {
       if (ui.editId === m.id) {
         return `<div class="mcard">
           <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" inputmode="numeric" value="${toInt(m.handicap)}"></div>
@@ -768,7 +773,7 @@
 
   /* ───────── Render: cost tab ───────── */
   function rowsFromSession(s) {
-    return s.players.map((p) => {
+    return playersByName(s).map((p) => {
       const played = s.games.filter((g) => entryScore(g, p.id) !== null).length;
       return { id: p.id, name: pname(p), on: true, games: played || 1, shoes: true };
     });
@@ -795,7 +800,7 @@
     const teamOf = (id) => { const p = s.players.find((x) => x.id === id); return p ? p.team : -1; };
     const groups = [];
     for (let ti = -1; ti < s.teamCount; ti++) {
-      const rows = c.rows.filter((r) => r.on && teamOf(r.id) === ti);
+      const rows = rowsByName(c.rows).filter((r) => r.on && teamOf(r.id) === ti);
       if (ti === -1 && !rows.length) continue;
       groups.push({ ti, rows, games: rows.reduce((a, r) => a + r.games, 0), total: Math.round(rows.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 });
     }
@@ -821,7 +826,7 @@
   function renderCost() {
     const c = costDoc();
     const inRows = new Set(c.rows.map((r) => r.id));
-    const rows = c.rows.map((r) => `<div class="crow ${r.on ? '' : 'off'}">
+    const rows = rowsByName(c.rows).map((r) => `<div class="crow ${r.on ? '' : 'off'}">
         <div class="crow-top">
           <button class="check ${r.on ? 'on' : ''}" data-act="costToggle" data-id="${esc(r.id)}" aria-label="include">${ic('check')}</button>
           <span class="pname">${esc(rowName(r))}</span>
@@ -832,7 +837,7 @@
           <button class="pill ${r.shoes ? 'on' : ''}" data-act="costShoe" data-id="${esc(r.id)}">${ic('shoe')}${t('shoesIncl')}</button>
           <button class="x-btn" data-act="costRemove" data-id="${esc(r.id)}" aria-label="${t('delete')}">${ic('x')}</button>
         </div></div>`).join('');
-    const others = db.members.filter((m) => !inRows.has(m.id));
+    const others = membersByName().filter((m) => !inRows.has(m.id));
     const groups = costTeams(c), teamView = !!groups && ui.costView === 'team';
     return `<div class="page-h"><div><div class="eyebrow">Settlement</div><h2 class="display">${t('costTitle')}</h2></div></div>
       ${calendarHTML()}
@@ -955,7 +960,7 @@
     </div>`;
   }
   function renderStats() {
-    const withGames = db.members.map((m) => ({ m, games: memberGames(m.id) }));
+    const withGames = membersByName().map((m) => ({ m, games: memberGames(m.id) }));
     if (!ui.statId || !memberById(ui.statId)) {
       const best = withGames.slice().sort((a, b) => b.games.length - a.games.length)[0];
       ui.statId = best ? best.m.id : null;
@@ -1257,7 +1262,7 @@
     return blocks;
   }
   function costBlocks(c) {
-    const on = c.rows.filter((r) => r.on), x = costTotals(c);
+    const on = rowsByName(c.rows).filter((r) => r.on), x = costTotals(c);
     const groups = costTeams(c);
     if (groups && ui.costView === 'team') {
       const teamName = (id) => { const g = groups.find((gg) => gg.rows.some((r) => r.id === id)); return g && g.ti >= 0 ? `${TEAMS[g.ti]} · ` : ''; };
