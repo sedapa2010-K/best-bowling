@@ -462,7 +462,8 @@
     for (let d = 1; d <= days; d++) {
       const k = `${y}-${pad(m + 1)}-${pad(d)}`;
       const cls = ['cal-d', (first + d - 1) % 7 === 0 && 'sun', k === today && 'today', hasRecord(db.sessions[k]) && 'has', k === ui.date && 'sel'].filter(Boolean).join(' ');
-      cells += `<button class="${cls}" data-act="pick" data-date="${esc(k)}"><span>${d}</span></button>`;
+      const future = k > today;
+      cells += `<button class="${cls}${future ? ' future' : ''}" data-act="pick" data-date="${esc(k)}" ${future ? 'disabled' : ''}><span>${d}</span></button>`;
     }
     return `<div class="card cal">
       <div class="cal-h">
@@ -470,7 +471,7 @@
         <b>${monthLabel(y, m)}</b>
         <button class="cal-today" data-act="calToday">${t('today')}</button>
         <button class="cal-nav" data-act="calMove" data-d="-1" aria-label="prev">${ic('left')}</button>
-        <button class="cal-nav" data-act="calMove" data-d="1" aria-label="next">${ic('right')}</button>
+        <button class="cal-nav" data-act="calMove" data-d="1" aria-label="next" ${`${y}-${pad(m + 1)}` >= today.slice(0, 7) ? 'disabled' : ''}>${ic('right')}</button>
       </div>
       <div class="cal-w">${WD[lang()].map((w) => `<span>${lang() === 'en' ? w[0] : w}</span>`).join('')}</div>
       <div class="cal-g">${cells}</div>
@@ -1200,6 +1201,8 @@
     x.textAlign = 'left';
     return c;
   }
+  // Team name for share images: "A · 스트라이크킹즈" when renamed, otherwise the default "A팀".
+  const teamImgLabel = (s, ti) => (s.teamNames && s.teamNames[ti] ? `${TEAMS[ti]} · ${s.teamNames[ti]}` : teamLabel(s, ti));
   // Image columns per game; a practice game is labelled and greyed out.
   const gameCols = (s) => usedGames(s).map((_, i) => (isPractice(s, i) ? { t: t('practice'), w: 1.4, al: 'c', dim: true } : { t: `G${i + 1}`, w: 1, al: 'c' }));
   function recordBlocks(s) {
@@ -1219,7 +1222,7 @@
       blocks.push({
         type: 'table', title: t('teamResults'),
         cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(gameCols(s)).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
-        rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${teamLabel(s, x.ti)} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
+        rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${teamImgLabel(s, x.ti)} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
       });
     }
     return blocks;
@@ -1234,7 +1237,7 @@
         {
           type: 'table', title: t('teamSettle'),
           cols: [{ t: t('team'), w: 2.2, al: 'l', bold: true }, { t: t('people'), w: 1, al: 'c' }, { t: t('games'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
-          rows: groups.map((g) => ({ cells: [costTeamLabel(c, g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
+          rows: groups.map((g) => ({ cells: [g.ti === -1 ? t('noTeam') : teamImgLabel(db.sessions[c.date], g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
         },
         {
           type: 'table', title: t('perPersonTitle'),
@@ -1301,6 +1304,7 @@
 
   /* ───────── Actions ───────── */
   function pickDate(k, scroll) {
+    if (k > ymd(new Date())) return;
     ui.date = k; ui.kp = null; ui.calOpen = false; ui.unlocked = null;
     const d = parseYmd(k); ui.calY = d.getFullYear(); ui.calM = d.getMonth();
     render();

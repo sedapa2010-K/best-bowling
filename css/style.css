@@ -628,3 +628,18 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 #sess.locked .chip:not(.on):disabled { opacity: .35; }
 #sess.locked .fblock { cursor: default; }
 #sess.locked input[readonly] { background: transparent; border-style: dashed; }
+
+/* ── Selected date stays on one line; future days disabled; compact score rows ── */
+.sess-h > div:first-child { min-width: 0; }
+.sess-h .display { font-size: clamp(17px, 5.3vw, 23px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sess-btns .btn.sm { height: 34px; padding: 0 11px; font-size: 13px; }
+.sess-btns .btn.sm .ic { width: 16px; height: 16px; }
+.cal-d.future { color: var(--muted); opacity: .35; cursor: default; }
+.cal-nav:disabled { opacity: .25; cursor: default; }
+.erow { padding: 5px 10px 5px 8px; gap: 8px; border-radius: 13px; }
+.erow .team-badge { width: 28px; height: 28px; border-radius: 9px; font-size: 12px; }
+.erow .pname { font-size: 14.5px; }
+.erow .score-in { width: 76px; height: 38px; font-size: 18px; border-radius: 11px; }
+.erow .etot { font-size: 16px; }
+.erow .etot small { font-size: 10px; }
+.elist { gap: 6px; }
