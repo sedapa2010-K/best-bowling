@@ -609,3 +609,22 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .chart-pt i { position: absolute; left: 50%; width: 8px; height: 8px; margin: 0 0 -4px -4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--surface); transition: transform .12s; }
 .chart-pt:hover i, .chart-pt.on i { transform: scale(1.35); }
 .chart-pt em { position: absolute; left: 50%; transform: translate(-50%, -10px); font-style: normal; font-size: 10.5px; font-weight: 800; color: var(--text); white-space: nowrap; pointer-events: none; }
+
+/* ── Long team names wrap (entry filter, team sections); team letter colors ── */
+.entry-filter { display: flex; flex-wrap: wrap; }
+.entry-filter button { flex: 1 1 auto; min-width: 54px; height: auto; min-height: 34px; padding: 5px 8px; white-space: normal; line-height: 1.25; }
+.entry-filter .fl { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: left; }
+.tsec-h:has(.icon-btn.sm) b { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.3; }
+.team-card .tm b { word-break: keep-all; overflow-wrap: anywhere; }
+.tl { font-weight: 800; }
+.tl0 { color: #c9a052; } .tl1 { color: #5f82db; } .tl2 { color: #d4606b; } .tl3 { color: #3aa883; }
+
+/* ── Locked past records ── */
+.sess-btns { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.lock-note { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); margin: -6px 2px 12px; }
+.lock-note .ic { width: 14px; height: 14px; color: var(--gold); flex: 0 0 auto; }
+#sess.locked .quick, #sess.locked .gtab.add, #sess.locked .link.danger, #sess.locked .tsec-h .icon-btn.sm { display: none; }
+#sess.locked button:disabled { opacity: .6; cursor: default; }
+#sess.locked .chip:not(.on):disabled { opacity: .35; }
+#sess.locked .fblock { cursor: default; }
+#sess.locked input[readonly] { background: transparent; border-style: dashed; }

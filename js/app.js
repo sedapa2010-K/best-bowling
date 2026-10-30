@@ -17,7 +17,7 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
-      allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
+      allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
       noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
@@ -58,7 +58,7 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
-      allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
+      allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
       noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
@@ -183,6 +183,7 @@
     statId: null,      // member shown on the stats tab
     statView: 'game',  // 'game' | 'final'
     statPeriod: 'all', // 'all' | 'month' | '3m' | 'year'
+    unlocked: null,    // past date the user unlocked for editing
     editTeam: null,    // team index whose name is being edited
     costView: 'person', // cost tab in team matches: 'person' | 'team'
     entryTeam: 'all',  // score-entry filter in team matches: 'all' or a team index
@@ -340,6 +341,11 @@
   const pname = (p) => (memberById(p.id) ? memberById(p.id).name : p.name || '?');
   const avatar = (s, p) => (s.teamMode ? `<span class="team-badge t${p.team}">${TEAMS[p.team]}</span>` : '');
   const curGame = (s) => s.games[s.active] || s.games[0];
+  // Saved records from past days are read-only until the user taps "Edit" (ui.unlocked holds that date).
+  const isPastRecord = (s) => hasRecord(s) && s.date < ymd(new Date());
+  const isLocked = (s) => isPastRecord(s) && ui.unlocked !== s.date;
+  const EDIT_ACTS = new Set(['togglePlayer', 'quickAdd', 'matchMode', 'teamCount', 'cycleTeam', 'setTeam', 'editTeamName', 'saveTeamName',
+    'addGame', 'delGame', 'mode', 'openKp', 'kp', 'practice', 'delRecord']);
   // A team's display name: the custom name set for that day, or "A팀" / "Team A".
   const teamLabel = (s, ti) => (s.teamNames && s.teamNames[ti]) || t('teamName', TEAMS[ti]);
   // Games up to the last one that has any score (at least 1) — empty trailing games are left out of results.
@@ -412,7 +418,18 @@
       : ui.tab === 'stats' ? renderStats()
       : renderSettings();
     keepGameTabInView(tabsScroll);
+    applyLock();
     renderKeypad();
+  }
+  // Locked past record: inputs become read-only and editing controls are disabled (actions are also guarded).
+  function applyLock() {
+    const sec = $('#sess');
+    if (!sec || ui.tab !== 'record') return;
+    const locked = isLocked(sess());
+    sec.classList.toggle('locked', locked);
+    if (!locked) return;
+    $$('input', sec).forEach((i) => { i.readOnly = true; });
+    $$('[data-act]', sec).forEach((b) => { if (EDIT_ACTS.has(b.dataset.act) && 'disabled' in b) b.disabled = true; });
   }
   // Re-rendering resets the game-tab strip's horizontal scroll; restore it and keep the selected game visible.
   function keepGameTabInView(scrollLeft) {
@@ -573,7 +590,7 @@
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
         <td><span class="rk ${x.played && i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
-        <td class="nm">${s.teamMode ? `<span style="color:var(--gold)">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
+        <td class="nm">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
         ${x.scores.map((v, gi) => `<td class="${v === null || isPractice(s, gi) ? 'dim' : ''} ${isPractice(s, gi) ? 'prac' : ''}">${v === null ? '-' : v}</td>`).join('')}
         <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.total}</td><td>${x.avg}</td></tr>`).join('')}
       </tbody></table></div>`;
@@ -592,7 +609,11 @@
     let h = calendarHTML() + recentHTML();
     h += `<section id="sess">
       <div class="sess-h"><div><div class="eyebrow">${t('selectedDate')}</div><h2 class="display">${dateLong(s.date)}</h2></div>
-        ${hasRecord(s) ? `<button class="icon-btn danger" data-act="delRecord" aria-label="${t('deleteRecord')}">${ic('trash')}</button>` : ''}</div>
+        <div class="sess-btns">${isLocked(s)
+          ? `<button class="btn sm ghost" data-act="unlock">${ic('edit')}${t('editRecord')}</button>`
+          : `${isPastRecord(s) ? `<button class="btn sm gold" data-act="lock">${ic('check')}${t('done')}</button>` : ''}
+             ${hasRecord(s) ? `<button class="icon-btn danger" data-act="delRecord" aria-label="${t('deleteRecord')}">${ic('trash')}</button>` : ''}`}</div></div>
+      ${isLocked(s) ? `<p class="lock-note">${ic('shield')}${t('lockedHint')}</p>` : ''}
       ${playersCard(s)}`;
     if (s.players.length) {
       h += gameCard(s);
@@ -1280,7 +1301,7 @@
 
   /* ───────── Actions ───────── */
   function pickDate(k, scroll) {
-    ui.date = k; ui.kp = null; ui.calOpen = false;
+    ui.date = k; ui.kp = null; ui.calOpen = false; ui.unlocked = null;
     const d = parseYmd(k); ui.calY = d.getFullYear(); ui.calM = d.getMonth();
     render();
     if (scroll) { const el = $('#sess'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); }
@@ -1320,6 +1341,8 @@
       ui.editTeam = null; commit(s); render();
     },
     costView(el) { ui.costView = el.dataset.v; render(); },
+    unlock() { ui.unlocked = ui.date; render(); },
+    lock() { ui.unlocked = null; ui.kp = null; ui.editTeam = null; render(); },
     practice() { const s = sess(); s.firstPractice = !s.firstPractice; commit(s); render(); },
     statPeriod(el) { ui.statPeriod = el.dataset.v; render(); },
     doc(el) { showDoc(el.dataset.k); },
@@ -1420,6 +1443,7 @@
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
+    if (ui.tab === 'record' && EDIT_ACTS.has(el.dataset.act) && isLocked(sess())) { toast(t('lockedHint')); return; }
     const fn = actions[el.dataset.act];
     if (fn) fn(el);
   });
@@ -1438,6 +1462,7 @@
     const el = e.target.closest('[data-inp]');
     if (!el) return;
     const k = el.dataset.inp;
+    if ((k === 'hdcp' || k === 'score') && isLocked(sess())) return;
     if (k === 'hdcp') {
       const s = sess(), p = s.players.find((x) => x.id === el.dataset.id);
       if (!p) return;
