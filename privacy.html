@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Best Bowling — 개인정보처리방침 / Privacy Policy</title>
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <style>
@@ -33,11 +34,6 @@
     <section id="en"></section>
   </main>
   <script src="js/docs.js"></script>
-  <script>
-    ['ko', 'en'].forEach((l) => {
-      const d = window.BB_DOCS[l].privacy;
-      document.getElementById(l).innerHTML = `<h2>${d.title}</h2>${d.html}`;
-    });
-  </script>
+  <script src="js/privacy.js"></script>
 </body>
 </html>

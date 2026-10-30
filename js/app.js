@@ -102,15 +102,56 @@
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   /* ───────── Storage ───────── */
-  function normalize(d) {
-    d = d || {};
-    const ko = (navigator.language || 'ko').toLowerCase().startsWith('ko');
+  // Everything read from storage or an imported backup is untrusted: rebuild it field by field, keeping only
+  // well-formed ids, dates, numbers and strings, so nothing unexpected can reach the HTML templates.
+  const ID_RE = /^[A-Za-z0-9_-]{1,40}$/;
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+  const clampInt = (v, lo, hi, dflt = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
+  const money = (v, dflt) => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? Math.min(1e9, Math.round(n * 100) / 100) : dflt; };
+  const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const entries = (o) => (isObj(o) ? Object.keys(o).map((k) => [k, o[k]]) : []);
+  function cleanSession(date, x) {
+    const teamCount = clampInt(x.teamCount, 2, 4, 2);
+    const players = (Array.isArray(x.players) ? x.players : []).filter((q) => isObj(q) && ID_RE.test(q.id))
+      .map((q) => ({ id: q.id, name: str(q.name, 40), hdcp: clampInt(q.hdcp, -300, 300), team: clampInt(q.team, 0, teamCount - 1) }));
+    const games = (Array.isArray(x.games) ? x.games : []).slice(0, 50).filter(isObj).map((g) => {
+      const ent = {};
+      entries(g.entries).forEach(([id, e]) => {
+        if (!ID_RE.test(id) || !isObj(e)) return;
+        const score = e.score === null || e.score === undefined || e.score === '' ? null : clampInt(e.score, 0, 300, null);
+        const rolls = (Array.isArray(e.rolls) ? e.rolls : []).slice(0, 21).map((r) => clampInt(r, 0, 10));
+        ent[id] = { score, rolls };
+      });
+      return { mode: g.mode === 'frame' ? 'frame' : 'final', entries: ent };
+    });
+    if (!games.length) games.push({ mode: 'final', entries: {} });
     return {
-      members: Array.isArray(d.members) ? d.members : [],
-      sessions: d.sessions && typeof d.sessions === 'object' ? d.sessions : {},
-      costs: d.costs && typeof d.costs === 'object' ? d.costs : {},
-      settings: Object.assign({ lang: ko ? 'ko' : 'en', theme: 'system' }, d.settings),
-      feeDefaults: Object.assign({ gameFee: 3000, shoeFee: 1500 }, d.feeDefaults),
+      date, teamMode: !!x.teamMode, teamCount, firstPractice: !!x.firstPractice,
+      teamNames: (Array.isArray(x.teamNames) ? x.teamNames : []).slice(0, 4).map((n) => str(n, 12)),
+      players, games, active: clampInt(x.active, 0, games.length - 1), updatedAt: clampInt(x.updatedAt, 0, 1e15),
+    };
+  }
+  function cleanCost(date, x) {
+    return {
+      date, gameFee: money(x.gameFee, 0), shoeFee: money(x.shoeFee, 0),
+      rows: (Array.isArray(x.rows) ? x.rows : []).filter((r) => isObj(r) && ID_RE.test(r.id))
+        .map((r) => ({ id: r.id, name: str(r.name, 40), on: r.on !== false, games: clampInt(r.games, 0, 99), shoes: !!r.shoes })),
+    };
+  }
+  function normalize(d) {
+    d = isObj(d) ? d : {};
+    const ko = (navigator.language || 'ko').toLowerCase().startsWith('ko');
+    const st = isObj(d.settings) ? d.settings : {}, fee = isObj(d.feeDefaults) ? d.feeDefaults : {};
+    const sessions = {}, costs = {};
+    entries(d.sessions).forEach(([k, x]) => { if (DATE_RE.test(k) && isObj(x)) sessions[k] = cleanSession(k, x); });
+    entries(d.costs).forEach(([k, x]) => { if (DATE_RE.test(k) && isObj(x)) costs[k] = cleanCost(k, x); });
+    return {
+      members: (Array.isArray(d.members) ? d.members : []).filter((m) => isObj(m) && ID_RE.test(m.id) && str(m.name, 40))
+        .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, -300, 300) })),
+      sessions, costs,
+      settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system' },
+      feeDefaults: { gameFee: money(fee.gameFee, 3000), shoeFee: money(fee.shoeFee, 1500) },
     };
   }
   function load() {
@@ -206,8 +247,8 @@
     ? `${Math.round(n || 0).toLocaleString('ko-KR')}원`
     : `$${(n || 0).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n || 0) ? 0 : 2, maximumFractionDigits: 2 })}`);
   const moneyInput = (k, v) => (lang() === 'ko'
-    ? `<div class="money"><input type="number" inputmode="numeric" data-inp="fee" data-k="${k}" value="${v}"><em>원</em></div>`
-    : `<div class="money"><em>$</em><input type="number" inputmode="decimal" step="0.01" data-inp="fee" data-k="${k}" value="${v}"></div>`);
+    ? `<div class="money"><input type="number" inputmode="numeric" data-inp="fee" data-k="${k}" value="${esc(v)}"><em>원</em></div>`
+    : `<div class="money"><em>$</em><input type="number" inputmode="decimal" step="0.01" data-inp="fee" data-k="${k}" value="${esc(v)}"></div>`);
 
   /* ───────── Bowling scoring ───────── */
   // Where the next ball goes: frame index, ball within frame, pins standing.
@@ -404,7 +445,7 @@
     for (let d = 1; d <= days; d++) {
       const k = `${y}-${pad(m + 1)}-${pad(d)}`;
       const cls = ['cal-d', (first + d - 1) % 7 === 0 && 'sun', k === today && 'today', hasRecord(db.sessions[k]) && 'has', k === ui.date && 'sel'].filter(Boolean).join(' ');
-      cells += `<button class="${cls}" data-act="pick" data-date="${k}"><span>${d}</span></button>`;
+      cells += `<button class="${cls}" data-act="pick" data-date="${esc(k)}"><span>${d}</span></button>`;
     }
     return `<div class="card cal">
       <div class="cal-h">
@@ -423,7 +464,7 @@
     const chips = list.map((s) => {
       const d = dateShort(s.date);
       const n = s.games.filter((g) => gameHasScore(s, g)).length;
-      return `<button class="rchip ${s.date === ui.date ? 'on' : ''}" data-act="pick" data-date="${s.date}" data-scroll="1">
+      return `<button class="rchip ${s.date === ui.date ? 'on' : ''}" data-act="pick" data-date="${esc(s.date)}" data-scroll="1">
         <b>${d.main} <small>${d.wd}</small></b><small>${n ? t('gamesPeople', n, s.players.length) : t('nPeople', s.players.length)}</small></button>`;
     }).join('');
     return `<div class="sec-label"><span>${t('recent')}</span></div>
@@ -432,7 +473,7 @@
   function playersCard(s) {
     const sel = new Set(s.players.map((p) => p.id));
     const chips = db.members.map((m) =>
-      `<button class="chip ${sel.has(m.id) ? 'on' : ''}" data-act="togglePlayer" data-id="${m.id}">${sel.has(m.id) ? ic('check') : ''}${esc(m.name)}</button>`).join('');
+      `<button class="chip ${sel.has(m.id) ? 'on' : ''}" data-act="togglePlayer" data-id="${esc(m.id)}">${sel.has(m.id) ? ic('check') : ''}${esc(m.name)}</button>`).join('');
     let h = `<div class="card">
       <div class="card-h"><h3>${ic('users')}${t('participants')}</h3><span class="muted">${t('nPeople', s.players.length)}</span></div>
       ${db.members.length ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
@@ -447,7 +488,7 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
-      const hdInput = (p) => `<label class="hd">${t('hdcp')}<input class="field num sm" type="number" inputmode="numeric" data-inp="hdcp" data-id="${p.id}" value="${toInt(p.hdcp)}"></label>`;
+      const hdInput = (p) => `<label class="hd">${t('hdcp')}<input class="field num sm" type="number" inputmode="numeric" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
@@ -457,7 +498,7 @@
         for (let ti = 0; ti < s.teamCount; ti++) {
           const ps = s.players.filter((p) => p.team === ti);
           const moves = (p) => `<div class="tmove">${TEAMS.slice(0, s.teamCount).map((L, j) =>
-            `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${p.id}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
+            `<button class="${j === ti ? `on t${j}` : ''}" data-act="setTeam" data-id="${esc(p.id)}" data-t="${j}" ${j === ti ? 'disabled' : ''}>${L}</button>`).join('')}</div>`;
           h += `<div class="tsec tc${ti}">
             <div class="tsec-h"><span class="team-badge t${ti}">${TEAMS[ti]}</span>${ui.editTeam === ti
               ? `<input id="teamNameIn" class="field tname-in" maxlength="12" value="${esc((s.teamNames && s.teamNames[ti]) || '')}" placeholder="${t('teamName', TEAMS[ti])}" enterkeyhint="done">
@@ -485,8 +526,8 @@
       const e = g.entries[p.id];
       const v = e && e.score !== null && e.score !== undefined ? e.score : '';
       return `<div class="erow">${avatar(s, p)}<span class="pname">${esc(pname(p))}</span>
-        <input class="score-in" type="number" inputmode="numeric" min="0" max="300" placeholder="0" enterkeyhint="next" data-inp="score" data-id="${p.id}" value="${v}">
-        <span class="etot" id="et-${p.id}">${totHTML(entryScore(g, p.id), toInt(p.hdcp))}</span></div>`;
+        <input class="score-in" type="number" inputmode="numeric" min="0" max="300" placeholder="0" enterkeyhint="next" data-inp="score" data-id="${esc(p.id)}" value="${esc(v)}">
+        <span class="etot" id="et-${esc(p.id)}">${totHTML(entryScore(g, p.id), toInt(p.hdcp))}</span></div>`;
     }).join('')}</div>`;
   }
   function frameEntries(s, g) {
@@ -500,7 +541,7 @@
           <div class="fr-s">${cum[i] ?? ''}</div></div>`;
       }).join('');
       const sc = entryScore(g, p.id), hd = toInt(p.hdcp);
-      return `<div class="fblock ${active ? 'active' : ''}" data-act="openKp" data-id="${p.id}">
+      return `<div class="fblock ${active ? 'active' : ''}" data-act="openKp" data-id="${esc(p.id)}">
         <div class="fhead">${avatar(s, p)}<span class="pname">${esc(pname(p))}</span>
           <span class="ftot">${sc === null ? '—' : sc}${sc !== null && hd ? `<small>+${hd}</small>` : ''}</span></div>
         <div class="frames">${cells}</div></div>`;
@@ -644,15 +685,15 @@
       if (ui.editId === m.id) {
         return `<div class="mcard">
           <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" inputmode="numeric" value="${toInt(m.handicap)}"></div>
-          <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${m.id}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
+          <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${esc(m.id)}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
           <button class="icon-btn" data-act="cancelEdit" aria-label="${t('cancel')}">${ic('x')}</button></div></div>`;
       }
       const st = memberStats(m.id);
       return `<div class="mcard">
         <div class="minfo"><b><span>${esc(m.name)}</span><em class="tag">${t('hdcp')} ${toInt(m.handicap)}</em></b>
           <div class="mstats">${st.n ? t('statLine', st.n, st.avg, st.hi) : t('noGames')}</div></div>
-        <div class="mbtns"><button class="icon-btn" data-act="editMember" data-id="${m.id}" aria-label="edit">${ic('edit')}</button>
-        <button class="icon-btn danger" data-act="delMember" data-id="${m.id}" aria-label="${t('delete')}">${ic('trash')}</button></div></div>`;
+        <div class="mbtns"><button class="icon-btn" data-act="editMember" data-id="${esc(m.id)}" aria-label="edit">${ic('edit')}</button>
+        <button class="icon-btn danger" data-act="delMember" data-id="${esc(m.id)}" aria-label="${t('delete')}">${ic('trash')}</button></div></div>`;
     }).join('');
     return `<div class="page-h"><div><div class="eyebrow">Members</div><h2 class="display">${t('membersTitle')}</h2></div><span class="muted">${t('memberCount', db.members.length)}</span></div>
       <div class="card">
@@ -733,14 +774,14 @@
     const inRows = new Set(c.rows.map((r) => r.id));
     const rows = c.rows.map((r) => `<div class="crow ${r.on ? '' : 'off'}">
         <div class="crow-top">
-          <button class="check ${r.on ? 'on' : ''}" data-act="costToggle" data-id="${r.id}" aria-label="include">${ic('check')}</button>
+          <button class="check ${r.on ? 'on' : ''}" data-act="costToggle" data-id="${esc(r.id)}" aria-label="include">${ic('check')}</button>
           <span class="pname">${esc(rowName(r))}</span>
-          <span class="amt" id="amt-${r.id}">${fmtMoney(rowAmount(r, c))}</span>
+          <span class="amt" id="amt-${esc(r.id)}">${fmtMoney(rowAmount(r, c))}</span>
         </div>
         <div class="crow-bot">
-          <div class="stepper"><button data-act="costGames" data-id="${r.id}" data-d="-1">−</button><b>${r.games}</b><small>G</small><button data-act="costGames" data-id="${r.id}" data-d="1">+</button></div>
-          <button class="pill ${r.shoes ? 'on' : ''}" data-act="costShoe" data-id="${r.id}">${ic('shoe')}${t('shoesIncl')}</button>
-          <button class="x-btn" data-act="costRemove" data-id="${r.id}" aria-label="${t('delete')}">${ic('x')}</button>
+          <div class="stepper"><button data-act="costGames" data-id="${esc(r.id)}" data-d="-1">−</button><b>${r.games}</b><small>G</small><button data-act="costGames" data-id="${esc(r.id)}" data-d="1">+</button></div>
+          <button class="pill ${r.shoes ? 'on' : ''}" data-act="costShoe" data-id="${esc(r.id)}">${ic('shoe')}${t('shoesIncl')}</button>
+          <button class="x-btn" data-act="costRemove" data-id="${esc(r.id)}" aria-label="${t('delete')}">${ic('x')}</button>
         </div></div>`).join('');
     const others = db.members.filter((m) => !inRows.has(m.id));
     const groups = costTeams(c), teamView = !!groups && ui.costView === 'team';
@@ -759,7 +800,7 @@
           <button class="${teamView ? 'on' : ''}" data-act="costView" data-v="team">${ic('crown')}${t('byTeam')}</button></div>` : ''}
         ${teamView ? costTeamsHTML(c, groups) : rows ? `<div class="clist">${rows}</div>` : `<p class="hint">${t('costEmpty')}</p>`}
         ${others.length && !teamView ? `<div class="divider"></div><div class="field-l">${t('addPerson')}</div>
-          <div class="chips">${others.map((m) => `<button class="chip dashed" data-act="costAdd" data-id="${m.id}">${ic('plus')}${esc(m.name)}</button>`).join('')}</div>` : ''}
+          <div class="chips">${others.map((m) => `<button class="chip dashed" data-act="costAdd" data-id="${esc(m.id)}">${ic('plus')}${esc(m.name)}</button>`).join('')}</div>` : ''}
       </div>
       <div class="card hero" id="costTotals">${costTotalsHTML(c)}</div>
       <div class="actions">
@@ -874,7 +915,7 @@
       <p class="period-note">${ic('calendar')}${periodRange()}</p>`;
     if (!ui.statId) return h + `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`;
     h += `<div class="chips stat-pick">${withGames.map(({ m, games }) =>
-      `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${m.id}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
+      `<button class="chip ${m.id === ui.statId ? 'on' : ''}" data-act="statPick" data-id="${esc(m.id)}">${esc(m.name)}<small>${games.length}</small></button>`).join('')}</div>`;
 
     const m = memberById(ui.statId), games = memberGames(m.id), scores = games.map((g) => g.score);
     if (!games.length) return h + `<div class="empty">${ui.statPeriod === 'all' ? t('noStats') : t('noStatsPeriod')}</div>` + leaderboard(withGames);
@@ -921,7 +962,7 @@
           ${barChart(recent.map((x) => ({ value: x.avg, label: sd(x.date), tip: `${sd(x.date)} · ${t('avg')} ${x.avg} · ${t('total')} ${x.final}` })), t('trendFinal'))}</div>
         <div class="card"><div class="card-h"><h3>${ic('crown')}${t('finalTable')}</h3><span class="muted">${t('sessionsN', sessions.length)}</span></div>
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('games')}</th><th>${t('scratch')}</th><th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
-          ${sessions.slice().reverse().map((x) => `<tr class="link-row" data-act="pick" data-date="${x.date}" data-goto="record"><td class="nm">${sd(x.date)} <small class="muted">${dateShort(x.date).wd}</small></td><td>${x.games}</td><td>${x.sum}</td>
+          ${sessions.slice().reverse().map((x) => `<tr class="link-row" data-act="pick" data-date="${esc(x.date)}" data-goto="record"><td class="nm">${sd(x.date)} <small class="muted">${dateShort(x.date).wd}</small></td><td>${x.games}</td><td>${x.sum}</td>
             <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.final === bestFinal ? '♛ ' : ''}${x.final}</td><td>${x.avg}</td></tr>`).join('')}
           </tbody></table></div><p class="hint" style="margin-top:8px">${t('tapRowHint')}</p></div>`;
     }
@@ -935,7 +976,7 @@
     if (!rows.length) return '';
     return `<div class="card"><div class="card-h"><h3>${ic('users')}${t('leaderboard')}</h3><span class="muted">${t('byAvg')}</span></div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th><th>${t('games')}</th><th>${t('avg')}</th><th>${t('high')}</th></tr></thead><tbody>
-      ${rows.map((x, i) => `<tr class="link-row ${x.m.id === ui.statId ? 'sel' : ''}" data-act="statPick" data-id="${x.m.id}"><td><span class="rk ${i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
+      ${rows.map((x, i) => `<tr class="link-row ${x.m.id === ui.statId ? 'sel' : ''}" data-act="statPick" data-id="${esc(x.m.id)}"><td><span class="rk ${i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
         <td class="nm">${esc(x.m.name)}</td><td>${x.n}</td><td class="tot">${x.avg}</td><td>${x.high}</td></tr>`).join('')}
       </tbody></table></div></div>`;
   }
