@@ -50,7 +50,9 @@
       settingsTitle: '설정', language: '언어', languageSub: '앱에 표시되는 언어', theme: '화면 모드', themeSub: '밝기 테마 선택',
       light: '라이트', dark: '다크', system: '시스템',
       data: '데이터 관리', dataNote: '모든 기록은 서버 없이 이 휴대폰에만 저장돼요. 휴대폰을 바꾸기 전에 백업 파일을 내보내 주세요.',
-      exportData: '백업 파일 내보내기', saveBackup: '백업 저장', shareBackup: '백업 공유', shareBackupFallback: '공유를 지원하지 않아 파일로 저장했어요', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
+      exportData: '백업 파일 내보내기', saveBackup: '백업 저장', shareBackup: '백업 공유', shareBackupFallback: '공유를 지원하지 않아 파일로 저장했어요', shareInApp: '앱 안 브라우저에서는 공유가 안 돼요. Chrome에서 열어 주세요 (파일로 저장했어요)',
+      shareNoApi: '이 브라우저는 공유 기능이 없어 파일로 저장했어요. Chrome을 써 주세요', shareNoFiles: '이 브라우저는 파일 공유를 지원하지 않아 파일로 저장했어요',
+      shareFailed: '공유 중 문제가 생겨 파일로 저장했어요 ({0})', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
@@ -91,7 +93,9 @@
       settingsTitle: 'Settings', language: 'Language', languageSub: 'Display language', theme: 'Appearance', themeSub: 'Brightness theme',
       light: 'Light', dark: 'Dark', system: 'System',
       data: 'Data', dataNote: 'All records stay on this phone only — there is no server. Export a backup before switching phones.',
-      exportData: 'Export backup', saveBackup: 'Save backup', shareBackup: 'Share backup', shareBackupFallback: 'Sharing isn\'t supported, so the backup was saved as a file', importData: 'Import backup', resetData: 'Erase all data',
+      exportData: 'Export backup', saveBackup: 'Save backup', shareBackup: 'Share backup', shareBackupFallback: 'Sharing isn\'t supported, so the backup was saved as a file', shareInApp: 'In-app browsers can\'t share. Open in Chrome (saved as a file)',
+      shareNoApi: 'This browser can\'t share, so the backup was saved. Please use Chrome', shareNoFiles: 'This browser can\'t share files, so the backup was saved',
+      shareFailed: 'Sharing failed, so the backup was saved ({0})', importData: 'Import backup', resetData: 'Erase all data',
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
@@ -1357,10 +1361,12 @@
       new File([text], `${backupName()}.json`, { type: 'application/json' }),
       new File([text], `${backupName()}.txt`, { type: 'text/plain' }),
     ];
+    // In-app browsers (KakaoTalk, Naver, Instagram…) have no share sheet at all.
+    if (!navigator.share) { exportData(); toast(/KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent) ? t('shareInApp') : t('shareNoApi')); return; }
     const file = navigator.canShare && candidates.find((f) => navigator.canShare({ files: [f] }));
-    if (!file) { exportData(); toast(t('shareBackupFallback')); return; }
-    try { await navigator.share({ files: [file], title: 'Best Bowling backup' }); }
-    catch (e) { if (e.name !== 'AbortError') { exportData(); toast(t('shareBackupFallback')); } }
+    if (!file) { exportData(); toast(t('shareNoFiles')); return; }
+    try { await navigator.share({ files: [file] }); }
+    catch (e) { if (e.name !== 'AbortError') { exportData(); toast(t('shareFailed', e.name)); } }
   }
   async function importData(file) {
     if (!file) return;
