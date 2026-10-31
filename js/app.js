@@ -625,7 +625,7 @@
       <div class="tbl-wrap"><table class="tbl pin2"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
         <td class="rkn ${x.played && i === 0 ? 'top' : ''}">${i + 1}</td>
-        <td class="nm">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</td>
+        <td class="nm"><span class="nm-in">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span>&nbsp;` : ''}${esc(pname(x.p))}</span></td>
         ${x.scores.map((v, gi) => `<td class="${v === null || isPractice(s, gi) ? 'dim' : ''} ${isPractice(s, gi) ? 'prac' : ''}">${v === null ? '-' : v}</td>`).join('')}
         <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.total}</td><td>${x.avg}</td></tr>`).join('')}
       </tbody></table></div>`;
