@@ -38,7 +38,7 @@ Single IIFE, ordered top to bottom: i18n → storage → UI state → icons → 
   - `usedGames(s)` trims empty trailing games (new sessions start with `DEFAULT_GAMES = 4`) — results, images and stats iterate over it, not `s.games`.
   - `isPractice(s, gi)` excludes game 1 from totals/averages/stats when `firstPractice` is on (but cost settlement still counts it).
   - `teamLabel(s, ti)` for team names (custom per-session name or "A팀"/"Team A"); `entryPlayers(s)` for the team filter on the entry screen.
-  - Money: `fmtMoney()` — won (integers) in Korean, US dollars with cents in English; fee inputs come from `moneyInput()`.
+  - Money: `currency()` is `db.settings.currency` (KRW/USD/EUR, picked on the settle tab) or, if unset, won in Korean / dollars in English. `fmtMoney()` and `moneyInput()` follow it; won is whole numbers, USD/EUR allow cents. Fee inputs are text fields that keep 3-digit grouping while typing.
 - **Share images** are drawn manually on `<canvas>` (`buildImage()` with `table`/`kv` blocks from `recordBlocks()` / `costBlocks()`), not screenshots; canvas width `W` grows with column count so scores never truncate. Export uses Web Share with files, falling back to download (iOS shows a long-press preview).
 - **i18n**: `I18N.ko` / `I18N.en` dictionaries with `{0}` placeholders via `t(key, ...args)`; add every new key to both. Long-form documents (user guide, privacy policy, terms, open-source notices) live in `js/docs.js` as `window.BB_DOCS[lang][key] = {title, html}` and are shared by the Settings document viewer and `privacy.html`. Keep the open-source list in sync if fonts/icons/libraries change (icons include Feather-derived paths, MIT).
 

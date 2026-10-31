@@ -721,3 +721,8 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .hd.hd-edit:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 .mcard.editing .mbtns { gap: 4px; }
 .mcard.editing .icon-btn { width: 34px; height: 34px; }
+
+/* ── Settle: currency picker above the fee fields ── */
+.cur-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 2px 0 12px; }
+.cur-seg { flex: 0 1 230px; padding: 3px; }
+.cur-seg button { height: 32px; font-size: 13px; }
