@@ -746,8 +746,9 @@
   function renderMembers() {
     const list = membersByName().map((m) => {
       if (ui.editId === m.id) {
-        return `<div class="mcard">
-          <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" min="0" max="300" inputmode="numeric" value="${toInt(m.handicap)}"></div>
+        return `<div class="mcard editing">
+          <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20" aria-label="${t('memberName')}">
+            <label class="hd hd-edit"><span class="hd-l">${t('hdcp')}</span><input id="eH" class="field num sm" type="number" min="0" max="300" inputmode="numeric" aria-label="${t('hdcp')}" value="${toInt(m.handicap)}"></label></div>
           <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${esc(m.id)}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
           <button class="icon-btn" data-act="cancelEdit" aria-label="${t('cancel')}">${ic('x')}</button></div></div>`;
       }

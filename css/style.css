@@ -711,3 +711,13 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .entry-hint { display: flex; align-items: center; gap: 5px; flex: 1 1 160px; min-width: 0; font-size: 12px; line-height: 1.35; color: var(--muted); }
 .entry-hint .ic { width: 14px; height: 14px; color: var(--gold); flex: 0 0 auto; }
 .entry-top .mini-toggle { flex: 0 0 auto; }
+
+/* ── Member edit: wide name field, compact "핸디" box, smaller buttons ── */
+.mcard.editing { gap: 8px; padding: 10px 10px 10px 12px; }
+.mcard.editing .medit { grid-template-columns: 1fr auto; gap: 6px; min-width: 0; }
+.mcard.editing #eName { min-width: 0; }
+.hd.hd-edit { gap: 0; height: 44px; padding-left: 8px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface2); font-size: 10.5px; font-weight: 700; color: var(--muted); }
+.hd.hd-edit .field.sm { width: 40px; height: 42px; padding: 0 8px 0 4px; border: 0; background: transparent; box-shadow: none; text-align: right; }
+.hd.hd-edit:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.mcard.editing .mbtns { gap: 4px; }
+.mcard.editing .icon-btn { width: 34px; height: 34px; }
