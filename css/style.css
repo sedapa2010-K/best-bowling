@@ -705,3 +705,9 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .tsec .prow:not(.trow) .tmove { gap: 3px; }
 .tsec .prow:not(.trow) .tmove button { width: 24px; height: 26px; border-radius: 7px; font-size: 11px; }
 .erow .pname { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* ── Score entry: hint and the "first game is practice" toggle at the top of the card ── */
+.entry-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 0 12px; flex-wrap: wrap; }
+.entry-hint { display: flex; align-items: center; gap: 5px; flex: 1 1 160px; min-width: 0; font-size: 12px; line-height: 1.35; color: var(--muted); }
+.entry-hint .ic { width: 14px; height: 14px; color: var(--gold); flex: 0 0 auto; }
+.entry-top .mini-toggle { flex: 0 0 auto; }
