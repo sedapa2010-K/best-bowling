@@ -726,3 +726,10 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .cur-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 2px 0 12px; }
 .cur-seg { flex: 0 1 230px; padding: 3px; }
 .cur-seg button { height: 32px; font-size: 13px; }
+
+/* ── Keep short labels on one line ("200점 이상", "금액 단위") ── */
+.hero-grid.four small { white-space: nowrap; letter-spacing: -.02em; overflow: hidden; text-overflow: clip; }
+.hero-grid.four div { padding: 9px 6px 9px 8px; min-width: 0; }
+.cur-row .label { white-space: nowrap; flex: 0 0 auto; }
+.cur-seg { flex: 1 1 auto; max-width: 230px; min-width: 0; }
+.cur-seg button { white-space: nowrap; padding: 0 4px; }
