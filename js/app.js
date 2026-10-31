@@ -514,7 +514,7 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
-      const hdInput = (p) => `<label class="hd">${t('hdcp')}<input class="field num sm" type="number" inputmode="numeric" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
+      const hdInput = (p) => `<label class="hd"><span class="hd-l">${t('hdcp')}</span><input class="field num sm" type="number" inputmode="numeric" aria-label="${t('hdcp')}" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
@@ -530,7 +530,7 @@
               ? `<input id="teamNameIn" class="field tname-in" maxlength="12" value="${esc((s.teamNames && s.teamNames[ti]) || '')}" placeholder="${t('teamName', TEAMS[ti])}" enterkeyhint="done">
                  <button class="icon-btn sm gold-ic" data-act="saveTeamName" data-t="${ti}" aria-label="${t('save')}">${ic('check')}</button>`
               : `<b>${esc(teamLabel(s, ti))}</b><button class="icon-btn sm" data-act="editTeamName" data-t="${ti}" aria-label="${t('editTeamName')}">${ic('edit')}</button>
-                 <span class="muted">${t('nPeople', ps.length)}</span>`}</div>
+                 <span class="muted">${t('nPeople', ps.length)}</span>${ps.length ? `<span class="hd-cap">${t('hdcp')}</span>` : ''}`}</div>
             ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow ${s.teamCount > 2 ? 'trow' : ''}">
               <span class="pname">${esc(pname(p))}</span>${hdInput(p)}${moves(p)}</div>`).join('')}</div>`
               : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
@@ -1576,7 +1576,12 @@
   applyTheme();
   render();
   const splash = $('#splash');
-  if (splash) setTimeout(() => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 600); }, 900);
+  if (splash) {
+    const closeSplash = () => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 500); };
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(closeSplash, reduce ? 500 : 2100);
+    splash.addEventListener('click', closeSplash);
+  }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     // When an updated service worker takes over, reload once so the new app files are used right away.
