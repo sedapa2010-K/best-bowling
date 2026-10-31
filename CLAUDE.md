@@ -20,7 +20,7 @@ Deploy = commit and `git push` to `main`; GitHub Pages rebuilds automatically (`
 
 ## Release checklist (easy to forget)
 
-- **Bump `CACHE` in `sw.js`** (`best-bowling-vN`) on every deploy that changes app files, and add any new top-level file to its `ASSETS` list. The service worker is network-first with `cache: 'no-cache'` revalidation, and `app.js` reloads the page once on `controllerchange`, so phones pick up updates on the next launch — stale-cache bugs were a real problem before this.
+- **Bump `CACHE` in `sw.js`** (`best-bowling-vN`) on every deploy that changes app files, and add any new top-level file to its `ASSETS` list. The service worker is network-first with `cache: 'no-cache'` revalidation, so each launch already gets the latest files — stale-cache bugs were a real problem before this. Don't add a reload on `controllerchange`: it replays the launch splash (the user saw splash → app → splash).
 - Verify at phone width (375×812) in both dark and light themes and in both languages; English strings are longer and have overflowed compact controls before.
 - When testing in the browser pane, seed data by writing `localStorage['bestbowling:v1']` and clear it afterwards. Do **not** clear storage on the live origin — it may hold the user's real records.
 
