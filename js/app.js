@@ -1155,6 +1155,17 @@
   const PADX = 64, RH = 66, HH = 58;
   const COL_UNIT = 92; // minimum px per column weight, so 3-digit scores never get cut off
   let W = 1080;        // widened per image when a table has many columns
+  // Simple three-point crown, 28px wide, vertically centred on cy.
+  function drawCrown(x, X, cy) {
+    x.save();
+    x.fillStyle = '#e9c97e';
+    x.beginPath();
+    x.moveTo(X, cy + 9); x.lineTo(X, cy - 7); x.lineTo(X + 8, cy);
+    x.lineTo(X + 14, cy - 11); x.lineTo(X + 20, cy); x.lineTo(X + 28, cy - 7); x.lineTo(X + 28, cy + 9);
+    x.closePath(); x.fill();
+    x.fillRect(X, cy + 11, 28, 3);
+    x.restore();
+  }
   function drawTable(x, b, y) {
     const tw = W - 2 * PADX;
     if (b.title) { x.fillStyle = '#e9cf95'; x.font = `700 32px ${IMG_SANS}`; x.fillText(b.title, PADX + 4, y + 38); y += 66; }
@@ -1185,6 +1196,13 @@
         }
         x.fillStyle = c.gold || r.em ? '#e9cf95' : c.dim ? '#9d978b' : '#ece8df';
         x.font = `${c.gold ? 800 : c.bold ? 700 : 500} 28px ${IMG_SANS}`;
+        if (i === 0 && r.crown && c.al === 'l') {
+          // Winner: name first, then a small drawn crown right after it (emoji/symbol glyphs render unevenly).
+          const s = fit(x, v, cw(i) - 24 - 40);
+          cellText(x, s, xs[i], cw(i) - 40, cy, 'l');
+          drawCrown(x, xs[i] + 14 + x.measureText(s).width + 12, cy);
+          return;
+        }
         cellText(x, v, xs[i], cw(i), cy, c.al);
       });
       y += RH;
@@ -1256,7 +1274,7 @@
       blocks.push({
         type: 'table', title: t('teamResults'),
         cols: [{ t: t('team'), w: 2.6, al: 'l', bold: true }].concat(gameCols(s)).concat([{ t: t('total'), w: 1.4, al: 'c', gold: true }]),
-        rows: ts.map((x) => ({ em: x.win, cells: [`${x.win ? '♛ ' : ''}${teamImgLabel(s, x.ti)} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
+        rows: ts.map((x) => ({ em: x.win, crown: x.win, cells: [`${teamImgLabel(s, x.ti)} (${x.ps.length})`, ...x.games.map((v) => v ?? '-'), x.total] })),
       });
     }
     return blocks;
