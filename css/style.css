@@ -686,8 +686,11 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 
 
 
-/* ── Team sections: no "핸디" label so long names fit (the column is named in the team header) ── */
-.tsec .hd-l { display: none; }
-.tsec-h .hd-cap { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--muted); }
-.tsec-h:has(.hd-cap) .muted { margin-left: 0; }
-.tsec-h:has(.hd-cap) b + .icon-btn.sm { margin-right: 0; }
+
+/* ── Handicap: the "핸디" label sits inside one compact box with the number ── */
+.prow .hd { gap: 0; flex: 0 0 auto; height: 32px; padding-left: 8px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface); transition: border-color .15s, box-shadow .15s; }
+.prow .hd .hd-l { font-size: 10.5px; font-weight: 700; color: var(--muted); letter-spacing: -.01em; }
+.prow .hd .field.sm { width: 38px; height: 30px; padding: 0 6px 0 4px; border: 0; background: transparent; box-shadow: none; text-align: right; }
+.prow .hd:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+#sess.locked .prow .hd { border-style: dashed; background: transparent; }
+#sess.locked .prow .hd .field.sm { border: 0; }

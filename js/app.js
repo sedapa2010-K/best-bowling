@@ -534,7 +534,7 @@
               ? `<input id="teamNameIn" class="field tname-in" maxlength="12" value="${esc((s.teamNames && s.teamNames[ti]) || '')}" placeholder="${t('teamName', TEAMS[ti])}" enterkeyhint="done">
                  <button class="icon-btn sm gold-ic" data-act="saveTeamName" data-t="${ti}" aria-label="${t('save')}">${ic('check')}</button>`
               : `<b>${esc(teamLabel(s, ti))}</b><button class="icon-btn sm" data-act="editTeamName" data-t="${ti}" aria-label="${t('editTeamName')}">${ic('edit')}</button>
-                 <span class="muted">${t('nPeople', ps.length)}</span>${ps.length ? `<span class="hd-cap">${t('hdcp')}</span>` : ''}`}</div>
+                 <span class="muted">${t('nPeople', ps.length)}</span>`}</div>
             ${ps.length ? `<div class="plist">${ps.map((p) => `<div class="prow ${s.teamCount > 2 ? 'trow' : ''}">
               <span class="pname">${esc(pname(p))}</span>${hdInput(p)}${moves(p)}</div>`).join('')}</div>`
               : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
