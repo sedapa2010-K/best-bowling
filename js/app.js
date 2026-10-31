@@ -50,7 +50,7 @@
       settingsTitle: '설정', language: '언어', languageSub: '앱에 표시되는 언어', theme: '화면 모드', themeSub: '밝기 테마 선택',
       light: '라이트', dark: '다크', system: '시스템',
       data: '데이터 관리', dataNote: '모든 기록은 서버 없이 이 휴대폰에만 저장돼요. 휴대폰을 바꾸기 전에 백업 파일을 내보내 주세요.',
-      exportData: '백업 파일 내보내기', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
+      exportData: '백업 파일 내보내기', saveBackup: '백업 저장', shareBackup: '백업 공유', shareBackupFallback: '공유를 지원하지 않아 파일로 저장했어요', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
@@ -91,7 +91,7 @@
       settingsTitle: 'Settings', language: 'Language', languageSub: 'Display language', theme: 'Appearance', themeSub: 'Brightness theme',
       light: 'Light', dark: 'Dark', system: 'System',
       data: 'Data', dataNote: 'All records stay on this phone only — there is no server. Export a backup before switching phones.',
-      exportData: 'Export backup', importData: 'Import backup', resetData: 'Erase all data',
+      exportData: 'Export backup', saveBackup: 'Save backup', shareBackup: 'Share backup', shareBackupFallback: 'Sharing isn\'t supported, so the backup was saved as a file', importData: 'Import backup', resetData: 'Erase all data',
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
@@ -1060,7 +1060,10 @@
         <div class="set-row"><span class="set-ic">${ic('db')}</span><div><b>${t('data')}</b></div></div>
         <p class="hint">${t('dataNote')}</p>
         <div class="data-btns">
-          <button class="btn ghost" data-act="export">${ic('download')}${t('exportData')}</button>
+          <div class="btn-pair">
+            <button class="btn ghost" data-act="export">${ic('download')}${t('saveBackup')}</button>
+            <button class="btn ghost" data-act="shareBackup">${ic('share')}${t('shareBackup')}</button>
+          </div>
           <button class="btn ghost" data-act="import">${ic('upload')}${t('importData')}</button>
           <button class="btn outline-red" data-act="reset">${ic('trash')}${t('resetData')}</button>
         </div>
@@ -1336,10 +1339,24 @@
   }
 
   /* ───────── Backup ───────── */
+  const backupText = () => JSON.stringify({ app: 'best-bowling', version: 1, exportedAt: new Date().toISOString(), data: db }, null, 2);
+  const backupName = () => `best-bowling-backup-${ymd(new Date())}`;
   function exportData() {
-    const blob = new Blob([JSON.stringify({ app: 'best-bowling', version: 1, exportedAt: new Date().toISOString(), data: db }, null, 2)], { type: 'application/json' });
-    downloadBlob(blob, `best-bowling-backup-${ymd(new Date())}.json`);
+    downloadBlob(new Blob([backupText()], { type: 'application/json' }), `${backupName()}.json`);
     toast(t('exported'));
+  }
+  // Share the backup through the phone's share sheet (KakaoTalk, Drive, mail…). Android Chrome won't share
+  // .json files, so fall back to a .txt copy (import accepts both), and to a plain download as a last resort.
+  async function shareData() {
+    const text = backupText();
+    const candidates = [
+      new File([text], `${backupName()}.json`, { type: 'application/json' }),
+      new File([text], `${backupName()}.txt`, { type: 'text/plain' }),
+    ];
+    const file = navigator.canShare && candidates.find((f) => navigator.canShare({ files: [f] }));
+    if (!file) { exportData(); toast(t('shareBackupFallback')); return; }
+    try { await navigator.share({ files: [file], title: 'Best Bowling backup' }); }
+    catch (e) { if (e.name !== 'AbortError') { exportData(); toast(t('shareBackupFallback')); } }
   }
   async function importData(file) {
     if (!file) return;
@@ -1487,6 +1504,7 @@
     lang(el) { db.settings.lang = el.dataset.v; save(); render(); },
     theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
     export: exportData,
+    shareBackup: shareData,
     import() { const f = $('#importFile'); f.value = ''; f.click(); },
     async reset() {
       if (!(await ask(t('confirmReset'), t('delete'), true))) return;
@@ -1557,6 +1575,8 @@
   /* ───────── Boot ───────── */
   applyTheme();
   render();
+  const splash = $('#splash');
+  if (splash) setTimeout(() => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 600); }, 900);
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     // When an updated service worker takes over, reload once so the new app files are used right away.
