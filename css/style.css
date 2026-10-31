@@ -733,3 +733,8 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .cur-row .label { white-space: nowrap; flex: 0 0 auto; }
 .cur-seg { flex: 1 1 auto; max-width: 230px; min-width: 0; }
 .cur-seg button { white-space: nowrap; padding: 0 4px; }
+
+/* ── Member edit: handicap box is just the number; results title shows the input mode ── */
+.hd.hd-edit { padding-left: 0; }
+.hd.hd-edit .field.sm { width: 48px; padding: 0 6px; text-align: center; }
+.mode-tag { margin-left: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--gold); background: var(--gold-soft); border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); white-space: nowrap; }
