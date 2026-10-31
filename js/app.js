@@ -311,16 +311,20 @@
     if (c !== undefined) m[2] = a === 10 && b !== 10 ? (b + c === 10 ? '/' : mk(c)) : c === 10 ? 'X' : mk(c);
     return m;
   }
+  // Score from frame-by-frame rolls (running total so far), or null when no ball has been entered.
+  function rollsScore(e) {
+    if (!e || !e.rolls || !e.rolls.length) return null;
+    let last = 0;
+    cumScores(e.rolls).forEach((v) => { if (v !== null) last = v; });
+    return last;
+  }
+  const finalScore = (e) => (!e || e.score === null || e.score === undefined || e.score === '' ? null : Number(e.score));
+  // A game's score uses its current input mode first and falls back to the other one, so switching
+  // between "final score" and "by frame" never makes an already-entered score disappear from results.
   function entryScore(game, pid) {
     const e = game.entries[pid];
     if (!e) return null;
-    if (game.mode === 'frame') {
-      if (!e.rolls || !e.rolls.length) return null;
-      let last = 0;
-      cumScores(e.rolls).forEach((v) => { if (v !== null) last = v; });
-      return last;
-    }
-    return e.score === null || e.score === undefined || e.score === '' ? null : Number(e.score);
+    return game.mode === 'frame' ? rollsScore(e) ?? finalScore(e) : finalScore(e) ?? rollsScore(e);
   }
 
   /* ───────── Sessions ───────── */
@@ -1445,7 +1449,13 @@
       if (!(await ask(t('confirmDelGame', s.active + 1), t('delete'), true))) return;
       s.games.splice(s.active, 1); s.active = Math.max(0, s.active - 1); ui.kp = null; commit(s); render();
     },
-    mode(el) { const s = sess(); curGame(s).mode = el.dataset.v; ui.kp = null; commit(s); render(); },
+    mode(el) {
+      const s = sess(), g = curGame(s);
+      g.mode = el.dataset.v;
+      // Switching to final-score entry: copy each player's frame total into an empty score box.
+      if (g.mode === 'final') Object.values(g.entries).forEach((e) => { if (finalScore(e) === null && rollsScore(e) !== null) e.score = rollsScore(e); });
+      ui.kp = null; commit(s); render();
+    },
     openKp(el) {
       if (ui.kp && ui.kp.pid === el.dataset.id) return;
       ui.kp = { pid: el.dataset.id }; ui.kpScroll = true; render();
@@ -1579,7 +1589,7 @@
   if (splash) {
     const closeSplash = () => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 500); };
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(closeSplash, reduce ? 500 : 2100);
+    setTimeout(closeSplash, reduce ? 500 : 1300);
     splash.addEventListener('click', closeSplash);
   }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
