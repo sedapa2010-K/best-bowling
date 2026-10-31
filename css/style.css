@@ -694,3 +694,14 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .prow .hd:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 #sess.locked .prow .hd { border-style: dashed; background: transparent; }
 #sess.locked .prow .hd .field.sm { border: 0; }
+
+/* ── Team rows: more room for names (tighter section padding, slimmer team buttons, names may wrap to 2 lines) ── */
+.tsec { padding: 10px 8px 10px 10px; }
+.tsec .plist { gap: 5px; }
+.tsec .prow { padding: 4px 6px 4px 9px; gap: 6px; }
+.tsec .prow .pname { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tsec .prow .hd { padding-left: 6px; }
+.tsec .prow .hd .field.sm { width: 34px; padding: 0 5px 0 3px; }
+.tsec .prow:not(.trow) .tmove { gap: 3px; }
+.tsec .prow:not(.trow) .tmove button { width: 24px; height: 26px; border-radius: 7px; font-size: 11px; }
+.erow .pname { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

@@ -12,6 +12,8 @@
   const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toInt = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
+  const HDCP_MAX = 300;
+  const toHdcp = (v) => Math.min(HDCP_MAX, Math.max(0, toInt(v)));
 
   /* ───────── i18n ───────── */
   const I18N = {
@@ -114,7 +116,7 @@
   function cleanSession(date, x) {
     const teamCount = clampInt(x.teamCount, 2, 4, 2);
     const players = (Array.isArray(x.players) ? x.players : []).filter((q) => isObj(q) && ID_RE.test(q.id))
-      .map((q) => ({ id: q.id, name: str(q.name, 40), hdcp: clampInt(q.hdcp, -300, 300), team: clampInt(q.team, 0, teamCount - 1) }));
+      .map((q) => ({ id: q.id, name: str(q.name, 40), hdcp: clampInt(q.hdcp, 0, 300), team: clampInt(q.team, 0, teamCount - 1) }));
     const games = (Array.isArray(x.games) ? x.games : []).slice(0, 50).filter(isObj).map((g) => {
       const ent = {};
       entries(g.entries).forEach(([id, e]) => {
@@ -148,7 +150,7 @@
     entries(d.costs).forEach(([k, x]) => { if (DATE_RE.test(k) && isObj(x)) costs[k] = cleanCost(k, x); });
     return {
       members: (Array.isArray(d.members) ? d.members : []).filter((m) => isObj(m) && ID_RE.test(m.id) && str(m.name, 40))
-        .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, -300, 300) })),
+        .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, 0, 300) })),
       sessions, costs,
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system' },
       feeDefaults: { gameFee: money(fee.gameFee, 3000), shoeFee: money(fee.shoeFee, 1500) },
@@ -509,7 +511,7 @@
       ${chips ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
       <div class="quick">
         <input id="qName" class="field" placeholder="${t('newMemberPh')}" maxlength="20" enterkeyhint="done">
-        <input id="qH" class="field num" type="number" inputmode="numeric" placeholder="${t('hdcp')}">
+        <input id="qH" class="field num" type="number" min="0" max="300" inputmode="numeric" placeholder="${t('hdcp')}">
         <button class="btn sm gold" data-act="quickAdd">${t('add')}</button>
       </div>`;
     if (s.players.length) {
@@ -518,7 +520,7 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
-      const hdInput = (p) => `<label class="hd"><span class="hd-l">${t('hdcp')}</span><input class="field num sm" type="number" inputmode="numeric" aria-label="${t('hdcp')}" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
+      const hdInput = (p) => `<label class="hd"><span class="hd-l">${t('hdcp')}</span><input class="field num sm" type="number" inputmode="numeric" aria-label="${t('hdcp')}" min="0" max="300" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
@@ -742,7 +744,7 @@
     const list = membersByName().map((m) => {
       if (ui.editId === m.id) {
         return `<div class="mcard">
-          <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" inputmode="numeric" value="${toInt(m.handicap)}"></div>
+          <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20"><input id="eH" class="field num" type="number" min="0" max="300" inputmode="numeric" value="${toInt(m.handicap)}"></div>
           <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${esc(m.id)}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
           <button class="icon-btn" data-act="cancelEdit" aria-label="${t('cancel')}">${ic('x')}</button></div></div>`;
       }
@@ -758,7 +760,7 @@
         <div class="card-h"><h3>${ic('userPlus')}${t('addMember')}</h3></div>
         <div class="add-grid">
           <div><label class="field-l" for="mName">${t('memberName')}</label><input id="mName" class="field" maxlength="20" placeholder="${t('newMemberPh')}" enterkeyhint="done"></div>
-          <div><label class="field-l" for="mH">${t('defaultHdcp')}</label><input id="mH" class="field num" type="number" inputmode="numeric" placeholder="0"></div>
+          <div><label class="field-l" for="mH">${t('defaultHdcp')}</label><input id="mH" class="field num" type="number" min="0" max="300" inputmode="numeric" placeholder="0"></div>
         </div>
         <button class="btn gold block" data-act="addMember">${ic('plus')}${t('addMember')}</button>
       </div>
@@ -768,7 +770,7 @@
     name = (name || '').trim();
     if (!name) { toast(t('nameRequired')); return null; }
     if (db.members.some((m) => m.name === name)) { toast(t('dupName')); return null; }
-    const m = { id: uid(), name, handicap: toInt(hd) };
+    const m = { id: uid(), name, handicap: toHdcp(hd) };
     db.members.push(m);
     save();
     toast(t('added', name));
@@ -1465,7 +1467,7 @@
       const m = memberById(el.dataset.id), name = $('#eName').value.trim();
       if (!name) { toast(t('nameRequired')); return; }
       if (db.members.some((x) => x.name === name && x.id !== m.id)) { toast(t('dupName')); return; }
-      m.name = name; m.handicap = toInt($('#eH').value); ui.editId = null; save(); render();
+      m.name = name; m.handicap = toHdcp($('#eH').value); ui.editId = null; save(); render();
     },
     async delMember(el) {
       const m = memberById(el.dataset.id);
@@ -1528,6 +1530,8 @@
   window.addEventListener('resize', updateScrollBars);
   document.addEventListener('click', showTip);
   document.addEventListener('input', (e) => {
+    // Handicap boxes on the member forms: keep the typed value within 0–300.
+    if (['qH', 'mH', 'eH'].includes(e.target.id) && e.target.value !== '' && String(toHdcp(e.target.value)) !== e.target.value) e.target.value = toHdcp(e.target.value);
     const el = e.target.closest('[data-inp]');
     if (!el) return;
     const k = el.dataset.inp;
@@ -1535,7 +1539,9 @@
     if (k === 'hdcp') {
       const s = sess(), p = s.players.find((x) => x.id === el.dataset.id);
       if (!p) return;
-      p.hdcp = toInt(el.value); commit(s); refreshRecordNumbers();
+      p.hdcp = toHdcp(el.value);
+      if (el.value !== '' && String(p.hdcp) !== el.value) el.value = p.hdcp;
+      commit(s); refreshRecordNumbers();
     } else if (k === 'score') {
       const s = sess(), g = curGame(s);
       let v = el.value === '' ? null : Math.max(0, Math.min(300, toInt(el.value)));
@@ -1577,14 +1583,8 @@
   }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
-    // When an updated service worker takes over, reload once so the new app files are used right away.
-    const hadController = !!navigator.serviceWorker.controller;
-    let reloaded = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!hadController || reloaded) return;
-      reloaded = true;
-      location.reload();
-    });
+    // No reload when an updated worker takes over: it fetches network-first with revalidation, so this launch
+    // already runs the latest files, and a reload would replay the launch splash.
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
       .then((reg) => reg.update()).catch(() => {}));
   }
