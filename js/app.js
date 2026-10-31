@@ -1357,9 +1357,11 @@
   // .json files, so fall back to a .txt copy (import accepts both), and to a plain download as a last resort.
   async function shareData() {
     const text = backupText();
+    // .txt first: Android Chrome only shares a fixed list of file types (images, video, audio, pdf, plain text…),
+    // and some versions accept a .json in canShare() but then refuse it in share(), which can't be retried.
     const candidates = [
-      new File([text], `${backupName()}.json`, { type: 'application/json' }),
       new File([text], `${backupName()}.txt`, { type: 'text/plain' }),
+      new File([text], `${backupName()}.json`, { type: 'application/json' }),
     ];
     // In-app browsers (KakaoTalk, Naver, Instagram…) have no share sheet at all.
     if (!navigator.share) { exportData(); toast(/KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent) ? t('shareInApp') : t('shareNoApi')); return; }
