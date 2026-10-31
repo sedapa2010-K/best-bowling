@@ -36,7 +36,7 @@
       <line x1="30" y1="382" x2="482" y2="382"/>
     </g>
     <g fill="#5a3f14" fill-opacity=".55">
-      <polygon points="140,444 133,464 147,464"/><polygon points="198,454 191,474 205,474"/><polygon points="256,464 249,484 263,484"/><polygon points="314,454 307,474 321,474"/><polygon points="372,444 365,464 379,464"/>
+      <polygon points="43.1,448.5 20.8,462 47.1,462"/><polygon points="120.7,439.0 101.2,454 126.9,454"/><polygon points="193.9,429.5 177.9,446 202.9,446"/><polygon points="262.7,420.0 250.9,438 275.3,438"/><polygon points="331.9,429.5 323.6,446 348.6,446"/><polygon points="405.6,439.0 400.1,454 425.7,454"/><polygon points="483.6,448.5 480.2,462 506.5,462"/>
     </g>
     <polygon points="148,252 364,252 600,512 -88,512" fill="url(#gloss)"/>
     <polygon points="148,252 156,252 -60,512 -88,512" fill="#0f1d2b" opacity=".55"/>

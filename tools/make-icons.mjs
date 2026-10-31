@@ -75,7 +75,15 @@ const floor = (clip) => `
       <line x1="${(148 - 88) / 2}" y1="382" x2="${(364 + 600) / 2}" y2="382"/>
     </g>
     <g fill="#5a3f14" fill-opacity=".55">
-      ${[-2, -1, 0, 1, 2].map((j) => { const cx = 256 + j * 58, cy = 478 - Math.abs(j) * 10; return `<polygon points="${cx},${cy - 14} ${cx - 7},${cy + 6} ${cx + 7},${cy + 6}"/>`; }).join('')}
+      ${[5, 10, 15, 20, 25, 30, 35].map((board) => {
+        // 7 lane arrows on boards 5…35 of 39, forming a ^ toward the pins: the middle one is farthest out
+        // and each step outward sits a little closer, all following the floor's perspective.
+        const step = Math.abs(board - 20) / 5;
+        const at = (y) => { const t = (512 - y) / 260, l = -88 + 236 * t, r = 600 - 236 * t; return { x: l + (r - l) * board / 39, w: r - l }; };
+        const base = 438 + step * 8, tip = base - 18 + step * 1.5;
+        const b0 = at(base), b1 = at(tip), hw = b0.w * 0.022;
+        return `<polygon points="${b1.x.toFixed(1)},${tip.toFixed(1)} ${(b0.x - hw).toFixed(1)},${base} ${(b0.x + hw).toFixed(1)},${base}"/>`;
+      }).join('')}
     </g>
     <polygon points="148,252 364,252 600,512 -88,512" fill="url(#gloss)"/>
     <polygon points="148,252 156,252 -60,512 -88,512" fill="#0f1d2b" opacity=".55"/>
