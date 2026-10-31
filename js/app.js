@@ -18,7 +18,7 @@
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
       allPlayers: '전체', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
-      noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
+      noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '볼링 상식 · 사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
@@ -50,9 +50,7 @@
       settingsTitle: '설정', language: '언어', languageSub: '앱에 표시되는 언어', theme: '화면 모드', themeSub: '밝기 테마 선택',
       light: '라이트', dark: '다크', system: '시스템',
       data: '데이터 관리', dataNote: '모든 기록은 서버 없이 이 휴대폰에만 저장돼요. 휴대폰을 바꾸기 전에 백업 파일을 내보내 주세요.',
-      exportData: '백업 파일 내보내기', saveBackup: '백업 저장', shareBackup: '백업 공유', shareBackupFallback: '공유를 지원하지 않아 파일로 저장했어요', shareInApp: '앱 안 브라우저에서는 공유가 안 돼요. Chrome에서 열어 주세요 (파일로 저장했어요)',
-      shareNoApi: '이 브라우저는 공유 기능이 없어 파일로 저장했어요. Chrome을 써 주세요', shareNoFiles: '이 브라우저는 파일 공유를 지원하지 않아 파일로 저장했어요',
-      shareFailed: '공유 중 문제가 생겨 파일로 저장했어요 ({0})', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
+      exportData: '백업 파일 내보내기', saveBackup: '백업 저장', importData: '백업 파일 가져오기', resetData: '모든 데이터 삭제',
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
@@ -61,7 +59,7 @@
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
       allPlayers: 'All', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
-      noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
+      noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Bowling basics · guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
@@ -93,9 +91,7 @@
       settingsTitle: 'Settings', language: 'Language', languageSub: 'Display language', theme: 'Appearance', themeSub: 'Brightness theme',
       light: 'Light', dark: 'Dark', system: 'System',
       data: 'Data', dataNote: 'All records stay on this phone only — there is no server. Export a backup before switching phones.',
-      exportData: 'Export backup', saveBackup: 'Save backup', shareBackup: 'Share backup', shareBackupFallback: 'Sharing isn\'t supported, so the backup was saved as a file', shareInApp: 'In-app browsers can\'t share. Open in Chrome (saved as a file)',
-      shareNoApi: 'This browser can\'t share, so the backup was saved. Please use Chrome', shareNoFiles: 'This browser can\'t share files, so the backup was saved',
-      shareFailed: 'Sharing failed, so the backup was saved ({0})', importData: 'Import backup', resetData: 'Erase all data',
+      exportData: 'Export backup', saveBackup: 'Save backup', importData: 'Import backup', resetData: 'Erase all data',
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
@@ -1068,17 +1064,14 @@
         <div class="set-row"><span class="set-ic">${ic('db')}</span><div><b>${t('data')}</b></div></div>
         <p class="hint">${t('dataNote')}</p>
         <div class="data-btns">
-          <div class="btn-pair">
-            <button class="btn ghost" data-act="export">${ic('download')}${t('saveBackup')}</button>
-            <button class="btn ghost" data-act="shareBackup">${ic('share')}${t('shareBackup')}</button>
-          </div>
+          <button class="btn ghost" data-act="export">${ic('download')}${t('saveBackup')}</button>
           <button class="btn ghost" data-act="import">${ic('upload')}${t('importData')}</button>
           <button class="btn outline-red" data-act="reset">${ic('trash')}${t('resetData')}</button>
         </div>
       </div>
       <div class="card">
         <div class="set-row"><span class="set-ic">${ic('info')}</span><div><b>${t('appInfo')}</b><small>${t('appInfoSub')}</small></div></div>
-        <div class="link-list">${[['guide', 'book'], ['privacy', 'shield'], ['terms', 'fileText'], ['oss', 'code']].map(([k, i]) =>
+        <div class="link-list">${[['bowling', 'pin'], ['guide', 'book'], ['privacy', 'shield'], ['terms', 'fileText'], ['oss', 'code']].map(([k, i]) =>
           `<button class="link-item" data-act="doc" data-k="${k}">${ic(i)}<span>${docOf(k).title}</span>${ic('right')}</button>`).join('')}</div>
       </div>
       <div class="about"><img src="icons/icon.svg" alt=""><h2>Best <em>Bowling</em></h2><p>VERSION ${APP_VERSION}</p></div>`;
@@ -1353,23 +1346,6 @@
     downloadBlob(new Blob([backupText()], { type: 'application/json' }), `${backupName()}.json`);
     toast(t('exported'));
   }
-  // Share the backup through the phone's share sheet (KakaoTalk, Drive, mail…). Android Chrome won't share
-  // .json files, so fall back to a .txt copy (import accepts both), and to a plain download as a last resort.
-  async function shareData() {
-    const text = backupText();
-    // .txt first: Android Chrome only shares a fixed list of file types (images, video, audio, pdf, plain text…),
-    // and some versions accept a .json in canShare() but then refuse it in share(), which can't be retried.
-    const candidates = [
-      new File([text], `${backupName()}.txt`, { type: 'text/plain' }),
-      new File([text], `${backupName()}.json`, { type: 'application/json' }),
-    ];
-    // In-app browsers (KakaoTalk, Naver, Instagram…) have no share sheet at all.
-    if (!navigator.share) { exportData(); toast(/KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent) ? t('shareInApp') : t('shareNoApi')); return; }
-    const file = navigator.canShare && candidates.find((f) => navigator.canShare({ files: [f] }));
-    if (!file) { exportData(); toast(t('shareNoFiles')); return; }
-    try { await navigator.share({ files: [file] }); }
-    catch (e) { if (e.name !== 'AbortError') { exportData(); toast(t('shareFailed', e.name)); } }
-  }
   async function importData(file) {
     if (!file) return;
     try {
@@ -1522,7 +1498,6 @@
     lang(el) { db.settings.lang = el.dataset.v; save(); render(); },
     theme(el) { db.settings.theme = el.dataset.v; save(); applyTheme(); render(); },
     export: exportData,
-    shareBackup: shareData,
     import() { const f = $('#importFile'); f.value = ''; f.click(); },
     async reset() {
       if (!(await ask(t('confirmReset'), t('delete'), true))) return;

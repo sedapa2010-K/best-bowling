@@ -9,6 +9,93 @@ window.BB_DOCS = (() => {
   return {
     updated: UPDATED,
     ko: {
+      bowling: {
+        title: '볼링 상식',
+        html: `
+<p>볼링을 더 재미있게 즐기기 위한 기본 지식을 모았어요.</p>
+
+<h3>1. 볼링은 어떤 경기?</h3>
+<ul>
+  <li>중세 독일 교회에서 악마를 상징하는 곤봉(핀)을 쓰러뜨리던 의식에서 시작됐다고 알려져 있어요.</li>
+  <li>공을 굴려 삼각형으로 세워진 <b>핀 10개</b>를 쓰러뜨리는 실내 경기로, 나이와 체력에 상관없이 누구나 즐길 수 있는 생활 스포츠예요.</li>
+</ul>
+
+<h3>2. 경기 방법</h3>
+<ul>
+  <li>한 게임은 <b>10프레임</b>이에요. 프레임마다 최대 2번 던질 수 있어요.</li>
+  <li>첫 투구에 10개를 모두 쓰러뜨리면 <b>스트라이크</b>, 두 번에 걸쳐 모두 쓰러뜨리면 <b>스페어</b>예요. 남은 핀을 다 못 쓰러뜨리면 <b>미스</b>(오픈 프레임)예요.</li>
+  <li><b>10프레임</b>에서 스트라이크나 스페어를 하면 보너스 투구를 더 해서 최대 3번까지 던져요.</li>
+  <li>첫 투구가 거터나 파울이어도 두 번째 투구에 10개를 다 쓰러뜨리면 스트라이크가 아니라 <b>스페어</b>로 기록돼요.</li>
+</ul>
+
+<h3>3. 점수 계산</h3>
+<ul>
+  <li><b>스트라이크 (X)</b>: 10점 + <b>다음 두 번 투구</b>에서 쓰러뜨린 핀 수를 보너스로 더해요.<br><small>예) X → 다음 프레임 7, 2 ⇒ 10 + 7 + 2 = 19점</small></li>
+  <li><b>스페어 (/)</b>: 10점 + <b>다음 한 번 투구</b>의 핀 수를 더해요.<br><small>예) 6 / → 다음 첫 투구 8 ⇒ 10 + 8 = 18점</small></li>
+  <li><b>그 외</b>: 두 번 투구에서 쓰러뜨린 핀 수만큼이에요.</li>
+  <li>점수는 프레임마다 앞 프레임 점수에 계속 더해져요. 스트라이크·스페어는 보너스 투구가 끝나야 그 프레임 점수가 확정돼요.</li>
+  <li><b>퍼펙트 게임</b>: 12번 연속 스트라이크면 만점 <b>300점</b>이에요.</li>
+</ul>
+
+<h3>4. 점수표 기호</h3>
+<ul>
+  <li><b>X</b> 스트라이크 · <b>/</b> 스페어 · <b>-</b> 하나도 못 쓰러뜨림(0점) · <b>G</b> 거터 · <b>F</b> 파울(0점)</li>
+  <li><b>파울</b>: 던질 때 몸(발끝 등)이 파울라인을 넘으면 그 투구는 0점이 돼요.</li>
+  <li><b>스플릿</b>: 첫 투구에서 1번(헤드) 핀이 쓰러지고, 남은 핀들 사이가 벌어져 있는 상태예요. 예) 7-10번, 4-6번. 1번 핀이 남아 있으면 스플릿이 아니에요.</li>
+</ul>
+
+<h3>5. 레인과 핀</h3>
+<ul>
+  <li><b>어프로치</b>: 공을 던지기 위해 걸어 나가는 구역(길이 약 4.6m 이상).</li>
+  <li><b>파울라인</b>: 어프로치와 레인의 경계선. 밟거나 넘으면 파울이에요.</li>
+  <li><b>스폿</b>: 레인 바닥의 점과 삼각형 표시. 핀이 아니라 이 표시를 보고 던지면 방향 잡기가 쉬워요.</li>
+  <li><b>거터</b>: 레인 양옆의 홈. 공이 빠지면 핀을 맞히지 못해요.</li>
+  <li><b>핀 배열</b>: 맨 앞이 1번(헤드핀), 그 뒤로 2–3번, 4–6번, 7–10번이 역삼각형으로 서 있고, 핀 사이 간격은 약 30cm예요.</li>
+</ul>
+
+<h3>6. 장비</h3>
+<ul>
+  <li><b>볼</b>: 무게는 최대 16파운드(약 7.2kg). 처음에는 볼링장의 <b>하우스볼</b>로 여러 무게를 써 보고 손에 맞는 공을 찾은 뒤, 익숙해지면 <b>마이볼</b>을 맞추는 것이 좋아요. 체중의 약 10% 무게가 흔히 쓰이는 기준이에요.</li>
+  <li><b>볼링화</b>: 미끄러져 멈추는 쪽 발(오른손잡이는 왼발) 바닥은 잘 미끄러지는 재질, 반대쪽은 미끄럼 방지 고무예요. 반드시 신고, 젖지 않게 해야 해요.</li>
+  <li><b>손목 보호대</b>: 손목을 고정해 공의 방향과 회전을 안정시켜 줘요.</li>
+</ul>
+
+<h3>7. 그립과 구질</h3>
+<ul>
+  <li><b>컨벤셔널 그립</b>: 중지·약지를 둘째 마디까지 넣어요. 안정적이라 초보자에게 좋아요.</li>
+  <li><b>핑거팁 그립</b>: 손가락 끝마디만 넣어요. 회전을 많이 줄 수 있어 숙련자가 많이 써요.</li>
+  <li><b>스트레이트</b>: 곧게 굴러가는 공. 컨트롤이 쉬워 초보자에게 맞아요.</li>
+  <li><b>훅</b>: 곧게 가다가 핀 앞에서 휘어 들어가는 공. 핀을 쓰러뜨리는 힘이 커서 스트라이크 확률이 높아요.</li>
+  <li><b>커브</b>: 크게 활 모양으로 휘는 공. 위력은 크지만 컨트롤이 어려워요.</li>
+  <li><b>백업</b>: 훅과 반대 방향으로 휘는 공. 손목이 바깥으로 돌아가며 생기는 경우가 많아요.</li>
+</ul>
+
+<h3>8. 잘 치는 요령</h3>
+<ul>
+  <li><b>4스텝</b>이 가장 기본이에요. 첫걸음과 함께 공을 앞으로 밀어 내고, 시계추처럼 팔에 힘을 빼고 흔들어요.</li>
+  <li>던질 때는 엄지가 먼저 빠지고 중지·약지로 공을 들어 올리듯 놓아 주며, 끝까지 팔을 앞으로 뻗어(팔로스루) 마무리해요.</li>
+  <li>마지막 걸음은 무릎을 굽히고 자세를 낮춰 미끄러지듯 멈춰야 균형이 잡혀요.</li>
+  <li><b>스페어 처리</b>: 남은 핀 중 가장 앞의 핀(키 핀)을 먼저 노리고, 핀끼리 서로 쓰러뜨리는 각도를 생각해요.</li>
+</ul>
+
+<h3>9. 에티켓</h3>
+<ul>
+  <li>옆 레인 사람과 동시에 어프로치에 섰다면 <b>오른쪽 레인</b>에 먼저 양보해요.</li>
+  <li>준비가 됐으면 바로 던지고, 다른 사람이 던질 때는 방해하지 않아요.</li>
+  <li>파울라인을 넘어 레인에 들어가지 않아요.</li>
+  <li>다른 사람의 공을 허락 없이 쓰지 않아요.</li>
+  <li>스트라이크나 스페어가 나오면 함께 박수로 축하해요. 점수가 안 나와도 레인 탓은 하지 않기!</li>
+</ul>
+
+<h3>10. 안전</h3>
+<ul>
+  <li>던지기 전에 손목·어깨·허리·다리를 충분히 풀어 주세요.</li>
+  <li>공을 들 때는 공과 공 사이에 손가락이 끼지 않도록 <b>양손으로 옆에서</b> 잡아요.</li>
+  <li>볼링화 바닥이 젖으면 미끄러지지 않아 넘어질 수 있어요. 음료는 정해진 자리에서만 마셔요.</li>
+</ul>
+
+<p class="doc-date">참고: <a href="http://sports.koreanpc.kr:9000/sports_follow/sub/bowling/bowling_1_01_01.asp?naviNum=2" target="_blank" rel="noopener">KPC 생활체육 볼링 안내</a> 내용을 바탕으로 앱에 맞게 다시 정리했어요.</p>`,
+      },
       guide: {
         title: '사용설명서',
         html: `
@@ -139,6 +226,93 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       },
     },
     en: {
+      bowling: {
+        title: 'Bowling Basics',
+        html: `
+<p>A quick guide to get more out of every game.</p>
+
+<h3>1. What is bowling?</h3>
+<ul>
+  <li>It is said to come from a ritual in medieval German churches, where people knocked down clubs that stood for the devil.</li>
+  <li>Today it's an indoor game: roll a ball to knock down <b>10 pins</b> set in a triangle. Anyone can play, at any age or fitness level.</li>
+</ul>
+
+<h3>2. How a game works</h3>
+<ul>
+  <li>A game has <b>10 frames</b>, with up to two balls per frame.</li>
+  <li>All 10 pins on the first ball is a <b>strike</b>; all 10 using both balls is a <b>spare</b>; pins left standing is an <b>open frame</b>.</li>
+  <li>In the <b>10th frame</b>, a strike or spare earns bonus balls — up to three in total.</li>
+  <li>If the first ball is a gutter or foul and the second knocks down all 10, it counts as a <b>spare</b>, not a strike.</li>
+</ul>
+
+<h3>3. Scoring</h3>
+<ul>
+  <li><b>Strike (X)</b>: 10 + the pins from your <b>next two balls</b>.<br><small>e.g. X, then 7 and 2 ⇒ 10 + 7 + 2 = 19</small></li>
+  <li><b>Spare (/)</b>: 10 + the pins from your <b>next ball</b>.<br><small>e.g. 6 /, then 8 ⇒ 10 + 8 = 18</small></li>
+  <li><b>Open frame</b>: just the pins knocked down.</li>
+  <li>Each frame adds to the running total; strikes and spares are final once their bonus balls are thrown.</li>
+  <li><b>Perfect game</b>: 12 strikes in a row scores the maximum, <b>300</b>.</li>
+</ul>
+
+<h3>4. Score-sheet marks</h3>
+<ul>
+  <li><b>X</b> strike · <b>/</b> spare · <b>-</b> no pins (0) · <b>G</b> gutter · <b>F</b> foul (0)</li>
+  <li><b>Foul</b>: if any part of your body crosses the foul line as you throw, that ball scores 0.</li>
+  <li><b>Split</b>: the head pin falls on the first ball and the pins left have a gap between them, e.g. 7-10 or 4-6. If the 1-pin is still standing it isn't a split.</li>
+</ul>
+
+<h3>5. Lane and pins</h3>
+<ul>
+  <li><b>Approach</b>: the runway where you walk up (at least about 4.6 m long).</li>
+  <li><b>Foul line</b>: the line between the approach and the lane — don't step over it.</li>
+  <li><b>Arrows and dots</b>: aim at these marks on the lane rather than at the pins; it's much easier to keep your line.</li>
+  <li><b>Gutters</b>: the channels on both sides; a ball that drops in can't hit any pins.</li>
+  <li><b>Pin layout</b>: 1-pin (head pin) in front, then 2–3, 4–6 and 7–10 in a triangle, about 30 cm apart.</li>
+</ul>
+
+<h3>6. Equipment</h3>
+<ul>
+  <li><b>Ball</b>: up to 16 lb (about 7.2 kg). Start with the alley's <b>house balls</b> to find a weight and fit that suit you, then get your own ball once you're comfortable. About 10% of your body weight is a common guide.</li>
+  <li><b>Shoes</b>: the sliding sole (left foot for right-handers) is slick, the other is rubber for grip. Always wear them and keep them dry.</li>
+  <li><b>Wrist support</b>: keeps your wrist steady for a more consistent line and spin.</li>
+</ul>
+
+<h3>7. Grips and ball paths</h3>
+<ul>
+  <li><b>Conventional grip</b>: middle and ring fingers in to the second knuckle — stable and great for beginners.</li>
+  <li><b>Fingertip grip</b>: only the fingertips in — more spin, used by experienced bowlers.</li>
+  <li><b>Straight</b>: rolls in a straight line; easiest to control.</li>
+  <li><b>Hook</b>: goes straight, then breaks into the pins near the end — more pin action and more strikes.</li>
+  <li><b>Curve</b>: a wide arc — powerful but hard to control.</li>
+  <li><b>Backup</b>: breaks the opposite way to a hook, often from the wrist turning outward.</li>
+</ul>
+
+<h3>8. Tips</h3>
+<ul>
+  <li>A <b>four-step approach</b> is the standard. Push the ball out with your first step and let your arm swing like a pendulum, without forcing it.</li>
+  <li>At release, your thumb leaves first and your fingers lift the ball; keep reaching toward your target in the follow-through.</li>
+  <li>Bend your knee and stay low as you slide on the last step to keep your balance.</li>
+  <li><b>Spares</b>: aim for the front-most remaining pin (the key pin) and think about which pins will knock others down.</li>
+</ul>
+
+<h3>9. Etiquette</h3>
+<ul>
+  <li>If you and the bowler next to you step up at the same time, let the one on the <b>right</b> go first.</li>
+  <li>Bowl promptly when it's your turn, and don't distract others while they bowl.</li>
+  <li>Never cross the foul line onto the lane.</li>
+  <li>Don't use someone else's ball without asking.</li>
+  <li>Cheer strikes and spares — and don't blame the lane for a bad score!</li>
+</ul>
+
+<h3>10. Safety</h3>
+<ul>
+  <li>Warm up your wrists, shoulders, back and legs before you start.</li>
+  <li>Pick a ball up with <b>both hands from the sides</b> so your fingers can't get pinched between balls.</li>
+  <li>Wet shoe soles won't slide and can make you fall; keep drinks in the seating area.</li>
+</ul>
+
+<p class="doc-date">Source: rewritten for this app from the <a href="http://sports.koreanpc.kr:9000/sports_follow/sub/bowling/bowling_1_01_01.asp?naviNum=2" target="_blank" rel="noopener">KPC community-sports bowling guide</a> (Korean).</p>`,
+      },
       guide: {
         title: 'User Guide',
         html: `

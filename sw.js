@@ -1,6 +1,6 @@
 // Offline support: network first, falling back to the cache (so updates show up right away when online).
 // App files are always revalidated with the server so the browser's HTTP cache can't serve an old version.
-const CACHE = 'best-bowling-v24';
+const CACHE = 'best-bowling-v25';
 const ASSETS = [
   './', './index.html', './css/style.css', './js/docs.js', './js/app.js', './manifest.webmanifest', './privacy.html', './js/privacy.js',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
