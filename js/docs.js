@@ -109,50 +109,60 @@ window.BB_DOCS = (() => {
 
 <h3>2. 회원 등록 <small>회원 탭</small></h3>
 <ul>
-  <li>이름과 기본 핸디를 입력하고 <b>멤버 추가</b>를 누릅니다.</li>
+  <li>이름과 기본 핸디(0~300)를 입력하고 <b>멤버 추가</b>를 누릅니다. 회원은 이름 순으로 정렬돼요.</li>
   <li>✏️ 버튼으로 이름·핸디를 수정하고, 🗑 버튼으로 삭제합니다. 삭제해도 지난 기록의 점수는 남아요.</li>
   <li>기록 탭의 참가 멤버 화면에서도 바로 새 멤버를 추가할 수 있어요.</li>
 </ul>
 
-<h3>3. 점수 기록 <small>기록 탭</small></h3>
+<h3>3. 날짜 고르기</h3>
 <ul>
-  <li><b>날짜 선택</b>: 맨 위 날짜를 누르면 달력이 열려요. 기록이 있는 날은 금색 동그라미로 표시돼요. 아래 <b>최근 기록</b>을 눌러 바로 이동할 수도 있어요.</li>
-  <li><b>참가 멤버</b>: 이름을 눌러 참가자를 고르고, 사람마다 그날의 <b>핸디</b>를 입력합니다.</li>
+  <li>기록·정산 탭에서는 화면 맨 위 <b>Best Bowling</b> 오른쪽에 작은 <b>탁상 달력</b>이 있어요.</li>
+  <li><b>‹ ›</b> 버튼으로 하루씩 앞뒤로 옮기고, 달력을 누르면 한 달 달력이 펼쳐져요. 기록이 있는 날은 금색 동그라미로 표시되고, <b>오늘</b> 버튼으로 바로 돌아올 수 있어요.</li>
+  <li>미래 날짜는 고를 수 없어요. 기록 탭의 <b>최근 기록</b>을 눌러 최근 5일로 바로 이동할 수도 있어요.</li>
+</ul>
+
+<h3>4. 점수 기록 <small>기록 탭</small></h3>
+<ul>
+  <li><b>참가 멤버</b>: 이름을 눌러 참가자를 고르고, 사람마다 그날의 <b>핸디</b>를 입력합니다. 핸디 칸이 비어 있으면 0이에요.</li>
   <li><b>개인전 / 팀전</b>: 팀전을 고르면 팀 수(2~4)를 정하고, 멤버 옆 A·B·C·D 버튼으로 팀을 옮겨요. 팀 이름 옆 ✏️ 버튼으로 팀 이름을 바꿀 수 있어요.</li>
-  <li><b>게임</b>: 기본으로 4게임이 준비돼 있고, <b>+</b> 버튼으로 더 추가할 수 있어요.</li>
+  <li><b>첫 경기는 연습</b>: 점수 입력 카드 위쪽 버튼을 켜면 그날 1게임은 연습으로 표시되고 총점·평균·순위에서 빠져요.</li>
+  <li><b>게임</b>: 기본으로 4게임이 준비돼 있고, <b>+</b> 버튼으로 더 추가할 수 있어요. 점수가 없는 뒤쪽 게임은 결과와 통계에 나오지 않아요.</li>
   <li><b>최종결과 입력</b>: 사람별로 게임 점수(0~300)만 입력합니다.</li>
   <li><b>프레임별 입력</b>: 점수판을 누르면 키패드가 열려요. <b>X</b> 스트라이크, <b>/</b> 스페어, <b>-</b> 거터(0), 숫자는 쓰러뜨린 핀 수입니다. 점수는 자동 계산되고, 한 프레임이 끝나면 다음 사람으로 넘어가요. ⌫ 버튼으로 마지막 투구를 지웁니다.</li>
+  <li>입력 방식은 <b>게임마다</b> 따로 정할 수 있고, 두 방식에 넣은 값은 각각 남아 있어요. 프레임으로 입력한 게임을 최종결과로 바꾸면 계산된 점수가 그대로 채워져요.</li>
   <li><b>팀별 보기</b>: 팀전에서는 <b>전체 / A팀 / B팀…</b> 버튼으로 입력할 팀만 골라 볼 수 있어요.</li>
-  <li><b>첫 경기는 연습</b>: 경기 결과 오른쪽 위 버튼을 켜면 그날 1게임은 연습으로 표시되고 총점·평균에서 빠져요.</li>
-  <li><b>경기 결과</b>: 순위, 게임별 점수, 핸디 합계, 총점, 평균과 팀 결과가 자동으로 정리돼요.</li>
+  <li><b>경기 결과</b>: 순위, 게임별 점수, 핸디 합계, 총점, 평균과 팀 결과(1위 팀에 왕관)가 자동으로 정리돼요. 제목 옆에 입력 방식(최종결과 / 프레임별 / 혼합)이 표시돼요.</li>
   <li><b>이미지 저장 / 공유하기</b>: 결과를 이미지로 저장하거나 카카오톡 등으로 바로 보낼 수 있어요.</li>
+  <li><b>지난 기록 잠금</b>: 오늘 이전 날짜의 기록은 실수로 바뀌지 않게 잠겨 있고, 참가한 사람만 보여요. 고치려면 <b>수정</b> 버튼을 누르세요.</li>
 </ul>
 <p>입력한 내용은 자동으로 저장돼요. 따로 저장 버튼을 누를 필요가 없어요.</p>
 
-<h3>4. 비용 정산 <small>정산 탭</small></h3>
+<h3>5. 비용 정산 <small>정산 탭</small></h3>
 <ul>
-  <li>날짜를 고르고 <b>경기비(1게임당)</b>와 <b>신발비(1인당)</b>를 입력합니다.</li>
-  <li><b>기록에서 불러오기</b>를 누르면 그날 참가자와 각자 친 게임 수가 채워져요.</li>
+  <li><b>금액 단위</b>(원화 / 달러 / 유로)를 고르고, <b>경기비(1게임당)</b>와 <b>신발비(1인당)</b>를 입력합니다. 금액은 3자리마다 콤마가 붙어요.</li>
+  <li><b>기록에서 불러오기</b>를 누르면 그날 참가자와 각자 친 게임 수가 채워져요. 연습 게임도 비용에는 포함돼요.</li>
   <li>사람마다 체크(포함 여부), 게임 수(−/+), <b>신발 포함</b>을 정하면 개인별 금액과 총액이 계산돼요.</li>
   <li>팀전 기록이 있는 날은 <b>개인별 / 팀별</b> 버튼으로 팀별 합계를 볼 수 있어요.</li>
-  <li><b>기타 금액</b>: 음료·간식 같은 추가 비용을 항목으로 넣고, <b>나눠서 부담</b>(선택한 사람끼리 똑같이)이나 <b>한 사람 부담</b>을 고르면 개인별 금액에 더해져요.</li>
-  <li><b>이미지 저장 / 공유하기</b>로 정산표를 보낼 수 있어요.</li>
+  <li><b>기타 금액</b>: <b>항목 추가</b>로 음료·간식 같은 추가 비용을 넣고, <b>나눠서 부담</b>(이름을 눌러 고른 사람끼리 똑같이)이나 <b>한 사람 부담</b>을 고르면 개인별 금액에 더해져요. 나누어 떨어지지 않으면 몇 사람이 1원씩 더 내서 합계가 정확히 맞아요.</li>
+  <li><b>이미지 저장 / 공유하기</b>로 정산표를 보낼 수 있어요. 기타 금액이 있으면 개인별·팀별 표에 <b>기타</b> 칸이 생기고, 기타 금액 표도 함께 들어가요.</li>
 </ul>
 
-<h3>5. 통계 <small>통계 탭</small></h3>
+<h3>6. 통계 <small>통계 탭</small></h3>
 <ul>
   <li>맨 위에서 <b>기간</b>(전체·이번 달·3개월·올해)을 고르고, 멤버 이름을 눌러 개인 통계를 봅니다.</li>
-  <li><b>게임별</b>: 최근 게임 점수 그래프, 게임 순서별 평균, 전체 게임 기록</li>
+  <li><b>게임별</b>: 게임 점수 추이 그래프(점선은 평균), 게임 순서별 평균, 전체 게임 기록(10개가 넘으면 표 안에서 스크롤)</li>
   <li><b>최종 점수별</b>: 날짜별 평균 그래프와 날짜별 최종 점수표(날짜를 누르면 그날 기록으로 이동)</li>
-  <li>맨 아래 <b>전체 순위</b>는 평균 점수 기준이에요. 연습 게임은 통계에서 빠집니다.</li>
+  <li>맨 아래 <b>전체 순위</b>는 평균 점수 기준이에요.</li>
+  <li>연습 게임은 통계에서 빠져요. 단, <b>게임 순서별 평균</b>에는 포함되고 “연습 n회 포함”으로 표시돼요.</li>
 </ul>
 
-<h3>6. 설정과 백업</h3>
+<h3>7. 설정과 백업</h3>
 <ul>
-  <li><b>언어</b>: 한국어 / English (영어에서는 금액이 달러로 표시돼요)</li>
+  <li><b>언어</b>: 한국어 / English. 금액 단위를 따로 고르지 않았다면 한국어는 원화, 영어는 달러로 표시돼요.</li>
   <li><b>화면 모드</b>: 라이트 / 다크 / 시스템</li>
-  <li><b>백업 파일 내보내기 / 가져오기</b>: 모든 기록은 이 휴대폰에만 저장돼요. 휴대폰을 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업 파일을 내보내 주세요.</li>
+  <li><b>백업 저장 / 백업 파일 가져오기</b>: 모든 기록은 이 휴대폰에만 저장돼요. 휴대폰을 바꾸거나 앱을 다시 설치하거나 브라우저 데이터를 지우기 전에 꼭 백업 파일을 저장해 주세요.</li>
   <li><b>모든 데이터 삭제</b>: 멤버와 기록을 모두 지웁니다. 되돌릴 수 없어요.</li>
+  <li><b>앱 정보</b>: 볼링 상식, 이 사용설명서, 개인정보 처리방침, 이용약관, 오픈소스 라이선스를 볼 수 있어요.</li>
 </ul>`,
       },
       privacy: {
@@ -327,50 +337,60 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 <h3>2. Members <small>Members tab</small></h3>
 <ul>
-  <li>Enter a name and default handicap, then tap <b>Add member</b>.</li>
+  <li>Enter a name and default handicap (0–300), then tap <b>Add member</b>. Members are listed by name.</li>
   <li>Use ✏️ to edit and 🗑 to delete. Deleting a member keeps their past scores.</li>
   <li>You can also add a new member right from the Players card on the Scores tab.</li>
 </ul>
 
-<h3>3. Recording scores <small>Scores tab</small></h3>
+<h3>3. Picking a date</h3>
 <ul>
-  <li><b>Pick a date</b>: tap the date at the top to open the calendar. Days with records are circled in gold. Tap a <b>Recent</b> chip to jump to that day.</li>
-  <li><b>Players</b>: tap names to select who played, and set each player's <b>handicap</b> for the day.</li>
+  <li>On the Scores and Settle tabs, a small <b>desk calendar</b> sits to the right of <b>Best Bowling</b> at the top.</li>
+  <li>Use <b>‹ ›</b> to step one day back or forward, or tap the calendar to open the month view. Days with records are circled in gold, and <b>Today</b> jumps back to today.</li>
+  <li>Future dates can't be picked. On the Scores tab you can also tap a <b>Recent</b> chip to jump to one of the last 5 days.</li>
+</ul>
+
+<h3>4. Recording scores <small>Scores tab</small></h3>
+<ul>
+  <li><b>Players</b>: tap names to select who played, and set each player's <b>handicap</b> for the day. An empty handicap box means 0.</li>
   <li><b>Singles / Teams</b>: in Teams, choose 2–4 teams and move players with the A·B·C·D buttons. Tap ✏️ next to a team name to rename it.</li>
-  <li><b>Games</b>: 4 games are ready by default; tap <b>+</b> to add more.</li>
+  <li><b>1st game is practice</b>: turn this on at the top of the score card to mark game 1 as practice and leave it out of totals, averages and rankings.</li>
+  <li><b>Games</b>: 4 games are ready by default; tap <b>+</b> to add more. Empty games at the end don't show in results or stats.</li>
   <li><b>Final Score</b>: just type each player's game score (0–300).</li>
   <li><b>By Frame</b>: tap a score sheet to open the keypad. <b>X</b> strike, <b>/</b> spare, <b>-</b> gutter (0), numbers are pins knocked down. Scores are calculated automatically and the keypad moves to the next player after each frame. ⌫ undoes the last ball.</li>
+  <li>The input mode is chosen <b>per game</b>, and values entered in either mode are kept. Switching a frame-entered game to Final Score fills in the calculated scores.</li>
   <li><b>Team filter</b>: in team matches, use <b>All / Team A / Team B…</b> to show only the team you're entering.</li>
-  <li><b>1st game is practice</b>: turn this on at the top right of Results to mark game 1 as practice and leave it out of totals and averages.</li>
-  <li><b>Results</b>: rankings, per-game scores, handicap, totals, averages and team results are summarized automatically.</li>
+  <li><b>Results</b>: rankings, per-game scores, handicap, totals, averages and team results (with a crown for the winning team) are summarized automatically. The title shows how scores were entered (final / by frame / mixed).</li>
   <li><b>Save image / Share</b>: save the results as an image or send it straight to a messaging app.</li>
+  <li><b>Locked past records</b>: records before today are locked so they can't change by accident, and only the players who played are shown. Tap <b>Edit</b> to change them.</li>
 </ul>
 <p>Everything you enter is saved automatically — there's no save button to press.</p>
 
-<h3>4. Settle up <small>Settle tab</small></h3>
+<h3>5. Settle up <small>Settle tab</small></h3>
 <ul>
-  <li>Pick a date and enter the <b>game fee (per game)</b> and <b>shoe rental (per person)</b>.</li>
-  <li><b>Load from scores</b> fills in that day's players and how many games each played.</li>
+  <li>Choose the <b>currency</b> (KRW / USD / EUR) and enter the <b>game fee (per game)</b> and <b>shoe rental (per person)</b>. Amounts are grouped with commas as you type.</li>
+  <li><b>Load from scores</b> fills in that day's players and how many games each played. Practice games are still charged.</li>
   <li>For each person set the check (included), games (−/+) and <b>Shoes</b> to get each amount and the total.</li>
   <li>On days with a team match, switch between <b>Per person / Per team</b>.</li>
-  <li><b>Extra costs</b>: add items such as drinks or snacks, then choose <b>Split</b> (evenly among the people you pick) or <b>One person</b>; each share is added to that person's amount.</li>
-  <li>Use <b>Save image / Share</b> to send the settlement.</li>
+  <li><b>Extra costs</b>: tap <b>Add item</b> for drinks, snacks and so on, then choose <b>Split</b> (evenly among the people you tap) or <b>One person</b>; each share is added to that person's amount. Uneven splits put the extra cent or won on a few people so the total adds up exactly.</li>
+  <li>Use <b>Save image / Share</b> to send the settlement. With extra costs, the per-person and per-team tables get an <b>Extra</b> column, and an extra-costs table is included.</li>
 </ul>
 
-<h3>5. Stats <small>Stats tab</small></h3>
+<h3>6. Stats <small>Stats tab</small></h3>
 <ul>
   <li>Choose a <b>period</b> (All, This month, 3 months, This year) at the top, then tap a member's name.</li>
-  <li><b>By game</b>: recent game scores chart, average by game order, and every game played.</li>
+  <li><b>By game</b>: game score trend chart (dashed line = average), average by game order, and every game played (scrolls inside the table past 10 rows).</li>
   <li><b>By session</b>: average-by-date chart and final scores by date (tap a date to open that day).</li>
-  <li>The <b>Leaderboard</b> at the bottom ranks by average. Practice games are not counted.</li>
+  <li>The <b>Leaderboard</b> at the bottom ranks by average.</li>
+  <li>Practice games are left out of stats, except <b>average by game order</b>, which includes them and notes “incl. n practice”.</li>
 </ul>
 
-<h3>6. Settings &amp; backup</h3>
+<h3>7. Settings &amp; backup</h3>
 <ul>
-  <li><b>Language</b>: 한국어 / English (amounts are shown in dollars in English)</li>
+  <li><b>Language</b>: 한국어 / English. If you haven't picked a currency, amounts show in won in Korean and dollars in English.</li>
   <li><b>Appearance</b>: Light / Dark / System</li>
-  <li><b>Export / Import backup</b>: all records live only on this phone. Export a backup before switching phones or clearing browser data.</li>
+  <li><b>Save backup / Import backup</b>: all records live only on this phone. Save a backup before switching phones, reinstalling the app or clearing browser data.</li>
   <li><b>Erase all data</b>: deletes all members and records. This cannot be undone.</li>
+  <li><b>About</b>: bowling basics, this guide, privacy policy, terms and open-source licenses.</li>
 </ul>`,
       },
       privacy: {
