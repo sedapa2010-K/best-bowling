@@ -789,3 +789,8 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .tc-w { font-size: 10px; line-height: 12px; font-weight: 800; color: #6b7280; margin-bottom: 2px; }
 .tc-w.sun { color: #d0263c; }
 .tc-w.sat { color: #2f6fd6; }
+
+/* Player handicap on the entry screen: same box as the quick-add 핸디 field (narrower inside team sections) */
+.prow .field.hdf { flex: 0 0 auto; width: 72px; height: 44px; padding: 0 4px; font-size: 16px; border-radius: 12px; }
+.tsec .prow .field.hdf { width: 58px; }
+#sess.locked .prow .field.hdf { border-style: dashed; background: transparent; }

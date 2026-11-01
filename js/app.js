@@ -549,7 +549,8 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
-      const hdInput = (p) => `<label class="hd"><span class="hd-l">${t('hdcp')}</span><input class="field num sm" type="number" inputmode="numeric" aria-label="${t('hdcp')}" min="0" max="300" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}"></label>`;
+      // Same look as the quick-add 핸디 box: plain field, label as placeholder, empty when the handicap is 0
+      const hdInput = (p) => `<input class="field num hdf" type="number" inputmode="numeric" placeholder="${t('hdcp')}" aria-label="${t('hdcp')}" min="0" max="300" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp) || ''}">`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
