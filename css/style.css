@@ -769,3 +769,23 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 
 /* Quick add on the entry screen: button as tall as the name/handicap fields */
 .quick .btn.sm { height: 44px; border-radius: 12px; padding: 0 16px; }
+
+/* Top bar date: desk-calendar tile to the right of the title (record and settle tabs) */
+.topbar { justify-content: space-between; gap: 10px; padding-top: calc(6px + env(safe-area-inset-top)); padding-bottom: 6px; }
+.topcal { display: flex; align-items: center; gap: 6px; }
+.topcal:empty { display: none; }
+.tc-nav { width: 32px; height: 44px; border-radius: 11px; display: grid; place-items: center; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line-strong); margin-top: 13px; }
+.tc-nav .ic { width: 16px; height: 16px; }
+.tc-nav:disabled { opacity: .3; cursor: default; }
+.tc-tile { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.tc-tile:active .tc-card { transform: scale(.96); }
+.tc-y { font-size: 11px; line-height: 12px; font-weight: 800; color: var(--gold); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.tc-card { width: 50px; border-radius: 10px; overflow: hidden; background: #fbf8f1; display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 4px 12px -5px rgba(0, 0, 0, .55), 0 0 0 1px rgba(0, 0, 0, .12); transition: transform .12s; }
+.tc-tile.open .tc-card { box-shadow: 0 0 0 2px var(--gold), 0 4px 12px -5px rgba(0, 0, 0, .55); }
+.tc-m { align-self: stretch; text-align: center; background: var(--gold-grad); color: #2a1d06; font-size: 11px; line-height: 15px; font-weight: 800; }
+.tc-d { font-size: 19px; line-height: 20px; font-weight: 800; color: #14233a; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tc-w { font-size: 10px; line-height: 12px; font-weight: 800; color: #6b7280; margin-bottom: 2px; }
+.tc-w.sun { color: #d0263c; }
+.tc-w.sat { color: #2f6fd6; }

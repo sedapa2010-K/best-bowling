@@ -443,6 +443,7 @@
   function render() {
     document.documentElement.lang = lang();
     renderTabbar();
+    renderTopCal();
     const v = $('#view');
     const prevTabs = $('.gtabs');
     const tabsScroll = prevTabs ? prevTabs.scrollLeft : 0;
@@ -478,17 +479,7 @@
 
   /* ───────── Render: record tab ───────── */
   function calendarHTML() {
-    if (!ui.calOpen) {
-      const isToday = ui.date === ymd(new Date());
-      return `<div class="card cal-bar">
-        <button class="cal-open" data-act="calToggle" aria-expanded="false">
-          <span class="set-ic">${ic('calendar')}</span>
-          <span class="cal-txt"><small>${isToday ? t('today') : t('selectedDate')}</small><b>${dateLong(ui.date)}</b></span>
-          ${ic('down')}
-        </button>
-        ${isToday ? '' : `<button class="cal-today" data-act="calToday">${t('today')}</button>`}
-      </div>`;
-    }
+    if (!ui.calOpen) return '';
     const y = ui.calY, m = ui.calM;
     const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
     const today = ymd(new Date());
@@ -511,6 +502,21 @@
       <div class="cal-w">${WD[lang()].map((w) => `<span>${lang() === 'en' ? w[0] : w}</span>`).join('')}</div>
       <div class="cal-g">${cells}</div>
     </div>`;
+  }
+  // Desk-calendar tile in the top bar (record and settle tabs): tap opens the month view, arrows step a day.
+  function renderTopCal() {
+    const box = $('#topcal');
+    if (!box) return;
+    if (ui.tab !== 'record' && ui.tab !== 'cost') { box.innerHTML = ''; return; }
+    const d = parseYmd(ui.date), wd = d.getDay(), en = lang() === 'en';
+    const isToday = ui.date === ymd(new Date());
+    box.innerHTML = `<button class="tc-nav" data-act="calDay" data-d="-1" aria-label="prev">${ic('left')}</button>
+      <button class="tc-tile${ui.calOpen ? ' open' : ''}${isToday ? ' today' : ''}" data-act="calToggle" aria-expanded="${ui.calOpen}" aria-label="${esc(dateLong(ui.date))}">
+        <span class="tc-y">${d.getFullYear()}</span>
+        <span class="tc-card"><span class="tc-m">${en ? MON[d.getMonth()].toUpperCase() : `${d.getMonth() + 1}월`}</span>
+          <b class="tc-d">${d.getDate()}</b><span class="tc-w${wd === 0 ? ' sun' : wd === 6 ? ' sat' : ''}">${en ? WD.en[wd].toUpperCase() : WD.ko[wd]}</span></span>
+      </button>
+      <button class="tc-nav" data-act="calDay" data-d="1" aria-label="next" ${isToday ? 'disabled' : ''}>${ic('right')}</button>`;
   }
   function recentHTML() {
     const list = Object.values(db.sessions).filter(hasRecord).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
@@ -1504,6 +1510,7 @@
     },
     calMove(el) { const d = new Date(ui.calY, ui.calM + toInt(el.dataset.d), 1); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); render(); },
     calToday() { pickDate(ymd(new Date())); },
+    calDay(el) { const d = parseYmd(ui.date); d.setDate(d.getDate() + toInt(el.dataset.d)); pickDate(ymd(d)); },
     pick(el) {
       if (el.dataset.goto) { ui.tab = el.dataset.goto; window.scrollTo(0, 0); }
       pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
