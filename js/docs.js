@@ -139,7 +139,7 @@ window.BB_DOCS = (() => {
 
 <h3>5. 비용 정산 <small>정산 탭</small></h3>
 <ul>
-  <li><b>금액 단위</b>(원화 / 달러 / 유로)를 고르고, <b>경기비(1게임당)</b>와 <b>신발비(1인당)</b>를 입력합니다. 금액은 3자리마다 콤마가 붙어요.</li>
+  <li><b>금액 단위</b>(원화 / 달러 / 유로 / 엔화)를 고르고, <b>경기비(1게임당)</b>와 <b>신발비(1인당)</b>를 입력합니다. 금액은 3자리마다 콤마가 붙어요.</li>
   <li><b>기록에서 불러오기</b>를 누르면 그날 참가자와 각자 친 게임 수가 채워져요. 연습 게임도 비용에는 포함돼요.</li>
   <li>사람마다 체크(포함 여부), 게임 수(−/+), <b>신발 포함</b>을 정하면 개인별 금액과 총액이 계산돼요.</li>
   <li>팀전 기록이 있는 날은 <b>개인별 / 팀별</b> 버튼으로 팀별 합계를 볼 수 있어요.</li>
@@ -367,7 +367,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 <h3>5. Settle up <small>Settle tab</small></h3>
 <ul>
-  <li>Choose the <b>currency</b> (KRW / USD / EUR) and enter the <b>game fee (per game)</b> and <b>shoe rental (per person)</b>. Amounts are grouped with commas as you type.</li>
+  <li>Choose the <b>currency</b> (KRW / USD / EUR / JPY) and enter the <b>game fee (per game)</b> and <b>shoe rental (per person)</b>. Amounts are grouped with commas as you type.</li>
   <li><b>Load from scores</b> fills in that day's players and how many games each played. Practice games are still charged.</li>
   <li>For each person set the check (included), games (−/+) and <b>Shoes</b> to get each amount and the total.</li>
   <li>On days with a team match, switch between <b>Per person / Per team</b>.</li>

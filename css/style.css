@@ -732,7 +732,7 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .hero-grid.four small { white-space: nowrap; letter-spacing: -.02em; overflow: hidden; text-overflow: clip; }
 .hero-grid.four div { padding: 9px 6px 9px 8px; min-width: 0; }
 .cur-row .label { white-space: nowrap; flex: 0 0 auto; }
-.cur-seg { flex: 1 1 auto; max-width: 230px; min-width: 0; }
+.cur-seg { flex: 1 1 auto; max-width: 270px; min-width: 0; }
 .cur-seg button { white-space: nowrap; padding: 0 4px; }
 
 /* ── Member edit: handicap box is just the number; results title shows the input mode ── */
