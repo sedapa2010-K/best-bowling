@@ -766,3 +766,6 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .crow .pname .xshare { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .crow .pname .xshare:empty { display: none; }
 .hero-grid .hero-wide { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
+
+/* Quick add on the entry screen: button as tall as the name/handicap fields */
+.quick .btn.sm { height: 44px; border-radius: 12px; padding: 0 16px; }

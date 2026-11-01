@@ -1381,19 +1381,24 @@
   function costBlocks(c) {
     const on = rowsByName(c.rows).filter((r) => r.on), x = costTotals(c);
     const groups = costTeams(c);
+    // With extras, the settle tables get a 기타 column so each share is visible next to the total
+    const hasX = on.some((r) => extraShare(r, c));
+    const xCol = hasX ? [{ t: t('extraShort'), w: 1.5, al: 'r' }] : [];
+    const xCell = (v) => (hasX ? [v ? '+' + fmtMoney(v) : '–'] : []);
     if (groups && ui.costView === 'team') {
       const teamName = (id) => { const g = groups.find((gg) => gg.rows.some((r) => r.id === id)); return g && g.ti >= 0 ? `${TEAMS[g.ti]} · ` : ''; };
       return [
         { type: 'kv', items: [[`${t('gameFee')} · ${t('perGame')}`, fmtMoney(c.gameFee)], [`${t('shoeFee')} · ${t('perPerson')}`, fmtMoney(c.shoeFee)]] },
         {
           type: 'table', title: t('teamSettle'),
-          cols: [{ t: t('team'), w: 2.2, al: 'l', bold: true }, { t: t('people'), w: 1, al: 'c' }, { t: t('games'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
-          rows: groups.map((g) => ({ cells: [g.ti === -1 ? t('noTeam') : teamImgLabel(db.sessions[c.date], g.ti), g.rows.length, g.games, fmtMoney(g.total)] })),
+          cols: [{ t: t('team'), w: 2.2, al: 'l', bold: true }, { t: t('people'), w: 1, al: 'c' }, { t: t('games'), w: 1, al: 'c' }, ...xCol, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+          rows: groups.map((g) => ({ cells: [g.ti === -1 ? t('noTeam') : teamImgLabel(db.sessions[c.date], g.ti), g.rows.length, g.games,
+            ...xCell(Math.round(g.rows.reduce((a, r) => a + extraShare(r, c), 0) * 100) / 100), fmtMoney(g.total)] })),
         },
         {
           type: 'table', title: t('perPersonTitle'),
-          cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
-          rows: groups.flatMap((g) => g.rows).map((r) => ({ cells: [teamName(r.id) + rowName(r), r.games, r.shoes ? '✓' : '–', fmtMoney(rowAmount(r, c))] })),
+          cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, ...xCol, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+          rows: groups.flatMap((g) => g.rows).map((r) => ({ cells: [teamName(r.id) + rowName(r), r.games, r.shoes ? '✓' : '–', ...xCell(extraShare(r, c)), fmtMoney(rowAmount(r, c))] })),
         },
         ...extraBlocks(c),
         { type: 'kv', big: true, items: [[t('people'), String(x.people)], [t('totalGames'), String(x.games)], [t('grandTotal'), fmtMoney(x.total)]] },
@@ -1403,8 +1408,8 @@
       { type: 'kv', items: [[`${t('gameFee')} · ${t('perGame')}`, fmtMoney(c.gameFee)], [`${t('shoeFee')} · ${t('perPerson')}`, fmtMoney(c.shoeFee)]] },
       {
         type: 'table', title: t('perPersonTitle'),
-        cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
-        rows: on.map((r) => ({ cells: [rowName(r), r.games, r.shoes ? '✓' : '–', fmtMoney(rowAmount(r, c))] })),
+        cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, ...xCol, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+        rows: on.map((r) => ({ cells: [rowName(r), r.games, r.shoes ? '✓' : '–', ...xCell(extraShare(r, c)), fmtMoney(rowAmount(r, c))] })),
       },
       ...extraBlocks(c),
       { type: 'kv', big: true, items: [[t('people'), String(x.people)], [t('totalGames'), String(x.games)], [t('grandTotal'), fmtMoney(x.total)]] },
