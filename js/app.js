@@ -1774,6 +1774,12 @@
   if (window.top !== window.self) { document.documentElement.innerHTML = ''; return; }
   applyTheme();
   render();
+  const launch = $('#launch');
+  if (launch) {
+    const closeLaunch = () => { launch.classList.add('hide'); setTimeout(() => launch.remove(), 400); };
+    setTimeout(closeLaunch, 1000);
+    launch.addEventListener('click', closeLaunch);
+  }
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     // No reload when an updated worker takes over: it fetches network-first with revalidation, so this launch

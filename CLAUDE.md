@@ -51,7 +51,7 @@ Single IIFE, ordered top to bottom: i18n → storage → UI state → icons → 
 
 ## Launch
 
-There is no in-page splash: the user wants only the phone's own icon screen (manifest `background_color` `#1f3449` + icon; the Android app uses the same). `html` gets the theme `--bg` in style.css, so the first frame already matches the theme. Pull-to-refresh is turned off (`overscroll-behavior-y: none` on `html`/`body`) because it reloads the whole app. Status bar: installed Chrome apps paint the bar from the manifest `theme_color` but choose light/dark icons from the `theme-color` meta, so both are fixed to `#f5f2ec` in every theme.
+The launch screen is icon-only: the phone's own icon screen (manifest `background_color` `#1f3449` + icon; the Android app shows `splash.png`, the icon at 300dp) is continued by an inline `#launch` overlay in `index.html` with the same colour and the icon at 300px, held ~1s by boot code (tap to skip) so the icon doesn't vanish instantly. The user rejected the earlier lane-scene splash and any animation. `html` gets the theme `--bg` in style.css, so the first frame already matches the theme. Pull-to-refresh is turned off (`overscroll-behavior-y: none` on `html`/`body`) because it reloads the whole app. Status bar: installed Chrome apps paint the bar from the manifest `theme_color` but choose light/dark icons from the `theme-color` meta, so both are fixed to `#f5f2ec` in every theme.
 
 ## Styling (css/style.css)
 
