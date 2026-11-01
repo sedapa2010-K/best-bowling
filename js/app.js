@@ -19,7 +19,10 @@
   const I18N = {
     ko: {
       tabRecord: '기록', tabMembers: '회원', tabCost: '정산', tabStats: '통계', tabSettings: '설정',
-      allPlayers: '전체', modeMixed: '혼합 입력', currency: '금액 단위', curKRW: '원화', curUSD: '달러', curEUR: '유로', entryHint: '입력한 점수에 따라 아래 경기 결과가 바로 바뀌어요', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
+      allPlayers: '전체', extraCosts: '기타 금액', extraAdd: '항목 추가', extraEmpty: '음료, 간식 같은 추가 비용을 넣을 수 있어요.', extraLabelPh: '음료, 간식 등',
+      extraSplit: '나눠서 부담', extraOne: '한 사람 부담', extraSplitHint: '{0}명이 1인당 {1}씩 나눠 내요', extraOneHint: '{0} 님이 {1} 모두 부담해요',
+      extraPickOne: '부담할 사람을 선택하세요', extraNoOne: '정산에 포함된 사람이 없어요', extraNeedOne: '최소 한 명은 선택해야 해요', extraShort: '기타',
+      extraItem: '항목', extraWhoCol: '부담', extraSplitN: '{0}명 나눠서', pracIncl: '연습 {0}회 포함', modeMixed: '혼합 입력', currency: '금액 단위', curKRW: '원화', curUSD: '달러', curEUR: '유로', entryHint: '입력한 점수에 따라 아래 경기 결과가 바로 바뀌어요', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
       noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '볼링 상식 · 사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
@@ -60,7 +63,10 @@
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
-      allPlayers: 'All', modeMixed: 'Mixed input', currency: 'Currency', curKRW: 'KRW ₩', curUSD: 'USD $', curEUR: 'EUR €', entryHint: 'Results below update as you enter scores', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
+      allPlayers: 'All', extraCosts: 'Extra costs', extraAdd: 'Add item', extraEmpty: 'Add extras such as drinks or snacks.', extraLabelPh: 'Drinks, snacks…',
+      extraSplit: 'Split', extraOne: 'One person', extraSplitHint: '{0} people pay {1} each', extraOneHint: '{0} pays the full {1}',
+      extraPickOne: 'Choose who pays', extraNoOne: 'No one is included in the settlement', extraNeedOne: 'Pick at least one person', extraShort: 'Extra',
+      extraItem: 'Item', extraWhoCol: 'Paid by', extraSplitN: 'Split by {0}', pracIncl: 'incl. {0} practice', modeMixed: 'Mixed input', currency: 'Currency', curKRW: 'KRW ₩', curUSD: 'USD $', curEUR: 'EUR €', entryHint: 'Results below update as you enter scores', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
       noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Bowling basics · guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
@@ -139,6 +145,9 @@
       date, gameFee: money(x.gameFee, 0), shoeFee: money(x.shoeFee, 0),
       rows: (Array.isArray(x.rows) ? x.rows : []).filter((r) => isObj(r) && ID_RE.test(r.id))
         .map((r) => ({ id: r.id, name: str(r.name, 40), on: r.on !== false, games: clampInt(r.games, 0, 99), shoes: !!r.shoes })),
+      extras: (Array.isArray(x.extras) ? x.extras : []).slice(0, 30).filter((e) => isObj(e) && ID_RE.test(e.id))
+        .map((e) => ({ id: e.id, label: str(e.label, 20), amount: money(e.amount, 0), mode: e.mode === 'one' ? 'one' : 'split',
+          who: (Array.isArray(e.who) ? e.who : []).filter((id) => typeof id === 'string' && ID_RE.test(id)).slice(0, 60) })),
     };
   }
   function normalize(d) {
@@ -260,9 +269,9 @@
     if (c === 'KRW') return lang() === 'ko' ? `${groupNum(n)}원` : `₩${groupNum(n)}`;
     return `${c === 'USD' ? '$' : '€'}${groupNum(n)}`;
   }
-  function moneyInput(k, v) {
+  function moneyInput(k, v, inp = 'fee', id = '') {
     const c = currency();
-    const input = `<input type="text" inputmode="${hasCents() ? 'decimal' : 'numeric'}" autocomplete="off" data-inp="fee" data-k="${k}" value="${esc(groupNum(v))}">`;
+    const input = `<input type="text" inputmode="${hasCents() ? 'decimal' : 'numeric'}" autocomplete="off" data-inp="${inp}" data-k="${k}"${id ? ` data-id="${esc(id)}"` : ''} value="${esc(v ? groupNum(v) : '')}" placeholder="0">`;
     if (c === 'KRW' && lang() === 'ko') return `<div class="money">${input}<em>원</em></div>`;
     return `<div class="money"><em>${c === 'KRW' ? '₩' : c === 'USD' ? '$' : '€'}</em>${input}</div>`;
   }
@@ -814,7 +823,29 @@
     return ui.cdraft;
   }
   const commitCost = (c) => { db.costs[c.date] = c; save(); };
-  const rowAmount = (r, c) => (r.on ? Math.round((r.games * c.gameFee + (r.shoes ? c.shoeFee : 0)) * 100) / 100 : 0);
+  const baseAmount = (r, c) => (r.on ? r.games * c.gameFee + (r.shoes ? c.shoeFee : 0) : 0);
+  // Extra costs (drinks, snacks…): 'split' divides the amount among the chosen people (everyone included
+  // when none are chosen); 'one' charges it all to the single chosen person. Won shares are whole numbers.
+  function extraPayers(x, c) {
+    const onIds = c.rows.filter((r) => r.on).map((r) => r.id);
+    const who = (x.who || []).filter((id) => onIds.includes(id));
+    if (x.mode === 'one') return who.slice(0, 1);
+    return who.length ? who : onIds;
+  }
+  // Exact split: the amount is divided in the smallest unit (1 won or 1 cent) and any remainder goes to
+  // the first payers, so the shares always add up to the item's amount.
+  function splitShare(amount, payers, id) {
+    const i = payers.indexOf(id);
+    if (i < 0 || !amount) return 0;
+    const unit = hasCents() ? 0.01 : 1, units = Math.round(amount / unit), base = Math.floor(units / payers.length);
+    return Math.round((base + (i < units - base * payers.length ? 1 : 0)) * unit * 100) / 100;
+  }
+  function extraShare(r, c) {
+    if (!r.on) return 0;
+    return (c.extras || []).reduce((sum, x) => sum + splitShare(x.amount, extraPayers(x, c), r.id), 0);
+  }
+  const rowAmount = (r, c) => (r.on ? Math.round((baseAmount(r, c) + extraShare(r, c)) * 100) / 100 : 0);
+  const extrasTotal = (c) => (c.extras || []).reduce((a, x) => a + (extraPayers(x, c).length ? x.amount || 0 : 0), 0);
   const rowName = (r) => (memberById(r.id) ? memberById(r.id).name : r.name);
   function costTotals(c) {
     const on = c.rows.filter((r) => r.on);
@@ -844,11 +875,41 @@
           : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
       </div>`).join('')}</div>`;
   }
+  function extraHint(x, c) {
+    const payers = extraPayers(x, c);
+    if (!payers.length) return x.mode === 'one' ? t('extraPickOne') : t('extraNoOne');
+    if (x.mode === 'one') return t('extraOneHint', rowName(c.rows.find((r) => r.id === payers[0])), fmtMoney(x.amount || 0));
+    return t('extraSplitHint', payers.length, fmtMoney(splitShare(x.amount || 0, payers, payers[payers.length - 1])));
+  }
+  function extrasCardHTML(c) {
+    const ppl = rowsByName(c.rows).filter((r) => r.on);
+    const items = (c.extras || []).map((x) => {
+      const payers = extraPayers(x, c);
+      return `<div class="xitem">
+        <div class="xitem-top">
+          <input class="field xlabel" type="text" maxlength="20" placeholder="${t('extraLabelPh')}" data-inp="extraLabel" data-id="${esc(x.id)}" value="${esc(x.label)}">
+          <div class="fee xamt">${moneyInput('amount', x.amount, 'extraAmt', x.id)}</div>
+          <button class="x-btn" data-act="extraDel" data-id="${esc(x.id)}" aria-label="${t('delete')}">${ic('x')}</button>
+        </div>
+        <div class="seg xmode">
+          <button class="${x.mode !== 'one' ? 'on' : ''}" data-act="extraMode" data-id="${esc(x.id)}" data-v="split">${ic('users')}${t('extraSplit')}</button>
+          <button class="${x.mode === 'one' ? 'on' : ''}" data-act="extraMode" data-id="${esc(x.id)}" data-v="one">${ic('userPlus')}${t('extraOne')}</button>
+        </div>
+        ${ppl.length ? `<div class="chips xwho">${ppl.map((r) => `<button class="chip ${payers.includes(r.id) ? 'on' : ''}" data-act="extraWho" data-id="${esc(x.id)}" data-p="${esc(r.id)}">${payers.includes(r.id) ? ic('check') : ''}${esc(rowName(r))}</button>`).join('')}</div>` : ''}
+        <p class="hint xhint" id="xh-${esc(x.id)}">${extraHint(x, c)}</p>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-h"><h3>${ic('receipt')}${t('extraCosts')}</h3><button class="btn sm ghost" data-act="extraAdd">${ic('plus')}${t('extraAdd')}</button></div>
+      ${items || `<p class="hint">${t('extraEmpty')}</p>`}
+    </div>`;
+  }
   function costTotalsHTML(c) {
     const x = costTotals(c);
     return `<div class="eyebrow">${t('grandTotal')}</div>
       <div class="hero-total">${fmtMoney(x.total)}</div>
-      <div class="hero-grid"><div><small>${t('people')}</small><b>${x.people}</b></div><div><small>${t('totalGames')}</small><b>${x.games}</b></div></div>`;
+      <div class="hero-grid"><div><small>${t('people')}</small><b>${x.people}</b></div><div><small>${t('totalGames')}</small><b>${x.games}</b></div>
+        ${extrasTotal(c) ? `<div class="hero-wide"><small>${t('extraCosts')}</small><b>${fmtMoney(extrasTotal(c))}</b></div>` : ''}</div>`;
   }
   function renderCost() {
     const c = costDoc();
@@ -856,7 +917,7 @@
     const rows = rowsByName(c.rows).map((r) => `<div class="crow ${r.on ? '' : 'off'}">
         <div class="crow-top">
           <button class="check ${r.on ? 'on' : ''}" data-act="costToggle" data-id="${esc(r.id)}" aria-label="include">${ic('check')}</button>
-          <span class="pname">${esc(rowName(r))}</span>
+          <span class="pname">${esc(rowName(r))}<small class="xshare" id="xs-${esc(r.id)}">${extraShare(r, c) ? `${t('extraShort')} +${fmtMoney(extraShare(r, c))}` : ''}</small></span>
           <span class="amt" id="amt-${esc(r.id)}">${fmtMoney(rowAmount(r, c))}</span>
         </div>
         <div class="crow-bot">
@@ -885,6 +946,7 @@
         ${others.length && !teamView ? `<div class="divider"></div><div class="field-l">${t('addPerson')}</div>
           <div class="chips">${others.map((m) => `<button class="chip dashed" data-act="costAdd" data-id="${esc(m.id)}">${ic('plus')}${esc(m.name)}</button>`).join('')}</div>` : ''}
       </div>
+      ${extrasCardHTML(c)}
       <div class="card hero" id="costTotals">${costTotalsHTML(c)}</div>
       <div class="actions">
         <button class="btn ghost" data-act="costImg" data-mode="save">${ic('download')}${t('saveImage')}</button>
@@ -893,7 +955,11 @@
   }
   function refreshCostNumbers() {
     const c = costDoc();
-    c.rows.forEach((r) => { const el = $(`#amt-${r.id}`); if (el) el.textContent = fmtMoney(rowAmount(r, c)); });
+    c.rows.forEach((r) => {
+      const el = $(`#amt-${r.id}`); if (el) el.textContent = fmtMoney(rowAmount(r, c));
+      const xs = $(`#xs-${r.id}`); if (xs) xs.textContent = extraShare(r, c) ? `${t('extraShort')} +${fmtMoney(extraShare(r, c))}` : '';
+    });
+    (c.extras || []).forEach((x) => { const h = $(`#xh-${x.id}`); if (h) h.textContent = extraHint(x, c); });
     $('#costTotals').innerHTML = costTotalsHTML(c);
     const tc = $('.tcosts'), groups = tc && costTeams(c);
     if (groups) tc.outerHTML = costTeamsHTML(c, groups);
@@ -916,14 +982,17 @@
     const from = periodFrom() || first;
     return from ? `${dot(from)} ~ ${dot(ymd(new Date()))}` : t('noStats');
   }
-  function memberGames(id) {
+  // A member's scored games in the stats period, oldest first. Practice games are left out unless
+  // `withPractice` is set (only the game-order card uses them, flagged with `prac`).
+  function memberGames(id, withPractice) {
     const out = [], from = periodFrom();
     Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
       const p = s.players.find((x) => x.id === id);
       if (!p || s.date < from) return;
       usedGames(s).forEach((g, gi) => {
         const v = entryScore(g, id);
-        if (v !== null && !isPractice(s, gi)) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp) });
+        const prac = isPractice(s, gi);
+        if (v !== null && (withPractice || !prac)) out.push({ date: s.date, gi, score: v, hdcp: toInt(p.hdcp), prac });
       });
     });
     return out;
@@ -1024,8 +1093,9 @@
 
     if (ui.statView !== 'final') {
       const recent = games.slice(-20);
-      const order = [];
-      games.forEach((g) => { (order[g.gi] = order[g.gi] || []).push(g.score); });
+      // Game-order averages include practice games (the 1st game on practice days), unlike the other stats.
+      const order = [], pracN = [];
+      memberGames(m.id, true).forEach((g) => { (order[g.gi] = order[g.gi] || []).push(g.score); if (g.prac) pracN[g.gi] = (pracN[g.gi] || 0) + 1; });
       const bestAvg = Math.max(...order.filter(Boolean).map(avgOf));
       h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
           ${lineChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
@@ -1034,7 +1104,7 @@
             <span class="order-n">${t('gameN', i + 1)}</span>
             <div class="order-bar"><i style="width:${(avgOf(arr) / 300) * 100}%"></i></div>
             <span class="order-v ${avgOf(arr) === bestAvg ? 'best' : ''}">${avgOf(arr)}</span>
-            <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}</small></div>` : '')).join('')}</div></div>
+            <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}${pracN[i] ? ` · ${t('pracIncl', pracN[i])}` : ''}</small></div>` : '')).join('')}</div></div>
         <div class="card"><div class="card-h"><h3>${ic('pin')}${t('allGames')}</h3><span class="muted">${games.length}</span></div>
           <div class="tbl-wrap ${games.length > 10 ? 'tbl-scroll' : ''}"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
           ${games.slice().reverse().map((g) => `<tr><td class="nm">${sd(g.date)} <small class="muted">${dateShort(g.date).wd}</small></td><td>G${g.gi + 1}</td>
@@ -1325,6 +1395,7 @@
           cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
           rows: groups.flatMap((g) => g.rows).map((r) => ({ cells: [teamName(r.id) + rowName(r), r.games, r.shoes ? '✓' : '–', fmtMoney(rowAmount(r, c))] })),
         },
+        ...extraBlocks(c),
         { type: 'kv', big: true, items: [[t('people'), String(x.people)], [t('totalGames'), String(x.games)], [t('grandTotal'), fmtMoney(x.total)]] },
       ];
     }
@@ -1335,8 +1406,22 @@
         cols: [{ t: t('name'), w: 2.6, al: 'l', bold: true }, { t: t('games'), w: 1, al: 'c' }, { t: t('shoes'), w: 1, al: 'c' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
         rows: on.map((r) => ({ cells: [rowName(r), r.games, r.shoes ? '✓' : '–', fmtMoney(rowAmount(r, c))] })),
       },
+      ...extraBlocks(c),
       { type: 'kv', big: true, items: [[t('people'), String(x.people)], [t('totalGames'), String(x.games)], [t('grandTotal'), fmtMoney(x.total)]] },
     ];
+  }
+  function extraBlocks(c) {
+    const xs = (c.extras || []).filter((x) => x.amount && extraPayers(x, c).length);
+    if (!xs.length) return [];
+    return [{
+      type: 'table', title: t('extraCosts'),
+      cols: [{ t: t('extraItem'), w: 2.2, al: 'l', bold: true }, { t: t('extraWhoCol'), w: 2.4, al: 'l' }, { t: t('amount'), w: 1.8, al: 'r', gold: true }],
+      rows: xs.map((x) => {
+        const payers = extraPayers(x, c);
+        const who = x.mode === 'one' ? rowName(c.rows.find((r) => r.id === payers[0])) : t('extraSplitN', payers.length);
+        return { cells: [x.label || t('extraCosts'), who, fmtMoney(x.amount)] };
+      }),
+    }];
   }
   const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function downloadBlob(blob, name) {
@@ -1517,6 +1602,36 @@
     costToggle(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.on = !r.on; commitCost(c); render(); },
     costShoe(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.shoes = !r.shoes; commitCost(c); render(); },
     costGames(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.games = Math.min(99, Math.max(0, r.games + toInt(el.dataset.d))); commitCost(c); render(); },
+    extraAdd() {
+      const c = costDoc();
+      (c.extras = c.extras || []).push({ id: uid(), label: '', amount: 0, mode: 'split', who: [] });
+      commitCost(c); render();
+      const inputs = $$('.xlabel'); if (inputs.length) inputs[inputs.length - 1].focus();
+    },
+    extraDel(el) { const c = costDoc(); c.extras = (c.extras || []).filter((x) => x.id !== el.dataset.id); commitCost(c); render(); },
+    extraMode(el) {
+      const c = costDoc(), x = (c.extras || []).find((e) => e.id === el.dataset.id);
+      if (!x) return;
+      x.mode = el.dataset.v;
+      // One person: keep the first chosen person (or the first player); split: back to everyone.
+      const firstOn = rowsByName(c.rows).find((r) => r.on);
+      if (x.mode === 'one') x.who = x.who.length ? [x.who[0]] : firstOn ? [firstOn.id] : [];
+      else x.who = [];
+      commitCost(c); render();
+    },
+    extraWho(el) {
+      const c = costDoc(), x = (c.extras || []).find((e) => e.id === el.dataset.id), pid = el.dataset.p;
+      if (!x) return;
+      if (x.mode === 'one') x.who = [pid];
+      else {
+        const cur = extraPayers(x, c);
+        const next = cur.includes(pid) ? cur.filter((id) => id !== pid) : cur.concat(pid);
+        if (!next.length) { toast(t('extraNeedOne')); return; }
+        const all = c.rows.filter((r) => r.on).map((r) => r.id);
+        x.who = next.length === all.length ? [] : next;
+      }
+      commitCost(c); render();
+    },
     costRemove(el) { const c = costDoc(); c.rows = c.rows.filter((x) => x.id !== el.dataset.id); commitCost(c); render(); },
     costAdd(el) {
       const c = costDoc(), m = memberById(el.dataset.id), s = db.sessions[ui.date];
@@ -1562,6 +1677,16 @@
   document.addEventListener('scroll', (e) => { if (e.target.classList && e.target.classList.contains('tbl-wrap')) syncScrollBar(e.target); }, true);
   window.addEventListener('resize', updateScrollBars);
   document.addEventListener('click', showTip);
+  // Money text fields: keep only digits (and one decimal point for dollars/euros), re-show them grouped
+  // by 3 digits while typing, and return the number.
+  function readMoneyInput(el) {
+    let raw = el.value.replace(/[^\d.]/g, '');
+    if (!hasCents()) raw = raw.replace(/\./g, '');
+    const [int = '', ...rest] = raw.split('.');
+    const dec = rest.join('').slice(0, 2);
+    el.value = int === '' && !raw.includes('.') ? '' : Number(int || 0).toLocaleString('en-US') + (raw.includes('.') ? `.${dec}` : '');
+    return Math.min(1e9, Number(`${int || 0}.${dec || 0}`));
+  }
   document.addEventListener('input', (e) => {
     // Handicap boxes on the member forms: keep the typed value within 0–300.
     if (['qH', 'mH', 'eH'].includes(e.target.id) && e.target.value !== '' && String(toHdcp(e.target.value)) !== e.target.value) e.target.value = toHdcp(e.target.value);
@@ -1582,15 +1707,13 @@
       (g.entries[el.dataset.id] || (g.entries[el.dataset.id] = { score: null, rolls: [] })).score = v;
       commit(s); refreshRecordNumbers();
     } else if (k === 'fee') {
-      // Keep only digits (and one decimal point for dollars/euros), then re-show it grouped by 3 digits.
-      let raw = el.value.replace(/[^\d.]/g, '');
-      if (!hasCents()) raw = raw.replace(/\./g, '');
-      const [int = '', ...rest] = raw.split('.');
-      const dec = rest.join('').slice(0, 2);
-      const v = Math.min(1e9, Number(`${int || 0}.${dec || 0}`));
-      const c = costDoc();
+      const c = costDoc(), v = readMoneyInput(el);
       c[el.dataset.k] = v; db.feeDefaults[el.dataset.k] = v;
-      el.value = int === '' && !raw.includes('.') ? '' : Number(int || 0).toLocaleString('en-US') + (raw.includes('.') ? `.${dec}` : '');
+      commitCost(c); refreshCostNumbers();
+    } else if (k === 'extraAmt' || k === 'extraLabel') {
+      const c = costDoc(), x = (c.extras || []).find((e) => e.id === el.dataset.id);
+      if (!x) return;
+      if (k === 'extraAmt') x.amount = readMoneyInput(el); else x.label = el.value.slice(0, 20);
       commitCost(c); refreshCostNumbers();
     }
   });

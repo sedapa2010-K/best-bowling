@@ -743,3 +743,26 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .tbl.pin2 td.nm { white-space: normal; max-width: 112px; min-width: 64px; }
 .tbl.pin2 td.nm .nm-in { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere; }
 .team-card .tm small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+
+/* ── Tables: every number the same size so columns line up; highlight with colour/weight only ── */
+.tbl td { font-size: 13.5px; line-height: 1.25; vertical-align: middle; }
+.tbl td.tot { font-size: 13.5px; }
+.tbl td b { font-size: inherit; }
+.tbl td.nm small { font-size: 11.5px; }
+
+/* ── Settle: extra costs (drinks, snacks…) ── */
+.xitem { padding: 12px; border-radius: 16px; background: var(--surface2); border: 1px solid var(--line); margin-bottom: 8px; }
+.xitem-top { display: flex; align-items: center; gap: 8px; }
+.xitem .xlabel { flex: 1 1 auto; min-width: 0; height: 42px; }
+.xitem .fee.xamt { flex: 0 0 132px; padding: 0 10px; height: 42px; display: flex; align-items: center; border-radius: 12px; background: var(--surface); border: 1px solid var(--line-strong); margin: 0; }
+.xitem .fee.xamt .money { width: 100%; }
+.xitem .fee.xamt input { font-size: 17px; text-align: right; }
+.xitem .x-btn { margin-left: 0; }
+.xitem .seg.xmode { margin-top: 10px; }
+.xitem .seg.xmode button { height: 34px; font-size: 13px; }
+.xitem .xwho { margin-top: 10px; gap: 6px; }
+.xitem .xwho .chip { height: 32px; padding: 0 11px; font-size: 13px; }
+.xitem .xhint { margin-top: 8px; font-size: 12.5px; }
+.crow .pname .xshare { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.crow .pname .xshare:empty { display: none; }
+.hero-grid .hero-wide { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }

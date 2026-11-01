@@ -135,6 +135,7 @@ window.BB_DOCS = (() => {
   <li><b>기록에서 불러오기</b>를 누르면 그날 참가자와 각자 친 게임 수가 채워져요.</li>
   <li>사람마다 체크(포함 여부), 게임 수(−/+), <b>신발 포함</b>을 정하면 개인별 금액과 총액이 계산돼요.</li>
   <li>팀전 기록이 있는 날은 <b>개인별 / 팀별</b> 버튼으로 팀별 합계를 볼 수 있어요.</li>
+  <li><b>기타 금액</b>: 음료·간식 같은 추가 비용을 항목으로 넣고, <b>나눠서 부담</b>(선택한 사람끼리 똑같이)이나 <b>한 사람 부담</b>을 고르면 개인별 금액에 더해져요.</li>
   <li><b>이미지 저장 / 공유하기</b>로 정산표를 보낼 수 있어요.</li>
 </ul>
 
@@ -352,6 +353,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li><b>Load from scores</b> fills in that day's players and how many games each played.</li>
   <li>For each person set the check (included), games (−/+) and <b>Shoes</b> to get each amount and the total.</li>
   <li>On days with a team match, switch between <b>Per person / Per team</b>.</li>
+  <li><b>Extra costs</b>: add items such as drinks or snacks, then choose <b>Split</b> (evenly among the people you pick) or <b>One person</b>; each share is added to that person's amount.</li>
   <li>Use <b>Save image / Share</b> to send the settlement.</li>
 </ul>
 
