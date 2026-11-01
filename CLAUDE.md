@@ -51,7 +51,7 @@ Single IIFE, ordered top to bottom: i18n → storage → UI state → icons → 
 
 ## Launch splash (index.html)
 
-The splash (wooden-lane SVG scene, ball resting mid-lane) and its CSS are **inline in `index.html`** so they paint on the first frame; `html` uses the same `#1f3449` as `manifest.webmanifest`'s `background_color`, so Android's own icon screen blends into it. When the splash closes, `html.ready` switches the page background to the theme `--bg` and `applyTheme()` sets the `theme-color` meta to it (light mode needs a light status bar, or Android draws dark icons on dark). Boot code in `app.js` fades it out after ~1.3s (tap to skip). The user rejected an animated version — keep it still.
+The splash (wooden-lane SVG scene, ball resting mid-lane) and its CSS are **inline in `index.html`** so they paint on the first frame; `html` uses the same `#1f3449` as `manifest.webmanifest`'s `background_color`, so Android's own icon screen blends into it. When the splash closes, `html.ready` switches the page background to the theme `--bg` and `applyTheme()` sets the `theme-color` meta to it (light mode needs a light status bar, or Android draws dark icons on dark). Installed Chrome apps on Android (Galaxy S25 tested by the user) tint the status bar from the manifest `theme_color`, not the meta tag, so the manifest uses the light `#f5f2ec`. Boot code in `app.js` fades it out after ~1.3s (tap to skip). The user rejected an animated version — keep it still.
 
 ## Styling (css/style.css)
 
