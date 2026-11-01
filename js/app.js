@@ -903,7 +903,7 @@
           <button class="${x.mode === 'one' ? 'on' : ''}" data-act="extraMode" data-id="${esc(x.id)}" data-v="one">${ic('userPlus')}${t('extraOne')}</button>
         </div>
         ${ppl.length ? `<div class="chips xwho">${ppl.map((r) => `<button class="chip ${payers.includes(r.id) ? 'on' : ''}" data-act="extraWho" data-id="${esc(x.id)}" data-p="${esc(r.id)}">${payers.includes(r.id) ? ic('check') : ''}${esc(rowName(r))}</button>`).join('')}</div>` : ''}
-        <p class="hint xhint" id="xh-${esc(x.id)}">${extraHint(x, c)}</p>
+        <p class="hint xhint" id="xh-${esc(x.id)}">${esc(extraHint(x, c))}</p>
       </div>`;
     }).join('');
     return `<div class="card">
@@ -1464,8 +1464,10 @@
     downloadBlob(new Blob([backupText()], { type: 'application/json' }), `${backupName()}.json`);
     toast(t('exported'));
   }
+  const IMPORT_MAX = 5 * 1024 * 1024;
   async function importData(file) {
     if (!file) return;
+    if (file.size > IMPORT_MAX) { toast(t('badFile')); return; }
     try {
       const json = JSON.parse(await file.text());
       const data = json && json.data ? json.data : json;
@@ -1744,6 +1746,7 @@
   });
 
   /* ───────── Boot ───────── */
+  if (window.top !== window.self) { document.documentElement.innerHTML = ''; return; }
   applyTheme();
   render();
   const splash = $('#splash');

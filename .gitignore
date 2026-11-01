@@ -1,2 +1,10 @@
 .claude/
 node_modules/
+
+# Android / Play Store build output and signing keys: never commit
+android/
+*.keystore
+*.jks
+*.apk
+*.aab
+keystore.properties
