@@ -20,9 +20,24 @@ for (const [dir, scale] of [['mdpi', 1], ['hdpi', 1.5], ['xhdpi', 2], ['xxhdpi',
   await sharp(svg, { density: 72 * px / 405 * 4 }).resize(px, px).png().toFile(join(res, `drawable-${dir}`, 'splash.png'));
 }
 
+// The launcher activity's own window is painted navy with the round icon in the middle (opaque, no open animation),
+// so every hand-off — system splash -> launcher -> Chrome's copy of the splash -> page — happens over the same picture
+// instead of a bare navy frame while the next screen loads its image.
+mkdirSync(join(res, 'drawable'), { recursive: true });
+writeFileSync(join(res, 'drawable', 'launch_window_bg.xml'), `<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/backgroundColor"/>
+    <item><bitmap android:src="@drawable/splash" android:gravity="center"/></item>
+</layer-list>
+`);
+const base = `
+        <item name="android:windowBackground">@drawable/launch_window_bg</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:statusBarColor">#1F3449</item>
+        <item name="android:navigationBarColor">#1F3449</item>`;
 const style = (extra) => `<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LaunchTheme" parent="@android:style/Theme.Translucent.NoTitleBar">${extra}
+    <style name="LaunchTheme" parent="@android:style/Theme.Material.NoActionBar">${base}${extra}
     </style>
 </resources>
 `;
