@@ -56,3 +56,9 @@ The splash (wooden-lane SVG scene, ball resting mid-lane) and its CSS are **inli
 ## Styling (css/style.css)
 
 Design tokens on `:root` with dark overrides duplicated under both `:root[data-theme="dark"]` and `@media (prefers-color-scheme: dark) :root:not([data-theme="light"])` — change both blocks together. Look: navy/black with gold accents (`--gold`, `--gold-grad`), Playfair Display for display text. Team colors are fixed by index (`.t0`–`.t3` badges, `.tc0`–`.tc3` sections, `.tl0`–`.tl3` letters). Newer feature styles are appended in commented blocks at the end of the file, so later rules often override earlier ones for the same selector — search the whole file before changing a component.
+
+## Android app (Play Store, Trusted Web Activity)
+
+- Package `io.github.sedapa2010k.bestbowling`, minSdk 24. `node tools/make-twa.mjs` regenerates the project into `android/` (git-ignored; also holds the upload key `bestbowling-upload.jks`, whose password only the user knows — never type or store it).
+- Toolchain lives outside OneDrive in `C:\Users\leejj\bbtools` (JDK 17, Android SDK, Bubblewrap in `bw/`). Build there, not in the repo: `cmd`/`gradlew.bat` fail under the Korean `바탕 화면` path, so the project is copied to `C:\Users\leejj\bbtools\twa`, built with `./gradlew bundleRelease assembleRelease` from Bash, then the user runs `bbtools\twa\sign.ps1` in a terminal tab (zipalign + apksigner + jarsigner, prompts for the password) which copies `BestBowling-x.y.z.aab/.apk` to `android/out`. Bump `appVersionCode`/`appVersionName` for each upload.
+- Full-screen verification: `https://sedapa2010-k.github.io/.well-known/assetlinks.json`, served from the separate `sedapa2010-K/sedapa2010-K.github.io` repo (only a project-site path is available here). After the first Play upload, add the Play App Signing SHA-256 from Play Console to that file next to the upload key's.
