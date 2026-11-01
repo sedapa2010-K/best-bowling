@@ -61,7 +61,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; } /* no pull-to-refresh: it reloads the app and replays the splash */
+html { -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; background: var(--bg); } /* no pull-to-refresh: it reloads the whole app */
 body {
   overscroll-behavior-y: none;
   font-family: var(--sans);

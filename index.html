@@ -20,65 +20,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* Launch splash: inline so it paints on the very first frame (same base colour as the system splash) */
-    html { background: #1f3449; }
-    html.ready { background: var(--bg); } /* after the splash: the area under the phone's status bar follows the theme */
-    .splash { position: fixed; inset: 0; z-index: 100; overflow: hidden; background: radial-gradient(70% 45% at 50% 44%, #35587a 0%, #1f3449 70%); transition: opacity .45s ease, visibility .45s; }
-    .splash.hide { opacity: 0; visibility: hidden; }
-    .splash svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .splash-title { position: absolute; left: 0; right: 0; top: 13vh; text-align: center; font-family: "Playfair Display", Georgia, serif; animation: sp-fade .5s ease-out both; }
-    .splash-title h1 { margin: 0; font-size: 36px; font-weight: 600; color: #f6efe1; }
-    .splash-title h1 em { color: #e9c97e; font-style: italic; }
-    .splash-title p { margin: 8px 0 0; font: 600 11px/1 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; letter-spacing: .34em; color: rgba(241, 234, 217, .7); }
-    @keyframes sp-fade { from { opacity: 0; transform: translateY(8px); } }
-    @media (prefers-reduced-motion: reduce) { .splash * { animation: none !important; } }
-  </style>
 </head>
 <body>
-  <div id="splash" class="splash" aria-hidden="true">
-    <svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice">
-      <defs>
-        <linearGradient id="sp-wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a87b47"/><stop offset=".4" stop-color="#d7ae74"/><stop offset="1" stop-color="#f3d7a3"/></linearGradient>
-        <radialGradient id="sp-ballg" cx=".34" cy=".28" r=".9"><stop offset="0" stop-color="#fff1c4"/><stop offset=".22" stop-color="#f2c45e"/><stop offset=".58" stop-color="#c98a24"/><stop offset=".85" stop-color="#8a5612"/><stop offset="1" stop-color="#4f2f07"/></radialGradient>
-        <radialGradient id="sp-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3cf" stop-opacity=".55"/><stop offset="1" stop-color="#fff3cf" stop-opacity="0"/></radialGradient>
-        <linearGradient id="sp-ivory" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#f4efe6"/><stop offset="1" stop-color="#cfc5b2"/></linearGradient>
-        <g id="sp-pin">
-          <path d="M0,-150 C14,-150 19,-137 19,-123 C19,-109 11,-101 10,-91 C9,-80 27,-63 31,-40 C35,-17 25,-4 19,0 L-19,0 C-25,-4 -35,-17 -31,-40 C-27,-63 -9,-80 -10,-91 C-11,-101 -19,-109 -19,-123 C-19,-137 -14,-150 0,-150 Z" fill="url(#sp-ivory)" stroke="#a87d34" stroke-width="4"/>
-          <path d="M-11,-108 Q0,-104 11,-108 M-10,-97 Q0,-93 10,-97" stroke="#d4485a" stroke-width="7" fill="none" stroke-linecap="round"/>
-        </g>
-      </defs>
-      <ellipse cx="200" cy="335" rx="150" ry="60" fill="url(#sp-glow)"/>
-      <rect x="0" y="330" width="400" height="470" fill="#14212f"/>
-      <polygon points="160,330 240,330 470,800 -70,800" fill="url(#sp-wood)"/>
-      <g stroke="#7a5626" stroke-opacity=".25" stroke-width="1.2"><line x1="166.7" y1="330" x2="-25.0" y2="800"/><line x1="173.3" y1="330" x2="20.0" y2="800"/><line x1="180.0" y1="330" x2="65.0" y2="800"/><line x1="186.7" y1="330" x2="110.0" y2="800"/><line x1="193.3" y1="330" x2="155.0" y2="800"/><line x1="200.0" y1="330" x2="200.0" y2="800"/><line x1="206.7" y1="330" x2="245.0" y2="800"/><line x1="213.3" y1="330" x2="290.0" y2="800"/><line x1="220.0" y1="330" x2="335.0" y2="800"/><line x1="226.7" y1="330" x2="380.0" y2="800"/><line x1="233.3" y1="330" x2="425.0" y2="800"/></g>
-      <g fill="#5a3f14" fill-opacity=".55"><polygon points="127.3,448.1 115.1,465.3 127.0,465.3"/><polygon points="154.0,441.4 144.5,457.1 155.9,457.1"/><polygon points="178.9,435.1 171.8,449.6 182.8,449.6"/><polygon points="202.3,429.3 197.1,442.7 207.8,442.7"/><polygon points="225.8,435.1 222.3,449.6 233.3,449.6"/><polygon points="250.9,441.4 249.3,457.1 260.8,457.1"/><polygon points="277.7,448.1 278.5,465.3 290.4,465.3"/></g><g fill="#5a3f14" fill-opacity=".45"><ellipse cx="80.1" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="94.6" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="116.4" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="138.2" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="160.0" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="240.0" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="261.8" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="283.6" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="305.4" cy="537.9" rx="2.3" ry="1.2"/><ellipse cx="319.9" cy="537.9" rx="2.3" ry="1.2"/></g>
-      <polygon points="156,330 162,330 -52,800 -70,800" fill="#0c1621" opacity=".6"/>
-      <polygon points="238,330 244,330 470,800 452,800" fill="#0c1621" opacity=".6"/>
-      <rect x="0" y="322" width="400" height="22" fill="#1f3449" opacity=".35"/>
-      <g>
-        <use href="#sp-pin" transform="translate(170 334) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(190 334) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(210 334) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(230 334) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(180 340) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(200 340) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(220 340) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(190 346) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(210 346) scale(.2)"/>
-        <use href="#sp-pin" transform="translate(200 352) scale(.2)"/>
-      </g>
-      <g transform="translate(200 560) scale(.6) translate(-200 -730)">
-        <ellipse cx="200" cy="772" rx="40" ry="8" fill="#000" opacity=".25"/>
-        <g>
-          <circle cx="200" cy="730" r="44" fill="url(#sp-ballg)" stroke="#5c3a0e" stroke-width="2.5"/>
-          <ellipse cx="183" cy="712" rx="14" ry="8" fill="#fff" opacity=".35" transform="rotate(-35 183 712)"/>
-          <g fill="#3d2608"><circle cx="205" cy="712" r="4.5"/><circle cx="217" cy="714" r="4.5"/><circle cx="210" cy="735" r="5.5"/></g>
-        </g>
-      </g>
-    </svg>
-    <div class="splash-title"><h1>Best <em>Bowling</em></h1><p>SCORE · TEAM</p></div>
-  </div>
   <header class="topbar">
     <div class="brand"><img src="icons/icon.svg" alt=""><span>Best <em>Bowling</em></span></div>
     <div id="topcal" class="topcal"></div>

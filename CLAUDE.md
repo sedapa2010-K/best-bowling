@@ -20,7 +20,7 @@ Deploy = commit and `git push` to `main`; GitHub Pages rebuilds automatically (`
 
 ## Release checklist (easy to forget)
 
-- **Bump `CACHE` in `sw.js`** (`best-bowling-vN`) on every deploy that changes app files, and add any new top-level file to its `ASSETS` list. The service worker is network-first with `cache: 'no-cache'` revalidation, so each launch already gets the latest files — stale-cache bugs were a real problem before this. Don't add a reload on `controllerchange`: it replays the launch splash (the user saw splash → app → splash).
+- **Bump `CACHE` in `sw.js`** (`best-bowling-vN`) on every deploy that changes app files, and add any new top-level file to its `ASSETS` list. The service worker is network-first with `cache: 'no-cache'` revalidation, so each launch already gets the latest files — stale-cache bugs were a real problem before this. Don't add a reload on `controllerchange`: it makes the app flash and reload on every launch.
 - Verify at phone width (375×812) in both dark and light themes and in both languages; English strings are longer and have overflowed compact controls before.
 - When testing in the browser pane, seed data by writing `localStorage['bestbowling:v1']` and clear it afterwards. Do **not** clear storage on the live origin — it may hold the user's real records.
 - The preview can serve stale CSS/JS after an edit: `fetch(url, {cache: 'reload'})` the changed files before reloading the page. Pane screenshots sometimes lag or crop; measure layout with `getBoundingClientRect()` in `javascript_tool` when in doubt.
@@ -49,9 +49,9 @@ Single IIFE, ordered top to bottom: i18n → storage → UI state → icons → 
 - **Share images** are drawn manually on `<canvas>` (`buildImage()` with `table`/`kv` blocks from `recordBlocks()` / `costBlocks()`; the winner's crown is drawn by `drawCrown()`), not screenshots; canvas width `W` grows with column count so scores never truncate. Export uses Web Share with files, falling back to download (iOS shows a long-press preview). Backups are saved as files only (sharing them was removed: KakaoTalk drops shared text files).
 - **i18n**: `I18N.ko` / `I18N.en` dictionaries with `{0}` placeholders via `t(key, ...args)`; add every new key to both. Long-form documents (볼링 상식, user guide, privacy policy, terms, open-source notices) live in `js/docs.js` as `window.BB_DOCS[lang][key] = {title, html}` and are shared by the Settings document viewer (`showDoc`) and `privacy.html`. Keep the open-source list in sync if fonts/icons/libraries change (icons include Feather-derived paths, MIT).
 
-## Launch splash (index.html)
+## Launch
 
-The splash (wooden-lane SVG scene, ball resting mid-lane) and its CSS are **inline in `index.html`** so they paint on the first frame; `html` uses the same `#1f3449` as `manifest.webmanifest`'s `background_color`, so Android's own icon screen blends into it. When the splash closes, `html.ready` switches the page background to the theme `--bg`. Status bar: installed Chrome apps on Android (the user's Galaxy S25) paint the bar from the manifest `theme_color` but choose light/dark icons from the `theme-color` meta, so both are fixed to `#f5f2ec` in every theme. Changing the meta per theme hid the icons in one mode. Boot code in `app.js` fades it out after ~1.3s (tap to skip). Pull-to-refresh is turned off (`overscroll-behavior-y: none` on `html`/`body`) because it reloaded the app and replayed the splash. The user rejected an animated version — keep it still.
+There is no in-page splash: the user wants only the phone's own icon screen (manifest `background_color` `#1f3449` + icon; the Android app uses the same). `html` gets the theme `--bg` in style.css, so the first frame already matches the theme. Pull-to-refresh is turned off (`overscroll-behavior-y: none` on `html`/`body`) because it reloads the whole app. Status bar: installed Chrome apps paint the bar from the manifest `theme_color` but choose light/dark icons from the `theme-color` meta, so both are fixed to `#f5f2ec` in every theme.
 
 ## Styling (css/style.css)
 

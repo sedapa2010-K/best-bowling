@@ -1774,20 +1774,10 @@
   if (window.top !== window.self) { document.documentElement.innerHTML = ''; return; }
   applyTheme();
   render();
-  const splash = $('#splash');
-  if (splash) {
-    const closeSplash = () => {
-      splash.classList.add('hide'); document.documentElement.classList.add('ready');
-      setTimeout(() => splash.remove(), 500);
-    };
-    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(closeSplash, reduce ? 500 : 1300);
-    splash.addEventListener('click', closeSplash);
-  } else document.documentElement.classList.add('ready');
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     // No reload when an updated worker takes over: it fetches network-first with revalidation, so this launch
-    // already runs the latest files, and a reload would replay the launch splash.
+    // already runs the latest files, and a reload would flash the page.
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
       .then((reg) => reg.update()).catch(() => {}));
   }
