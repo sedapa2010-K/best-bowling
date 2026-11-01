@@ -74,7 +74,7 @@
       finalTable: 'Final scores by date', tapRowHint: 'Tap a date to open that day\'s scores', leaderboard: 'Leaderboard', byAvg: 'by average',
       today: 'Today', recent: 'Recent', noRecent: 'No saved records yet', gamesPeople: '{0} games · {1}',
       selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players',
-      noMembers: 'No members yet. Add one right below.', newMemberPh: 'New member name', hdcp: 'HDCP', add: 'Add',
+      noMembers: 'No members yet. Add one right below.', newMemberPh: 'Name', hdcp: 'HDCP', add: 'Add',
       individual: 'Singles', teamMatch: 'Teams', teamCount: 'Teams', teamHint: 'Tap a team letter next to a player to move them.', teamEmpty: 'No players yet', teamName: 'Team {0}',
       pickHint: 'Select the players\nto start entering scores.',
       finalMode: 'Final Score', frameMode: 'By Frame',

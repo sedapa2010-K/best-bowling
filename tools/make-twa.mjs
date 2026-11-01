@@ -26,8 +26,8 @@ twa.navigationDividerColorDark = Color('#f5f2ec');
 twa.backgroundColor = Color('#1f3449');
 twa.enableNotifications = false;
 twa.fallbackType = 'customtabs';
-twa.appVersionName = '1.0.1';
-twa.appVersionCode = 2;
+twa.appVersionName = '1.0.2';
+twa.appVersionCode = 3;
 twa.minSdkVersion = 24; // androidbrowserhelper 2.7+ needs 24
 twa.signingKey = { path: path.join(dir, 'bestbowling-upload.jks'), alias: 'bestbowling' };
 

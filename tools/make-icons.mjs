@@ -108,6 +108,13 @@ const square = (scale) => svg(`
   <g transform="translate(${256 - 256 * scale} ${256 - 256 * scale}) scale(${scale})">${art}</g>`);
 
 writeFileSync(join(out, 'icon.svg'), icon);
+// Launch icon = what Android 12+ shows on its own launch screen: the adaptive launcher icon (maskable art inset 8.5dp in the
+// 108dp canvas) cut to the 72dp launcher circle, i.e. a circle of radius 36/91 of the maskable square. The page's #launch
+// overlay and the Android app's splash.png both use it at 192dp so the three launch screens line up.
+const R = 512 * 36 / 91;
+writeFileSync(join(out, 'launch.svg'), square(0.8)
+  .replace('viewBox="0 0 512 512">', `viewBox="${256 - R} ${256 - R} ${2 * R} ${2 * R}"><clipPath id="launchCircle"><circle cx="256" cy="256" r="${R}"/></clipPath><g clip-path="url(#launchCircle)">`)
+  .replace(/<\/svg>$/, '</g></svg>'));
 const png = (src, size, name) => sharp(Buffer.from(src)).resize(size, size).png().toFile(join(out, name));
 await png(icon, 192, 'icon-192.png');
 await png(icon, 512, 'icon-512.png');
