@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Best Bowling</title>
   <meta name="description" content="Best Bowling — 볼링 점수 기록, 팀전, 핸디캡, 비용 정산">
-  <meta name="theme-color" content="#0c0e13">
+  <meta name="theme-color" content="#1f3449">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,6 +21,7 @@
   <style>
     /* Launch splash: inline so it paints on the very first frame (same base colour as the system splash) */
     html { background: #1f3449; }
+    html.ready { background: var(--bg); } /* after the splash: the area under the phone's status bar follows the theme */
     .splash { position: fixed; inset: 0; z-index: 100; overflow: hidden; background: radial-gradient(70% 45% at 50% 44%, #35587a 0%, #1f3449 70%); transition: opacity .45s ease, visibility .45s; }
     .splash.hide { opacity: 0; visibility: hidden; }
     .splash svg { position: absolute; inset: 0; width: 100%; height: 100%; }

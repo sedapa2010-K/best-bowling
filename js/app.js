@@ -1201,7 +1201,9 @@
     const th = db.settings.theme, root = document.documentElement;
     if (th === 'system') root.removeAttribute('data-theme'); else root.dataset.theme = th;
     const dark = th === 'dark' || (th === 'system' && darkMq.matches);
-    $('meta[name="theme-color"]').setAttribute('content', dark ? '#0c0e13' : '#f5f2ec');
+    // Status bar: splash colour while the splash shows, then the theme background (Android picks light/dark icons from it)
+    const splashOn = !!$('#splash:not(.hide)');
+    $('meta[name="theme-color"]').setAttribute('content', splashOn ? '#1f3449' : dark ? '#0c0e13' : '#f5f2ec');
   }
   darkMq.addEventListener && darkMq.addEventListener('change', applyTheme);
 
@@ -1752,11 +1754,14 @@
   render();
   const splash = $('#splash');
   if (splash) {
-    const closeSplash = () => { splash.classList.add('hide'); setTimeout(() => splash.remove(), 500); };
+    const closeSplash = () => {
+      splash.classList.add('hide'); document.documentElement.classList.add('ready'); applyTheme();
+      setTimeout(() => splash.remove(), 500);
+    };
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(closeSplash, reduce ? 500 : 1300);
     splash.addEventListener('click', closeSplash);
-  }
+  } else document.documentElement.classList.add('ready');
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
     // No reload when an updated worker takes over: it fetches network-first with revalidation, so this launch
