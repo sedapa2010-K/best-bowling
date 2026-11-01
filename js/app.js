@@ -1734,14 +1734,36 @@
   document.addEventListener('change', (e) => {
     if (e.target.id === 'importFile') importData(e.target.files[0]);
   });
+  // Enter in the name fields submits. While an IME is composing, Enter usually just commits the text: for Japanese/Chinese
+  // that's picking the conversion, so it must not submit; for Korean it finishes the last syllable, and users expect the
+  // same Enter to submit. So an Enter during composition waits for compositionend and submits only if Hangul was committed.
+  // (Chrome fires keydown with isComposing before compositionend; Safari fires compositionend first, then keydown 229.)
+  const ENTER_FIELDS = ['qName', 'qH', 'mName', 'mH', 'teamNameIn', 'eName', 'eH'];
+  const HANGUL = /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]/;
+  let imeEnter = null, lastCommit = null;
+  function submitField(el) {
+    const id = el.id;
+    if (id === 'qName' || id === 'qH') quickAdd();
+    else if (id === 'mName' || id === 'mH') actions.addMember();
+    else if (id === 'teamNameIn') { const b = $('[data-act="saveTeamName"]'); if (b) actions.saveTeamName(b); }
+    else if (id === 'eName' || id === 'eH') { const b = $('[data-act="saveMember"]'); if (b) actions.saveMember(b); }
+  }
+  document.addEventListener('compositionend', (e) => {
+    const hangul = HANGUL.test(e.data || '');
+    lastCommit = { el: e.target, hangul, at: Date.now() };
+    if (imeEnter === e.target) { imeEnter = null; if (hangul) setTimeout(() => submitField(e.target)); }
+  });
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    const id = e.target.id;
-    if (id === 'qName' || id === 'qH') { e.preventDefault(); quickAdd(); }
-    else if (id === 'mName' || id === 'mH') { e.preventDefault(); actions.addMember(); }
-    else if (id === 'teamNameIn') { e.preventDefault(); const b = $('[data-act="saveTeamName"]'); if (b) actions.saveTeamName(b); }
-    else if (id === 'eName' || id === 'eH') { e.preventDefault(); const b = $('[data-act="saveMember"]'); if (b) actions.saveMember(b); }
-    else if (e.target.dataset.inp === 'score') {
+    if (e.key !== 'Enter' && e.keyCode !== 229) return;
+    if (ENTER_FIELDS.includes(e.target.id)) {
+      if (e.isComposing) { if (e.key === 'Enter') imeEnter = e.target; return; }
+      if (e.keyCode === 229) {
+        const c = lastCommit;
+        if (e.key === 'Enter' && c && c.el === e.target && Date.now() - c.at < 150 && c.hangul) { e.preventDefault(); submitField(e.target); }
+        return;
+      }
+      e.preventDefault(); submitField(e.target);
+    } else if (e.key === 'Enter' && e.target.dataset.inp === 'score') {
       e.preventDefault();
       const all = $$('[data-inp="score"]'), i = all.indexOf(e.target);
       if (all[i + 1]) all[i + 1].focus(); else e.target.blur();
