@@ -109,7 +109,7 @@ window.BB_DOCS = (() => {
 
 <h3>2. 회원 등록 <small>회원 탭</small></h3>
 <ul>
-  <li>이름과 기본 핸디(0~300)를 입력하고 <b>멤버 추가</b>를 누릅니다. 회원은 이름 순으로 정렬돼요.</li>
+  <li>이름과 기본 핸디(게임당 0~100)를 입력하고 <b>멤버 추가</b>를 누릅니다. 회원은 이름 순으로 정렬돼요.</li>
   <li>✏️ 버튼으로 이름·핸디를 수정하고, 🗑 버튼으로 삭제합니다. 삭제해도 지난 기록의 점수는 남아요.</li>
   <li>기록 탭의 참가 멤버 화면에서도 바로 새 멤버를 추가할 수 있어요.</li>
 </ul>
@@ -337,7 +337,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 <h3>2. Members <small>Members tab</small></h3>
 <ul>
-  <li>Enter a name and default handicap (0–300), then tap <b>Add member</b>. Members are listed by name.</li>
+  <li>Enter a name and default handicap (0–100 per game), then tap <b>Add member</b>. Members are listed by name.</li>
   <li>Use ✏️ to edit and 🗑 to delete. Deleting a member keeps their past scores.</li>
   <li>You can also add a new member right from the Players card on the Scores tab.</li>
 </ul>

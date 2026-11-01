@@ -12,7 +12,7 @@
   const parseYmd = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toInt = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
-  const HDCP_MAX = 300;
+  const HDCP_MAX = 100; // per game; real handicaps are rarely over ~80
   const toHdcp = (v) => Math.min(HDCP_MAX, Math.max(0, toInt(v)));
 
   /* ───────── i18n ───────── */
@@ -122,7 +122,7 @@
   function cleanSession(date, x) {
     const teamCount = clampInt(x.teamCount, 2, 4, 2);
     const players = (Array.isArray(x.players) ? x.players : []).filter((q) => isObj(q) && ID_RE.test(q.id))
-      .map((q) => ({ id: q.id, name: str(q.name, 40), hdcp: clampInt(q.hdcp, 0, 300), team: clampInt(q.team, 0, teamCount - 1) }));
+      .map((q) => ({ id: q.id, name: str(q.name, 40), hdcp: clampInt(q.hdcp, 0, HDCP_MAX), team: clampInt(q.team, 0, teamCount - 1) }));
     const games = (Array.isArray(x.games) ? x.games : []).slice(0, 50).filter(isObj).map((g) => {
       const ent = {};
       entries(g.entries).forEach(([id, e]) => {
@@ -159,7 +159,7 @@
     entries(d.costs).forEach(([k, x]) => { if (DATE_RE.test(k) && isObj(x)) costs[k] = cleanCost(k, x); });
     return {
       members: (Array.isArray(d.members) ? d.members : []).filter((m) => isObj(m) && ID_RE.test(m.id) && str(m.name, 40))
-        .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, 0, 300) })),
+        .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, 0, HDCP_MAX) })),
       sessions, costs,
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system',
         ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}) },
@@ -542,7 +542,7 @@
       ${chips ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
       <div class="quick">
         <input id="qName" class="field" placeholder="${t('newMemberPh')}" maxlength="20" enterkeyhint="done">
-        <input id="qH" class="field num" type="number" min="0" max="300" inputmode="numeric" placeholder="${t('hdcp')}">
+        <input id="qH" class="field num" type="number" min="0" max="100" inputmode="numeric" placeholder="${t('hdcp')}">
         <button class="btn sm gold" data-act="quickAdd">${t('add')}</button>
       </div>`;
     if (s.players.length) {
@@ -552,7 +552,7 @@
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
       // Same look as the quick-add 핸디 box: plain field, label as placeholder, empty when the handicap is 0
-      const hdInput = (p) => `<input class="field num hdf" type="number" inputmode="numeric" placeholder="${t('hdcp')}" aria-label="${t('hdcp')}" min="0" max="300" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp) || ''}">`;
+      const hdInput = (p) => `<input class="field num hdf" type="number" inputmode="numeric" placeholder="${t('hdcp')}" aria-label="${t('hdcp')}" min="0" max="100" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp) || ''}">`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
@@ -783,7 +783,7 @@
       if (ui.editId === m.id) {
         return `<div class="mcard editing">
           <div class="medit"><input id="eName" class="field" value="${esc(m.name)}" maxlength="20" aria-label="${t('memberName')}">
-            <label class="hd hd-edit"><input id="eH" class="field num sm" type="number" min="0" max="300" inputmode="numeric" aria-label="${t('hdcp')}" value="${toInt(m.handicap)}"></label></div>
+            <label class="hd hd-edit"><input id="eH" class="field num sm" type="number" min="0" max="100" inputmode="numeric" aria-label="${t('hdcp')}" value="${toInt(m.handicap)}"></label></div>
           <div class="mbtns"><button class="icon-btn" data-act="saveMember" data-id="${esc(m.id)}" aria-label="${t('save')}" style="color:var(--gold)">${ic('check')}</button>
           <button class="icon-btn" data-act="cancelEdit" aria-label="${t('cancel')}">${ic('x')}</button></div></div>`;
       }
@@ -799,7 +799,7 @@
         <div class="card-h"><h3>${ic('userPlus')}${t('addMember')}</h3></div>
         <div class="add-grid">
           <div><label class="field-l" for="mName">${t('memberName')}</label><input id="mName" class="field" maxlength="20" placeholder="${t('newMemberPh')}" enterkeyhint="done"></div>
-          <div><label class="field-l" for="mH">${t('defaultHdcp')}</label><input id="mH" class="field num" type="number" min="0" max="300" inputmode="numeric" placeholder="0"></div>
+          <div><label class="field-l" for="mH">${t('defaultHdcp')}</label><input id="mH" class="field num" type="number" min="0" max="100" inputmode="numeric" placeholder="0"></div>
         </div>
         <button class="btn gold block" data-act="addMember">${ic('plus')}${t('addMember')}</button>
       </div>
@@ -1702,7 +1702,7 @@
     return Math.min(1e9, Number(`${int || 0}.${dec || 0}`));
   }
   document.addEventListener('input', (e) => {
-    // Handicap boxes on the member forms: keep the typed value within 0–300.
+    // Handicap boxes on the member forms: keep the typed value within 0–HDCP_MAX.
     if (['qH', 'mH', 'eH'].includes(e.target.id) && e.target.value !== '' && String(toHdcp(e.target.value)) !== e.target.value) e.target.value = toHdcp(e.target.value);
     const el = e.target.closest('[data-inp]');
     if (!el) return;
