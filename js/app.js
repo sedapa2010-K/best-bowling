@@ -1196,16 +1196,10 @@
   }
 
   /* ───────── Theme ───────── */
-  const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
   function applyTheme() {
     const th = db.settings.theme, root = document.documentElement;
     if (th === 'system') root.removeAttribute('data-theme'); else root.dataset.theme = th;
-    const dark = th === 'dark' || (th === 'system' && darkMq.matches);
-    // Status bar: splash colour while the splash shows, then the theme background (Android picks light/dark icons from it)
-    const splashOn = !!$('#splash:not(.hide)');
-    $('meta[name="theme-color"]').setAttribute('content', splashOn ? '#1f3449' : dark ? '#0c0e13' : '#f5f2ec');
   }
-  darkMq.addEventListener && darkMq.addEventListener('change', applyTheme);
 
   /* ───────── Toast & dialogs ───────── */
   let toastTimer;
@@ -1755,7 +1749,7 @@
   const splash = $('#splash');
   if (splash) {
     const closeSplash = () => {
-      splash.classList.add('hide'); document.documentElement.classList.add('ready'); applyTheme();
+      splash.classList.add('hide'); document.documentElement.classList.add('ready');
       setTimeout(() => splash.remove(), 500);
     };
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

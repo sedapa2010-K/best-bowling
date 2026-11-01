@@ -6,7 +6,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Best Bowling</title>
   <meta name="description" content="Best Bowling — 볼링 점수 기록, 팀전, 핸디캡, 비용 정산">
-  <meta name="theme-color" content="#1f3449">
+  <!-- Keep equal to manifest theme_color in every theme: installed Chrome apps paint the status bar from the manifest
+       but pick light/dark icons from this tag, so a mismatch hides the clock and battery icons. -->
+  <meta name="theme-color" content="#f5f2ec">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
