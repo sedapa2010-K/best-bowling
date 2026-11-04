@@ -505,8 +505,7 @@
     for (let d = 1; d <= days; d++) {
       const k = `${y}-${pad(m + 1)}-${pad(d)}`;
       const cls = ['cal-d', (first + d - 1) % 7 === 0 && 'sun', k === today && 'today', hasRecord(db.sessions[k]) && 'has', k === ui.date && 'sel'].filter(Boolean).join(' ');
-      const future = k > today;
-      cells += `<button class="${cls}${future ? ' future' : ''}" data-act="pick" data-date="${esc(k)}" ${future ? 'disabled' : ''}><span>${d}</span></button>`;
+      cells += `<button class="${cls}" data-act="pick" data-date="${esc(k)}"><span>${d}</span></button>`;
     }
     return `<div class="card cal">
       <div class="cal-h">
@@ -514,7 +513,7 @@
         <b>${monthLabel(y, m)}</b>
         <button class="cal-today" data-act="calToday">${t('today')}</button>
         <button class="cal-nav" data-act="calMove" data-d="-1" aria-label="prev">${ic('left')}</button>
-        <button class="cal-nav" data-act="calMove" data-d="1" aria-label="next" ${`${y}-${pad(m + 1)}` >= today.slice(0, 7) ? 'disabled' : ''}>${ic('right')}</button>
+        <button class="cal-nav" data-act="calMove" data-d="1" aria-label="next">${ic('right')}</button>
       </div>
       <div class="cal-w">${WD[lang()].map((w) => `<span>${lang() === 'en' ? w[0] : w}</span>`).join('')}</div>
       <div class="cal-g">${cells}</div>
@@ -533,7 +532,7 @@
         <span class="tc-card"><span class="tc-m">${en ? MON[d.getMonth()].toUpperCase() : `${d.getMonth() + 1}월`}</span>
           <b class="tc-d">${d.getDate()}</b><span class="tc-w${wd === 0 ? ' sun' : wd === 6 ? ' sat' : ''}">${en ? WD.en[wd].toUpperCase() : WD.ko[wd]}</span></span>
       </button>
-      <button class="tc-nav" data-act="calDay" data-d="1" aria-label="next" ${isToday ? 'disabled' : ''}>${ic('right')}</button>`;
+      <button class="tc-nav" data-act="calDay" data-d="1" aria-label="next">${ic('right')}</button>`;
   }
   function recentHTML() {
     const list = Object.values(db.sessions).filter(hasRecord).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
@@ -1544,7 +1543,6 @@
 
   /* ───────── Actions ───────── */
   function pickDate(k, scroll) {
-    if (k > ymd(new Date())) return;
     ui.date = k; ui.kp = null; ui.calOpen = false; ui.unlocked = null;
     const d = parseYmd(k); ui.calY = d.getFullYear(); ui.calM = d.getMonth();
     render();

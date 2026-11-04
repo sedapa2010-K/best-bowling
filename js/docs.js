@@ -118,7 +118,7 @@ window.BB_DOCS = (() => {
 <ul>
   <li>기록·정산 탭에서는 화면 맨 위 <b>Best Bowling</b> 오른쪽에 작은 <b>탁상 달력</b>이 있어요.</li>
   <li><b>‹ ›</b> 버튼으로 하루씩 앞뒤로 옮기고, 달력을 누르면 한 달 달력이 펼쳐져요. 기록이 있는 날은 금색 동그라미로 표시되고, <b>오늘</b> 버튼으로 바로 돌아올 수 있어요.</li>
-  <li>미래 날짜는 고를 수 없어요. 기록 탭의 <b>최근 기록</b>을 눌러 최근 5일로 바로 이동할 수도 있어요.</li>
+  <li>내일 이후 날짜도 고를 수 있어 미리 참가 멤버를 정해 둘 수 있어요. 기록 탭의 <b>최근 기록</b>을 눌러 최근 5일로 바로 이동할 수도 있어요.</li>
 </ul>
 
 <h3>4. 점수 기록 <small>기록 탭</small></h3>
@@ -347,7 +347,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 <ul>
   <li>On the Scores and Settle tabs, a small <b>desk calendar</b> sits to the right of <b>Best Bowling</b> at the top.</li>
   <li>Use <b>‹ ›</b> to step one day back or forward, or tap the calendar to open the month view. Days with records are circled in gold, and <b>Today</b> jumps back to today.</li>
-  <li>Future dates can't be picked. On the Scores tab you can also tap a <b>Recent</b> chip to jump to one of the last 5 days.</li>
+  <li>Future dates can be picked too, e.g. to set up the players ahead of time. On the Scores tab you can also tap a <b>Recent</b> chip to jump to one of the last 5 days.</li>
 </ul>
 
 <h3>4. Recording scores <small>Scores tab</small></h3>
