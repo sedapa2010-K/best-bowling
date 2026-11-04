@@ -469,6 +469,21 @@
     $$('input', sec).forEach((i) => { i.readOnly = true; });
     $$('[data-act]', sec).forEach((b) => { if (EDIT_ACTS.has(b.dataset.act) && 'disabled' in b) b.disabled = true; });
   }
+  // Switching game / filter / input mode re-renders the score card. If a score box had focus, the phone's keyboard
+  // closes at that moment and the browser drops the scroll it added to keep the box visible, so the page jumped.
+  // Keep the game-tab strip at the same spot on screen instead: measure it (relative to the visible viewport) before,
+  // and re-align after the render and again while the keyboard is closing.
+  function renderKeepingGameTabs() {
+    const vv = window.visualViewport, screenTop = (el) => el.getBoundingClientRect().top - (vv ? vv.offsetTop : 0);
+    const strip = $('.gtabs'), top = strip ? screenTop(strip) : null;
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    render();
+    if (top === null) return;
+    const fix = () => { const g = $('.gtabs'); if (g) window.scrollBy(0, screenTop(g) - top); };
+    fix();
+    if (vv) { vv.addEventListener('resize', fix); setTimeout(() => vv.removeEventListener('resize', fix), 800); }
+    setTimeout(fix, 400);
+  }
   // Re-rendering resets the game-tab strip's horizontal scroll; restore it and keep the selected game visible.
   function keepGameTabInView(scrollLeft) {
     const strip = $('.gtabs'), on = strip && $('.gtab.on', strip);
@@ -1562,7 +1577,7 @@
       if (el.dataset.goto) { ui.tab = el.dataset.goto; window.scrollTo(0, 0); }
       pickDate(el.dataset.date, !!el.dataset.scroll || !!el.dataset.goto);
     },
-    entryTeam(el) { ui.entryTeam = el.dataset.v === 'all' ? 'all' : toInt(el.dataset.v); ui.kp = null; render(); },
+    entryTeam(el) { ui.entryTeam = el.dataset.v === 'all' ? 'all' : toInt(el.dataset.v); ui.kp = null; renderKeepingGameTabs(); },
     editTeamName(el) { ui.editTeam = toInt(el.dataset.t); render(); const i = $('#teamNameIn'); if (i) { i.focus(); i.select(); } },
     saveTeamName(el) {
       const s = sess(), ti = toInt(el.dataset.t), name = ($('#teamNameIn') || {}).value || '';
@@ -1607,7 +1622,7 @@
     },
     setTeam(el) { const s = sess(), p = s.players.find((x) => x.id === el.dataset.id); p.team = toInt(el.dataset.t); commit(s); render(); },
     cycleTeam(el) { const s = sess(), p = s.players.find((x) => x.id === el.dataset.id); p.team = (p.team + 1) % s.teamCount; commit(s); render(); },
-    game(el) { const s = sess(); s.active = toInt(el.dataset.i); ui.kp = null; commit(s); render(); },
+    game(el) { const s = sess(); s.active = toInt(el.dataset.i); ui.kp = null; commit(s); renderKeepingGameTabs(); },
     addGame() { const s = sess(); s.games.push({ mode: curGame(s).mode, entries: {} }); s.active = s.games.length - 1; ui.kp = null; commit(s); render(); },
     async delGame() {
       const s = sess();
@@ -1619,7 +1634,7 @@
       g.mode = el.dataset.v;
       // Switching to final-score entry: copy each player's frame total into an empty score box.
       if (g.mode === 'final') Object.values(g.entries).forEach((e) => { if (finalScore(e) === null && rollsScore(e) !== null) e.score = rollsScore(e); });
-      ui.kp = null; commit(s); render();
+      ui.kp = null; commit(s); renderKeepingGameTabs();
     },
     openKp(el) {
       if (ui.kp && ui.kp.pid === el.dataset.id) return;
