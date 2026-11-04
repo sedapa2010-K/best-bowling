@@ -1,8 +1,10 @@
-/* Best Bowling — all data lives in this device's localStorage only. */
+/* 볼링비서 (Bowling Secretary) — all data lives in this device's localStorage only. */
 (() => {
   'use strict';
 
-  const STORE_KEY = 'bestbowling:v1';
+  const STORE_KEY = 'bestbowling:v1'; // kept from the app's first name (Best Bowling) so existing records load
+  // App name per language: plain part + gold part (the logo shows the second part in gold).
+  const BRAND = { ko: ['볼링', '비서'], en: ['Bowling ', 'Secretary'] };
   const TEAMS = ['A', 'B', 'C', 'D'];
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -175,6 +177,8 @@
   }
 
   const lang = () => (I18N[db.settings.lang] ? db.settings.lang : 'ko');
+  const brandName = () => BRAND[lang()].join('');
+  const brandHTML = () => `${BRAND[lang()][0]}<em>${BRAND[lang()][1]}</em>`;
   function t(k, ...args) {
     let s = I18N[lang()][k] ?? I18N.ko[k] ?? k;
     args.forEach((v, i) => { s = s.replace(`{${i}}`, v); });
@@ -444,6 +448,9 @@
   }
   function render() {
     document.documentElement.lang = lang();
+    const brand = $('.brand span');
+    if (brand) { brand.innerHTML = brandHTML(); brand.classList.toggle('ko', lang() === 'ko'); }
+    document.title = brandName();
     renderTabbar();
     renderTopCal();
     const v = $('#view');
@@ -1193,7 +1200,7 @@
         <div class="link-list">${[['bowling', 'pin'], ['guide', 'book'], ['privacy', 'shield'], ['terms', 'fileText'], ['oss', 'code']].map(([k, i]) =>
           `<button class="link-item" data-act="doc" data-k="${k}">${ic(i)}<span>${docOf(k).title}</span>${ic('right')}</button>`).join('')}</div>
       </div>
-      <div class="about"><img src="icons/icon.svg" alt=""><h2>Best <em>Bowling</em></h2><p>VERSION ${APP_VERSION}</p></div>`;
+      <div class="about"><img src="icons/icon.svg" alt=""><h2 class="${lang() === 'ko' ? 'ko' : ''}">${brandHTML()}</h2><p>VERSION ${APP_VERSION}</p></div>`;
   }
 
   /* ───────── Documents (guide, policies) ───────── */
@@ -1361,7 +1368,7 @@
       const im = await loadImg('icons/icon-192.png');
       x.save(); rr(x, PADX, PADX, 104, 104, 26); x.clip(); x.drawImage(im, PADX, PADX, 104, 104); x.restore();
     } catch (e) { /* icon optional */ }
-    x.fillStyle = gold; x.font = `italic 600 60px ${IMG_SERIF}`; x.fillText('Best Bowling', PADX + 134, PADX + 62);
+    x.fillStyle = gold; x.font = lang() === 'ko' ? `800 58px ${IMG_SANS}` : `italic 600 60px ${IMG_SERIF}`; x.fillText(brandName(), PADX + 134, PADX + 62);
     x.fillStyle = '#b5afa3'; x.font = `500 30px ${IMG_SANS}`; x.fillText(subtitle, PADX + 136, PADX + 104);
     let y = PADX + 150;
     x.fillStyle = gold; x.fillRect(PADX, y, W - 2 * PADX, 2);
@@ -1460,7 +1467,7 @@
     const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
     const file = new File([blob], name, { type: 'image/png' });
     if (mode === 'share' && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'Best Bowling' }); }
+      try { await navigator.share({ files: [file], title: brandName() }); }
       catch (e) { if (e.name !== 'AbortError') toast(e.message || 'Share failed'); }
       return;
     }
@@ -1515,7 +1522,7 @@
     if (!sheets) { toast(ui.statPeriod === 'all' || !ui.statPeriod ? t('noStats') : t('noStatsPeriod')); return; }
     if (!(await ask(t('confirmXlsx', periodRange()), t('save')))) return;
     const blob = new Blob([window.BBXlsx(sheets)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    downloadBlob(blob, `BestBowling_${ymd(new Date())}.xlsx`);
+    downloadBlob(blob, `BowlingSecretary_${ymd(new Date())}.xlsx`);
     toast(t('xlsxSaved'));
   }
 
@@ -1647,7 +1654,7 @@
       withBusy(async () => {
         const s = sess();
         const cv = await buildImage(dateLong(s.date), recordBlocks(s));
-        await exportImage(cv, `BestBowling_${s.date}.png`, el.dataset.mode);
+        await exportImage(cv, `BowlingSecretary_${s.date}.png`, el.dataset.mode);
       });
     },
     addMember() {
@@ -1716,7 +1723,7 @@
       withBusy(async () => {
         const c = costDoc();
         const cv = await buildImage(`${t('costTitle')} · ${dateLong(c.date)}`, costBlocks(c));
-        await exportImage(cv, `BestBowling_${c.date}_cost.png`, el.dataset.mode);
+        await exportImage(cv, `BowlingSecretary_${c.date}_cost.png`, el.dataset.mode);
       });
     },
     lang(el) { db.settings.lang = el.dataset.v; save(); render(); },

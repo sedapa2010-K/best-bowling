@@ -1,4 +1,4 @@
-# Best Bowling
+# 볼링비서 (Bowling Secretary)
 
 볼링 점수 기록 · 팀전 · 핸디캡 · 비용 정산 앱 (설치형 웹앱 / PWA).
 모든 데이터는 서버 없이 **휴대폰 브라우저 저장소(localStorage)** 에만 저장됩니다.

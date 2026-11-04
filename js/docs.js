@@ -1,4 +1,4 @@
-/* Best Bowling — in-app documents (user guide, privacy policy, terms, open-source notices).
+/* 볼링비서 (Bowling Secretary) — in-app documents (user guide, privacy policy, terms, open-source notices).
    Shared by the app (Settings) and the public privacy.html page. */
 window.BB_DOCS = (() => {
   const UPDATED = '2026-10-30';
@@ -100,7 +100,7 @@ window.BB_DOCS = (() => {
         title: '사용설명서',
         html: `
 <h3>1. 설치하기</h3>
-<p>Best Bowling은 휴대폰 홈 화면에 설치해서 앱처럼 쓰는 웹앱입니다.</p>
+<p>볼링비서는 휴대폰 홈 화면에 설치해서 앱처럼 쓰는 웹앱입니다.</p>
 <ul>
   <li><b>안드로이드(Chrome)</b>: 메뉴(⋮) → <b>앱 설치</b> 또는 <b>홈 화면에 추가</b></li>
   <li><b>아이폰(Safari)</b>: 공유 버튼 → <b>홈 화면에 추가</b></li>
@@ -116,7 +116,7 @@ window.BB_DOCS = (() => {
 
 <h3>3. 날짜 고르기</h3>
 <ul>
-  <li>기록·정산 탭에서는 화면 맨 위 <b>Best Bowling</b> 오른쪽에 작은 <b>탁상 달력</b>이 있어요.</li>
+  <li>기록·정산 탭에서는 화면 맨 위 <b>볼링비서</b> 오른쪽에 작은 <b>탁상 달력</b>이 있어요.</li>
   <li><b>‹ ›</b> 버튼으로 하루씩 앞뒤로 옮기고, 달력을 누르면 한 달 달력이 펼쳐져요. 기록이 있는 날은 금색 동그라미로 표시되고, <b>오늘</b> 버튼으로 바로 돌아올 수 있어요.</li>
   <li>내일 이후 날짜도 고를 수 있어 미리 참가 멤버를 정해 둘 수 있어요. 기록 탭의 <b>최근 기록</b>을 눌러 최근 5일로 바로 이동할 수도 있어요.</li>
 </ul>
@@ -170,7 +170,7 @@ window.BB_DOCS = (() => {
         title: '개인정보처리방침',
         html: `
 <p class="doc-date">시행일: ${UPDATED}</p>
-<p>Best Bowling(이하 "앱")은 이용자의 개인정보를 소중히 여기며, 개인정보를 수집하지 않는 것을 원칙으로 합니다.</p>
+<p>볼링비서(이하 "앱")는 이용자의 개인정보를 소중히 여기며, 개인정보를 수집하지 않는 것을 원칙으로 합니다.</p>
 
 <h3>1. 수집하는 개인정보</h3>
 <p>앱은 이용자의 개인정보를 <b>수집하지 않으며</b>, 회원가입이나 로그인 기능이 없습니다.</p>
@@ -207,7 +207,7 @@ window.BB_DOCS = (() => {
         html: `
 <p class="doc-date">시행일: ${UPDATED}</p>
 <h3>1. 서비스</h3>
-<p>Best Bowling은 볼링 점수 기록, 통계, 비용 정산을 돕는 무료 앱입니다. 별도의 회원가입 없이 누구나 사용할 수 있습니다.</p>
+<p>볼링비서는 볼링 점수 기록, 통계, 비용 정산을 돕는 무료 앱입니다. 별도의 회원가입 없이 누구나 사용할 수 있습니다.</p>
 <h3>2. 데이터의 관리</h3>
 <p>모든 기록은 이용자의 기기에만 저장되며, 기기 분실·초기화·브라우저 데이터 삭제 등으로 사라질 수 있습니다. 중요한 기록은 <b>설정 → 백업 파일 내보내기</b>로 직접 보관해 주세요.</p>
 <h3>3. 정확성</h3>
@@ -222,7 +222,7 @@ window.BB_DOCS = (() => {
       oss: {
         title: '오픈소스 라이선스',
         html: `
-<p>Best Bowling은 다음 오픈소스를 사용합니다. 각 저작권자에게 감사드립니다.</p>
+<p>볼링비서는 다음 오픈소스를 사용합니다. 각 저작권자에게 감사드립니다.</p>
 <h3>Playfair Display <small>글꼴</small></h3>
 <p>Copyright 2017 The Playfair Display Project Authors<br>SIL Open Font License, Version 1.1 — <a href="${OFL}" target="_blank" rel="noopener">openfontlicense.org</a></p>
 <h3>Feather Icons <small>아이콘 일부</small></h3>
@@ -329,7 +329,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         title: 'User Guide',
         html: `
 <h3>1. Install</h3>
-<p>Best Bowling is a web app you install on your home screen and use like a regular app.</p>
+<p>Bowling Secretary is a web app you install on your home screen and use like a regular app.</p>
 <ul>
   <li><b>Android (Chrome)</b>: menu (⋮) → <b>Install app</b> or <b>Add to Home screen</b></li>
   <li><b>iPhone (Safari)</b>: Share button → <b>Add to Home Screen</b></li>
@@ -345,7 +345,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 <h3>3. Picking a date</h3>
 <ul>
-  <li>On the Scores and Settle tabs, a small <b>desk calendar</b> sits to the right of <b>Best Bowling</b> at the top.</li>
+  <li>On the Scores and Settle tabs, a small <b>desk calendar</b> sits to the right of <b>Bowling Secretary</b> at the top.</li>
   <li>Use <b>‹ ›</b> to step one day back or forward, or tap the calendar to open the month view. Days with records are circled in gold, and <b>Today</b> jumps back to today.</li>
   <li>Future dates can be picked too, e.g. to set up the players ahead of time. On the Scores tab you can also tap a <b>Recent</b> chip to jump to one of the last 5 days.</li>
 </ul>
@@ -399,7 +399,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         title: 'Privacy Policy',
         html: `
 <p class="doc-date">Effective: ${UPDATED}</p>
-<p>Best Bowling ("the app") respects your privacy and is designed not to collect personal information.</p>
+<p>Bowling Secretary ("the app") respects your privacy and is designed not to collect personal information.</p>
 
 <h3>1. Information we collect</h3>
 <p>The app <b>does not collect</b> any personal information. There is no sign-up or login.</p>
@@ -436,7 +436,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         html: `
 <p class="doc-date">Effective: ${UPDATED}</p>
 <h3>1. The service</h3>
-<p>Best Bowling is a free app for recording bowling scores, viewing stats and splitting costs. No account is required.</p>
+<p>Bowling Secretary is a free app for recording bowling scores, viewing stats and splitting costs. No account is required.</p>
 <h3>2. Your data</h3>
 <p>All records are stored only on your device and may be lost if the device is lost or reset or browser data is cleared. Keep important records with <b>Settings → Export backup</b>.</p>
 <h3>3. Accuracy</h3>
@@ -451,7 +451,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       oss: {
         title: 'Open-source licenses',
         html: `
-<p>Best Bowling uses the following open-source software. Thank you to their authors.</p>
+<p>Bowling Secretary uses the following open-source software. Thank you to their authors.</p>
 <h3>Playfair Display <small>font</small></h3>
 <p>Copyright 2017 The Playfair Display Project Authors<br>SIL Open Font License, Version 1.1 — <a href="${OFL}" target="_blank" rel="noopener">openfontlicense.org</a></p>
 <h3>Feather Icons <small>some icons</small></h3>

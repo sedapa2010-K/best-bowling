@@ -1,6 +1,6 @@
 {
-  "name": "Best Bowling",
-  "short_name": "Best Bowling",
+  "name": "볼링비서",
+  "short_name": "볼링비서",
   "description": "볼링 점수 기록 · 팀전 · 핸디캡 · 비용 정산",
   "id": "./",
   "start_url": "./",

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Best Bowling is a bowling score / team / handicap / cost-settlement app, built as an installable PWA with **no build step, no framework, no dependencies**: plain `index.html` + `css/style.css` + `js/docs.js` + `js/xlsx.js` + `js/app.js` (plus `js/privacy.js` for the public policy page). All user data lives only in the device's `localStorage` (no server, no accounts). UI is bilingual (Korean default, English); the user communicates in Korean.
+볼링비서 / Bowling Secretary (first released as "Best Bowling"; the repo, URL, package id and storage key keep that name) is a bowling score / team / handicap / cost-settlement app, built as an installable PWA with **no build step, no framework, no dependencies**: plain `index.html` + `css/style.css` + `js/docs.js` + `js/xlsx.js` + `js/app.js` (plus `js/privacy.js` for the public policy page). All user data lives only in the device's `localStorage` (no server, no accounts). UI is bilingual (Korean default, English); the user communicates in Korean.
 
 Live site: https://sedapa2010-k.github.io/best-bowling/ (GitHub Pages, served from `main` branch root of `sedapa2010-K/best-bowling`). `privacy.html` is the public privacy-policy URL intended for the Google Play listing.
 
