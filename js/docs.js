@@ -154,6 +154,7 @@ window.BB_DOCS = (() => {
   <li><b>최종 점수별</b>: 날짜별 평균 그래프와 날짜별 최종 점수표(날짜를 누르면 그날 기록으로 이동)</li>
   <li>맨 아래 <b>전체 순위</b>는 평균 점수 기준이에요.</li>
   <li>연습 게임은 통계에서 빠져요. 단, <b>게임 순서별 평균</b>에는 포함되고 “연습 n회 포함”으로 표시돼요.</li>
+  <li><b>엑셀</b> 버튼(오른쪽 위)을 누르면 고른 기간의 기록이 엑셀 파일(.xlsx)로 저장돼요. <b>게임 기록</b>(게임마다 한 줄, 연습 게임은 ‘연습’ 칸에 표시), <b>날짜별 요약</b>, <b>회원별 통계</b> 세 개의 시트가 들어 있어 엑셀에서 필터·정렬·피벗을 바로 쓸 수 있어요.</li>
 </ul>
 
 <h3>7. 설정과 백업</h3>
@@ -382,6 +383,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li><b>By session</b>: average-by-date chart and final scores by date (tap a date to open that day).</li>
   <li>The <b>Leaderboard</b> at the bottom ranks by average.</li>
   <li>Practice games are left out of stats, except <b>average by game order</b>, which includes them and notes “incl. n practice”.</li>
+  <li>Tap <b>Excel</b> (top right) to save the selected period as an Excel file (.xlsx) with three sheets: <b>Games</b> (one row per game; practice games are marked, not removed), <b>By date</b> and <b>By member</b>, ready for filters, sorting and pivot tables.</li>
 </ul>
 
 <h3>7. Settings &amp; backup</h3>

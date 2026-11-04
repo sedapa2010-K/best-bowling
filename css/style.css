@@ -768,6 +768,10 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .crow .pname .xshare:empty { display: none; }
 .hero-grid .hero-wide { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
 
+/* Stats header: Excel export button */
+.page-h .xlsx-btn { flex: 0 0 auto; height: 34px; padding: 0 12px; font-size: 13px; gap: 6px; }
+.page-h .xlsx-btn .ic { width: 16px; height: 16px; }
+
 /* Quick add on the entry screen: button as tall as the name/handicap fields */
 .quick .btn.sm { height: 44px; border-radius: 12px; padding: 0 16px; }
 
