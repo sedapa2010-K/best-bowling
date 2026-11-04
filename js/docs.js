@@ -94,7 +94,7 @@ window.BB_DOCS = (() => {
   <li>볼링화 바닥이 젖으면 미끄러지지 않아 넘어질 수 있어요. 음료는 정해진 자리에서만 마셔요.</li>
 </ul>
 
-<p class="doc-date">참고: <a href="http://sports.koreanpc.kr:9000/sports_follow/sub/bowling/bowling_1_01_01.asp?naviNum=2" target="_blank" rel="noopener">KPC 생활체육 볼링 안내</a> 내용을 바탕으로 앱에 맞게 다시 정리했어요.</p>`,
+<p class="doc-date">참고: KPC 생활체육 볼링 안내 내용을 바탕으로 앱에 맞게 다시 정리했어요.</p>`,
       },
       guide: {
         title: '사용설명서',
@@ -323,7 +323,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li>Wet shoe soles won't slide and can make you fall; keep drinks in the seating area.</li>
 </ul>
 
-<p class="doc-date">Source: rewritten for this app from the <a href="http://sports.koreanpc.kr:9000/sports_follow/sub/bowling/bowling_1_01_01.asp?naviNum=2" target="_blank" rel="noopener">KPC community-sports bowling guide</a> (Korean).</p>`,
+<p class="doc-date">Source: rewritten for this app from the KPC community-sports bowling guide (Korean).</p>`,
       },
       guide: {
         title: 'User Guide',
