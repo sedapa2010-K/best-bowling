@@ -50,7 +50,7 @@
       statLine: '{0}게임 · 평균 {1} · 최고 {2}', noGames: '아직 경기 기록 없음',
       confirmDelMember: '{0} 님을 삭제할까요?\n지난 기록의 점수는 그대로 남아요.',
       nameRequired: '이름을 입력해 주세요', dupName: '이미 같은 이름의 멤버가 있어요', added: '{0} 님을 추가했어요',
-      costTitle: '비용 정산', moneyMax: '최대 {0}까지 입력할 수 있어요', date: '날짜', gameFee: '경기비', perGame: '1게임당', shoeFee: '신발비', perPerson: '1인당',
+      renderErr: '화면을 그리는 중 문제가 생겼어요. 이 화면을 캡처해서 알려 주세요', costTitle: '비용 정산', moneyMax: '최대 {0}까지 입력할 수 있어요', date: '날짜', gameFee: '경기비', perGame: '1게임당', shoeFee: '신발비', perPerson: '1인당',
       perPersonTitle: '인원별 정산', loadFromRecord: '기록에서 불러오기', noRecordForDate: '이 날짜에 저장된 경기 기록이 없어요',
       confirmReload: '현재 정산 목록을 경기 기록 기준으로 다시 불러올까요?', loaded: '경기 기록을 불러왔어요',
       costEmpty: '기록에서 불러오거나 아래 멤버를 눌러 추가하세요.', addPerson: '멤버 추가',
@@ -95,7 +95,7 @@
       statLine: '{0} games · avg {1} · high {2}', noGames: 'No games yet',
       confirmDelMember: 'Delete {0}?\nPast scores will be kept.',
       nameRequired: 'Please enter a name', dupName: 'A member with that name already exists', added: '{0} added',
-      costTitle: 'Settle up', moneyMax: 'Up to {0}', date: 'Date', gameFee: 'Game fee', perGame: 'per game', shoeFee: 'Shoe rental', perPerson: 'per person',
+      renderErr: 'Something went wrong drawing this screen. Please send a screenshot of it', costTitle: 'Settle up', moneyMax: 'Up to {0}', date: 'Date', gameFee: 'Game fee', perGame: 'per game', shoeFee: 'Shoe rental', perPerson: 'per person',
       perPersonTitle: 'Per person', loadFromRecord: 'Load from scores', noRecordForDate: 'No scores saved for this date',
       confirmReload: 'Reload the list from this date\'s scores?', loaded: 'Loaded from scores',
       costEmpty: 'Load from scores, or tap a member below to add.', addPerson: 'Add member',
@@ -484,19 +484,30 @@
     if (brand) { brand.innerHTML = brandHTML(); brand.classList.toggle('ko', lang() === 'ko'); }
     document.title = brandName();
     renderTabbar();
-    renderTopCal();
     const v = $('#view');
     const prevTabs = $('.gtabs');
     const tabsScroll = prevTabs ? prevTabs.scrollLeft : 0;
-    v.innerHTML = ui.tab === 'record' ? renderRecord()
-      : ui.tab === 'members' ? renderMembers()
-      : ui.tab === 'cost' ? renderCost()
-      : ui.tab === 'stats' ? renderStats()
-      : renderSettings();
-    keepGameTabInView(tabsScroll);
-    updateScrollBars();
-    applyLock();
-    renderKeypad();
+    // A failure while drawing a tab used to leave the previous screen in place with the date tile gone;
+    // show what failed instead, so a screenshot tells us the cause (seen once on a Galaxy Tab).
+    try {
+      renderTopCal();
+      v.innerHTML = ui.tab === 'record' ? renderRecord()
+        : ui.tab === 'members' ? renderMembers()
+        : ui.tab === 'cost' ? renderCost()
+        : ui.tab === 'stats' ? renderStats()
+        : renderSettings();
+      keepGameTabInView(tabsScroll);
+      updateScrollBars();
+      applyLock();
+      renderKeypad();
+    } catch (e) {
+      v.innerHTML = errorCard(e);
+    }
+  }
+  function errorCard(e) {
+    const ua = (navigator.userAgent.match(/(Chrome|SamsungBrowser|Version)\/[\d.]+/g) || []).join(' ');
+    return `<div class="card err-card"><b>${t('renderErr')}</b>
+      <code>${esc(ui.tab)} · ${esc(e && e.name)}: ${esc(e && e.message)}</code><small>${esc(ua)}</small></div>`;
   }
   // Locked past record: inputs become read-only and editing controls are disabled (actions are also guarded).
   function applyLock() {
@@ -1801,6 +1812,9 @@
   };
 
   /* ───────── Events ───────── */
+  // Any other uncaught error (e.g. inside a button action) shows briefly instead of failing silently.
+  window.addEventListener('error', (e) => { if (e.message) toast(`⚠ ${e.message}`); });
+  window.addEventListener('unhandledrejection', (e) => { const r = e.reason; if (r && r.name !== 'AbortError') toast(`⚠ ${(r && r.message) || r}`); });
   document.addEventListener('click', (e) => {
     if (ui.tab === 'record' && e.target.closest('#sess.locked input[readonly]')) { lockedNudge(); return; }
     const el = e.target.closest('[data-act]');

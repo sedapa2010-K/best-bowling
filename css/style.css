@@ -821,3 +821,9 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .prow .field.hdf { flex: 0 0 auto; width: 72px; height: 44px; padding: 0 4px; font-size: 16px; border-radius: 12px; }
 .tsec .prow .field.hdf { width: 58px; }
 #sess.locked .prow .field.hdf { border-style: dashed; background: transparent; }
+
+/* Render error card (render() catches a failing tab and shows the cause) */
+.err-card { display: flex; flex-direction: column; gap: 8px; border: 1px solid #d64545; }
+.err-card b { color: #d64545; }
+.err-card code { font: 12px/1.5 ui-monospace, Consolas, monospace; word-break: break-all; color: var(--text); }
+.err-card small { font-size: 11px; color: var(--muted); word-break: break-all; }
