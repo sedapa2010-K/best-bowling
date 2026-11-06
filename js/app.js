@@ -293,13 +293,12 @@
   function fmtMoney(n) {
     const c = currency();
     if (lang() === 'ko' && c === 'KRW') return `${groupNum(n)}원`;
-    if (lang() === 'ko' && c === 'JPY') return `${groupNum(n)}엔`;
     return `${CUR_SYM[c]}${groupNum(n)}`;
   }
   function moneyInput(k, v, inp = 'fee', id = '') {
     const c = currency();
     const input = `<input type="text" inputmode="${hasCents() ? 'decimal' : 'numeric'}" autocomplete="off" data-inp="${inp}" data-k="${k}"${id ? ` data-id="${esc(id)}"` : ''} value="${esc(v ? groupNum(v) : '')}" placeholder="0">`;
-    if (lang() === 'ko' && (c === 'KRW' || c === 'JPY')) return `<div class="money">${input}<em>${c === 'KRW' ? '원' : '엔'}</em></div>`;
+    if (lang() === 'ko' && c === 'KRW') return `<div class="money">${input}<em>원</em></div>`; // yen uses ¥ in Korean too
     return `<div class="money"><em>${CUR_SYM[c]}</em>${input}</div>`;
   }
 
