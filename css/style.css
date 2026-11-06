@@ -776,6 +776,8 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .hero-grid .hero-wide { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
 
 /* Stats header: Excel export button */
+/* Settle tab: the selected date, small, next to the title */
+.page-h .h-date { margin-left: 10px; font: 600 14px var(--sans); color: var(--gold); letter-spacing: 0; white-space: nowrap; vertical-align: 2px; }
 .page-h .xlsx-btn { flex: 0 0 auto; height: 34px; padding: 0 12px; font-size: 13px; gap: 6px; }
 .page-h .xlsx-btn .ic { width: 16px; height: 16px; }
 

@@ -256,6 +256,13 @@
       ? `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${w})`
       : `${w}, ${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   }
+  // "11월 6일 (금)" / "Fri, Nov 6"; the year is added only when it isn't this year.
+  function dateMid(k) {
+    const d = parseYmd(k), w = WD[lang()][d.getDay()], y = d.getFullYear() !== new Date().getFullYear();
+    return lang() === 'ko'
+      ? `${y ? `${d.getFullYear()}년 ` : ''}${d.getMonth() + 1}월 ${d.getDate()}일 (${w})`
+      : `${w}, ${MON[d.getMonth()]} ${d.getDate()}${y ? `, ${d.getFullYear()}` : ''}`;
+  }
   function dateShort(k) {
     const d = parseYmd(k);
     return { main: `${d.getMonth() + 1}.${pad(d.getDate())}`, wd: WD[lang()][d.getDay()] };
@@ -967,7 +974,7 @@
         </div></div>`).join('');
     const others = membersByName().filter((m) => !inRows.has(m.id));
     const groups = costTeams(c), teamView = !!groups && ui.costView === 'team';
-    return `<div class="page-h"><div><div class="eyebrow">Settlement</div><h2 class="display">${t('costTitle')}</h2></div></div>
+    return `<div class="page-h"><div><div class="eyebrow">Settlement</div><h2 class="display">${t('costTitle')}<span class="h-date">${esc(dateMid(c.date))}</span></h2></div></div>
       ${calendarHTML()}
       <div class="card">
         <div class="cur-row"><span class="label">${t('currency')}</span>
