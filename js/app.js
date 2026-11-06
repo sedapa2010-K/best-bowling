@@ -237,7 +237,7 @@
     auto: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
     left: '<path d="M15 18l-6-6 6-6"/>',
     right: '<path d="M9 18l6-6-6-6"/>',
-    crown: '<path d="M3 18h18l-1.5-10-5 4L12 5l-2.5 7-5-4z"/>',
+    crown: '<path d="M3 9.6l5.2 4.4L12 5.6l3.8 8.4L21 9.6V16H3z"/><path d="M3 16.2q9 2.6 18 0V19q-9 2.6-18 0z"/><circle cx="3" cy="7.9" r="1.3"/><circle cx="12" cy="3.9" r="1.4"/><circle cx="21" cy="7.9" r="1.3"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/>',
     x: '<path d="M18 6L6 18M6 6l12 12"/>',
     back: '<path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M18 9l-6 6M12 9l6 6"/>',
@@ -256,6 +256,18 @@
     down: '<path d="M6 9l6 6 6-6"/>',
     up: '<path d="M18 15l-6-6-6 6"/>',
   };
+  // The winner's crown in colour (three points with balls, a band with gems), shared by the app (SVG) and the
+  // share images (canvas, drawCrown) so both look the same. Coordinates are in a 24×24 box.
+  const CROWN = [
+    { d: 'M3 9.6L8.2 14 12 5.6 15.8 14 21 9.6V17H3Z', fill: '#f8c515', stroke: '#efa20a', w: 1.2 },
+    { d: 'M2.6 15.7Q12 18.4 21.4 15.7V19.7Q12 22.4 2.6 19.7Z', fill: '#f59b0b' },
+    ...[[3, 8.1, 1.75], [12, 4.1, 1.95], [21, 8.1, 1.75]].map(([cx, cy, r]) => ({ c: [cx, cy, r], fill: '#ffd51f', stroke: '#efa20a', w: 0.9 })),
+    ...[[7.2, 18.7, 1.15], [12, 19.4, 1.35], [16.8, 18.7, 1.15]].map(([cx, cy, r]) => ({ c: [cx, cy, r], fill: '#ffe24d', stroke: '#f6b70c', w: 0.6 })),
+  ];
+  const crownArt = () => `<svg class="ic crown-art" viewBox="0 0 24 24" aria-hidden="true">${CROWN.map((p) => {
+    const paint = `fill="${p.fill}"${p.stroke ? ` stroke="${p.stroke}" stroke-width="${p.w}" stroke-linejoin="round"` : ''}`;
+    return p.d ? `<path d="${p.d}" ${paint}/>` : `<circle cx="${p.c[0]}" cy="${p.c[1]}" r="${p.c[2]}" ${paint}/>`;
+  }).join('')}</svg>`;
   const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
 
   /* ───────── Formatting ───────── */
@@ -727,7 +739,7 @@
     if (s.teamMode) {
       h += `<div class="teams">${teamStats(s).map((x) => `<div class="team-card ${x.win ? 'win' : ''}">
           <span class="team-badge t${x.ti}">${TEAMS[x.ti]}</span>
-          <div class="tm"><b>${esc(teamLabel(s, x.ti))}${x.win ? ic('crown') : ''}</b>
+          <div class="tm"><b>${esc(teamLabel(s, x.ti))}${x.win ? crownArt() : ''}</b>
             <small>${x.ps.map((p) => esc(pname(p))).join(', ') || '—'}</small></div>
           <div class="tt">${x.total}<small>${x.win ? t('win') : x.draw ? t('draw') : ''}</small></div>
           <div class="tg">${x.games.map((v, i) => `<span class="${isPractice(s, i) ? 'prac' : ''}">${isPractice(s, i) ? t('practice') : `G${i + 1}`} <b>${v ?? '-'}</b></span>`).join('')}</div></div>`).join('')}</div>`;
@@ -1350,15 +1362,19 @@
   const PADX = 64, RH = 66, HH = 58;
   const COL_UNIT = 92; // minimum px per column weight, so 3-digit scores never get cut off
   let W = 1080;        // widened per image when a table has many columns
-  // Simple three-point crown, 28px wide, vertically centred on cy.
   function drawCrown(x, X, cy) {
+    // CROWN spans x 0.85–23.15, y 2.15–22.2 of its 24 box; draw it 30px wide starting at X, centred on cy.
+    const k = 30 / 22.3;
     x.save();
-    x.fillStyle = '#e9c97e';
-    x.beginPath();
-    x.moveTo(X, cy + 9); x.lineTo(X, cy - 7); x.lineTo(X + 8, cy);
-    x.lineTo(X + 14, cy - 11); x.lineTo(X + 20, cy); x.lineTo(X + 28, cy - 7); x.lineTo(X + 28, cy + 9);
-    x.closePath(); x.fill();
-    x.fillRect(X, cy + 11, 28, 3);
+    x.translate(X - 0.85 * k, cy - 12.2 * k);
+    x.scale(k, k);
+    x.lineJoin = 'round';
+    CROWN.forEach((p) => {
+      const path = new Path2D();
+      if (p.d) path.addPath(new Path2D(p.d)); else path.arc(p.c[0], p.c[1], p.c[2], 0, Math.PI * 2);
+      x.fillStyle = p.fill; x.fill(path);
+      if (p.stroke) { x.strokeStyle = p.stroke; x.lineWidth = p.w; x.stroke(path); }
+    });
     x.restore();
   }
   function drawTable(x, b, y) {
@@ -1395,7 +1411,7 @@
           // Winner: name first, then a small drawn crown right after it (emoji/symbol glyphs render unevenly).
           const s = fit(x, v, cw(i) - 24 - 40);
           cellText(x, s, xs[i], cw(i) - 40, cy, 'l');
-          drawCrown(x, xs[i] + 14 + x.measureText(s).width + 12, cy);
+          drawCrown(x, xs[i] + 14 + x.measureText(s).width + 10, cy);
           return;
         }
         cellText(x, v, xs[i], cw(i), cy, c.al);

@@ -830,3 +830,6 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 
 /* Game trend chart: the selected (tapped) point stands out in blue */
 .chart-pt.on i { background: #3b82f6; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px rgba(59, 130, 246, .35); transform: scale(1.45); }
+
+/* Winner's crown in colour (crownArt) next to the winning team's name */
+.ic.crown-art { width: 20px; height: 20px; }
