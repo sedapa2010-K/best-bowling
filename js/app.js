@@ -50,7 +50,7 @@
       statLine: '{0}게임 · 평균 {1} · 최고 {2}', noGames: '아직 경기 기록 없음',
       confirmDelMember: '{0} 님을 삭제할까요?\n지난 기록의 점수는 그대로 남아요.',
       nameRequired: '이름을 입력해 주세요', dupName: '이미 같은 이름의 멤버가 있어요', added: '{0} 님을 추가했어요',
-      costTitle: '비용 정산', date: '날짜', gameFee: '경기비', perGame: '1게임당', shoeFee: '신발비', perPerson: '1인당',
+      costTitle: '비용 정산', moneyMax: '최대 {0}까지 입력할 수 있어요', date: '날짜', gameFee: '경기비', perGame: '1게임당', shoeFee: '신발비', perPerson: '1인당',
       perPersonTitle: '인원별 정산', loadFromRecord: '기록에서 불러오기', noRecordForDate: '이 날짜에 저장된 경기 기록이 없어요',
       confirmReload: '현재 정산 목록을 경기 기록 기준으로 다시 불러올까요?', loaded: '경기 기록을 불러왔어요',
       costEmpty: '기록에서 불러오거나 아래 멤버를 눌러 추가하세요.', addPerson: '멤버 추가',
@@ -95,7 +95,7 @@
       statLine: '{0} games · avg {1} · high {2}', noGames: 'No games yet',
       confirmDelMember: 'Delete {0}?\nPast scores will be kept.',
       nameRequired: 'Please enter a name', dupName: 'A member with that name already exists', added: '{0} added',
-      costTitle: 'Settle up', date: 'Date', gameFee: 'Game fee', perGame: 'per game', shoeFee: 'Shoe rental', perPerson: 'per person',
+      costTitle: 'Settle up', moneyMax: 'Up to {0}', date: 'Date', gameFee: 'Game fee', perGame: 'per game', shoeFee: 'Shoe rental', perPerson: 'per person',
       perPersonTitle: 'Per person', loadFromRecord: 'Load from scores', noRecordForDate: 'No scores saved for this date',
       confirmReload: 'Reload the list from this date\'s scores?', loaded: 'Loaded from scores',
       costEmpty: 'Load from scores, or tap a member below to add.', addPerson: 'Add member',
@@ -121,6 +121,11 @@
   const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
   const clampInt = (v, lo, hi, dflt = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
   const money = (v, dflt) => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? Math.min(1e9, Math.round(n * 100) / 100) : dflt; };
+  // Money limits in won (other currencies scale by CUR_RATE): game/shoe fee per item, and an extra (drinks, food…).
+  const MONEY_MAX = { fee: 100000, extra: 5000000 };
+  // Rough value of each currency against the won, used to convert amounts when the currency is switched.
+  const CUR_RATE = { KRW: 1, USD: 0.001, EUR: 0.001, JPY: 0.1 };
+  const capMoney = (v, kind) => Math.min(MONEY_MAX[kind], money(v, 0));
   const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
   const entries = (o) => (isObj(o) ? Object.keys(o).map((k) => [k, o[k]]) : []);
   function cleanSession(date, x) {
@@ -150,11 +155,11 @@
   }
   function cleanCost(date, x) {
     return {
-      date, gameFee: money(x.gameFee, 0), shoeFee: money(x.shoeFee, 0),
+      date, gameFee: capMoney(x.gameFee, 'fee'), shoeFee: capMoney(x.shoeFee, 'fee'),
       rows: (Array.isArray(x.rows) ? x.rows : []).filter((r) => isObj(r) && ID_RE.test(r.id))
         .map((r) => ({ id: r.id, name: str(r.name, 40), on: r.on !== false, games: clampInt(r.games, 0, 99), shoes: !!r.shoes })),
       extras: (Array.isArray(x.extras) ? x.extras : []).slice(0, 30).filter((e) => isObj(e) && ID_RE.test(e.id))
-        .map((e) => ({ id: e.id, label: str(e.label, 20), amount: money(e.amount, 0), mode: e.mode === 'one' ? 'one' : 'split',
+        .map((e) => ({ id: e.id, label: str(e.label, 20), amount: capMoney(e.amount, 'extra'), mode: e.mode === 'one' ? 'one' : 'split',
           who: (Array.isArray(e.who) ? e.who : []).filter((id) => typeof id === 'string' && ID_RE.test(id)).slice(0, 60) })),
     };
   }
@@ -171,7 +176,7 @@
       sessions, costs,
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system',
         ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}) },
-      feeDefaults: { gameFee: money(fee.gameFee, 3000), shoeFee: money(fee.shoeFee, 1500) },
+      feeDefaults: { gameFee: Math.min(MONEY_MAX.fee, money(fee.gameFee, 3000)), shoeFee: Math.min(MONEY_MAX.fee, money(fee.shoeFee, 1500)) },
     };
   }
   function load() {
@@ -278,6 +283,9 @@
   const CUR_SYM = { KRW: '₩', USD: '$', EUR: '€', JPY: '¥' };
   const currency = () => (CURRENCIES.includes(db.settings.currency) ? db.settings.currency : lang() === 'ko' ? 'KRW' : 'USD');
   const hasCents = () => currency() !== 'KRW' && currency() !== 'JPY'; // won and yen are whole numbers
+  const roundCur = (n, c) => (c === 'KRW' || c === 'JPY' ? Math.round(n) : Math.round(n * 100) / 100);
+  // Largest amount an input takes in the current currency: 100,000원 / $100 / €100 / ¥10,000 for fees, 5,000,000원 / $5,000 / ¥500,000 for an extra.
+  const moneyMax = (kind) => roundCur(MONEY_MAX[kind] * CUR_RATE[currency()], currency());
   // "12,345" / "12,345.5" — digits grouped by 3; up to 2 decimals for dollars/euros.
   const groupNum = (n) => (hasCents()
     ? (n || 0).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n || 0) ? 0 : 2, maximumFractionDigits: 2 })
@@ -1643,14 +1651,18 @@
       ui.editTeam = null; commit(s); render();
     },
     currency(el) {
-      db.settings.currency = el.dataset.v;
-      // Won and yen have no cents: round this sheet's fees, extras (and the defaults) so what's shown is what's charged.
-      if (!hasCents()) {
-        const c = costDoc();
-        ['gameFee', 'shoeFee'].forEach((k) => { c[k] = Math.round(c[k] || 0); db.feeDefaults[k] = Math.round(db.feeDefaults[k] || 0); });
-        (c.extras || []).forEach((x) => { x.amount = Math.round(x.amount || 0); });
-        if (db.costs[c.date]) commitCost(c);
-      }
+      const from = currency(), to = el.dataset.v;
+      if (!CUR_RATE[to] || from === to) return;
+      // The currency applies to every sheet, so convert all saved amounts (and the defaults) at the rough rate:
+      // 3,500원 → $3.50 / €3.50 / ¥350. Won and yen come out whole, dollars and euros to the cent.
+      const conv = (v) => roundCur((v || 0) * CUR_RATE[to] / CUR_RATE[from], to);
+      [...Object.values(db.costs), ui.cdraft].forEach((c) => {
+        if (!c) return;
+        c.gameFee = conv(c.gameFee); c.shoeFee = conv(c.shoeFee);
+        (c.extras || []).forEach((x) => { x.amount = conv(x.amount); });
+      });
+      db.feeDefaults.gameFee = conv(db.feeDefaults.gameFee); db.feeDefaults.shoeFee = conv(db.feeDefaults.shoeFee);
+      db.settings.currency = to;
       save(); render();
     },
     costView(el) { ui.costView = el.dataset.v; render(); },
@@ -1813,13 +1825,16 @@
   document.addEventListener('click', showTip);
   // Money text fields: keep only digits (and one decimal point for dollars/euros), re-show them grouped
   // by 3 digits while typing, and return the number.
-  function readMoneyInput(el) {
+  // Amounts above moneyMax(kind) are cut to it, with a short note.
+  function readMoneyInput(el, kind) {
     let raw = el.value.replace(/[^\d.]/g, '');
     if (!hasCents()) raw = raw.replace(/\./g, '');
     const [int = '', ...rest] = raw.split('.');
     const dec = rest.join('').slice(0, 2);
+    const v = Number(`${int || 0}.${dec || 0}`), max = moneyMax(kind);
+    if (v > max) { el.value = groupNum(max); toast(t('moneyMax', fmtMoney(max))); return max; }
     el.value = int === '' && !raw.includes('.') ? '' : Number(int || 0).toLocaleString('en-US') + (raw.includes('.') ? `.${dec}` : '');
-    return Math.min(1e9, Number(`${int || 0}.${dec || 0}`));
+    return v;
   }
   document.addEventListener('input', (e) => {
     // Handicap boxes on the member forms: keep the typed value within 0–HDCP_MAX.
@@ -1841,13 +1856,13 @@
       (g.entries[el.dataset.id] || (g.entries[el.dataset.id] = { score: null, rolls: [] })).score = v;
       commit(s); refreshRecordNumbers();
     } else if (k === 'fee') {
-      const c = costDoc(), v = readMoneyInput(el);
+      const c = costDoc(), v = readMoneyInput(el, 'fee');
       c[el.dataset.k] = v; db.feeDefaults[el.dataset.k] = v;
       commitCost(c); refreshCostNumbers();
     } else if (k === 'extraAmt' || k === 'extraLabel') {
       const c = costDoc(), x = (c.extras || []).find((e) => e.id === el.dataset.id);
       if (!x) return;
-      if (k === 'extraAmt') x.amount = readMoneyInput(el); else x.label = el.value.slice(0, 20);
+      if (k === 'extraAmt') x.amount = readMoneyInput(el, 'extra'); else x.label = el.value.slice(0, 20);
       commitCost(c); refreshCostNumbers();
     }
   });
