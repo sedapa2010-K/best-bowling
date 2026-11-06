@@ -39,7 +39,7 @@
       finalMode: '최종결과 입력', frameMode: '프레임별 입력',
       gameN: '{0}게임', deleteGame: '{0}게임 삭제', confirmDelGame: '{0}게임 기록을 삭제할까요?',
       tapToInput: '점수판을 누르면 키패드가 열려요',
-      frameRoll: '{0}프레임 · {1}구', gameDone: '게임 완료', next: '다음 사람', done: '완료', allDone: '모든 멤버의 게임이 끝났어요',
+      frameRoll: '{0}프레임 · {1}구', splitBtn: '스플릿', gameDone: '게임 완료', next: '다음 사람', done: '완료', allDone: '모든 멤버의 게임이 끝났어요',
       results: '경기 결과', name: '이름', total: '총점', avg: '평균', scratch: '스크래치', team: '팀',
       teamResults: '팀 결과', win: '승리', draw: '무승부',
       saveImage: '이미지 저장', share: '공유하기', autosave: '입력한 기록은 이 휴대폰에 자동 저장돼요',
@@ -84,7 +84,7 @@
       finalMode: 'Final Score', frameMode: 'By Frame',
       gameN: 'Game {0}', deleteGame: 'Delete game {0}', confirmDelGame: 'Delete game {0}?',
       tapToInput: 'Tap a score sheet to open the keypad',
-      frameRoll: 'Frame {0} · Ball {1}', gameDone: 'Game complete', next: 'Next', done: 'Done', allDone: 'Everyone has finished the game',
+      frameRoll: 'Frame {0} · Ball {1}', splitBtn: 'Split', gameDone: 'Game complete', next: 'Next', done: 'Done', allDone: 'Everyone has finished the game',
       results: 'Results', name: 'Name', total: 'Total', avg: 'Avg', scratch: 'Scratch', team: 'Team',
       teamResults: 'Team results', win: 'Win', draw: 'Draw',
       saveImage: 'Save image', share: 'Share', autosave: 'Scores are saved automatically on this phone',
@@ -134,6 +134,10 @@
         const score = e.score === null || e.score === undefined || e.score === '' ? null : clampInt(e.score, 0, 300, null);
         const rolls = (Array.isArray(e.rolls) ? e.rolls : []).slice(0, 21).map((r) => clampInt(r, 0, 10));
         ent[id] = { score, rolls };
+        // splits: indexes into rolls of first balls marked as a split (shown in red)
+        const splits = (Array.isArray(e.splits) ? e.splits : []).map((i) => clampInt(i, 0, 20, -1))
+          .filter((i, k, a) => i >= 0 && i < rolls.length && a.indexOf(i) === k && splitOk(rolls, i)).sort((a, b) => a - b);
+        if (splits.length) ent[id].splits = splits;
       });
       return { mode: g.mode === 'frame' ? 'frame' : 'final', entries: ent };
     });
@@ -292,23 +296,35 @@
   }
 
   /* ───────── Bowling scoring ───────── */
-  // Where the next ball goes: frame index, ball within frame, pins standing.
+  // Where the next ball goes: frame index, ball within frame, pins standing, and whether it is thrown at a full
+  // rack (fresh: X is possible) or at what the previous ball left (/ is possible — even after a first-ball miss).
   function frameState(rolls) {
     let i = 0;
     for (let f = 0; f < 9; f++) {
-      if (i >= rolls.length) return { frame: f, ball: 0, standing: 10, done: false };
+      if (i >= rolls.length) return { frame: f, ball: 0, standing: 10, fresh: true, done: false };
       if (rolls[i] === 10) { i++; continue; }
-      if (i + 1 >= rolls.length) return { frame: f, ball: 1, standing: 10 - rolls[i], done: false };
+      if (i + 1 >= rolls.length) return { frame: f, ball: 1, standing: 10 - rolls[i], fresh: false, done: false };
       i += 2;
     }
     const r = rolls.slice(i), n = r.length;
-    if (n === 0) return { frame: 9, ball: 0, standing: 10, done: false };
-    if (n === 1) return { frame: 9, ball: 1, standing: r[0] === 10 ? 10 : 10 - r[0], done: false };
+    if (n === 0) return { frame: 9, ball: 0, standing: 10, fresh: true, done: false };
+    if (n === 1) return { frame: 9, ball: 1, standing: r[0] === 10 ? 10 : 10 - r[0], fresh: r[0] === 10, done: false };
     if (n === 2) {
-      if (r[0] === 10) return { frame: 9, ball: 2, standing: r[1] === 10 ? 10 : 10 - r[1], done: false };
-      if (r[0] + r[1] === 10) return { frame: 9, ball: 2, standing: 10, done: false };
+      if (r[0] === 10) return { frame: 9, ball: 2, standing: r[1] === 10 ? 10 : 10 - r[1], fresh: r[1] === 10, done: false };
+      if (r[0] + r[1] === 10) return { frame: 9, ball: 2, standing: 10, fresh: true, done: false };
     }
-    return { frame: 9, ball: n, standing: 0, done: true };
+    return { frame: 9, ball: n, standing: 0, fresh: false, done: true };
+  }
+  // A split can only be marked on a ball thrown at a full rack that knocked down 1–8 pins.
+  // (a function declaration: normalize() uses it while the stored data loads, before this line runs)
+  function splitOk(rolls, i) { return rolls[i] >= 1 && rolls[i] <= 8 && frameState(rolls.slice(0, i)).fresh; }
+  // The ball the split button acts on: the last ball, or the first ball of a frame whose second ball is already in.
+  function splitTarget(rolls) {
+    const n = rolls.length;
+    if (!n) return -1;
+    if (splitOk(rolls, n - 1)) return n - 1;
+    if (n >= 2 && !frameState(rolls.slice(0, n - 1)).fresh && splitOk(rolls, n - 2)) return n - 2;
+    return -1;
   }
   function splitFrames(rolls) {
     const fr = []; let i = 0;
@@ -636,10 +652,15 @@
     return `<p class="tap-hint">${t('tapToInput')}</p><div class="elist">${entryPlayers(s).map((p) => {
       const rolls = rollsOf(g, p.id), st = frameState(rolls), cum = cumScores(rolls);
       const active = ui.kp && ui.kp.pid === p.id;
+      const splits = (g.entries[p.id] && g.entries[p.id].splits) || [];
+      let start = 0; // index in rolls of each frame's first ball
       const cells = splitFrames(rolls).map((f, i) => {
-        const cur = active && !st.done && st.frame === i;
+        const cur = active && !st.done && st.frame === i, at = start;
+        start += f.length;
+        // mark j sits on ball at+j, except a frame 1–9 strike, whose X is drawn in the second box (never a split)
+        const marks = frameMarks(f, i).map((x, j) => `<span${splits.includes(at + j) && !(i < 9 && f[0] === 10) ? ' class="split"' : ''}>${x}</span>`);
         return `<div class="fr ${i === 9 ? 'f10' : ''} ${cur ? 'cur' : ''}"><div class="fr-n">${i + 1}</div>
-          <div class="fr-r">${frameMarks(f, i).map((x) => `<span>${x}</span>`).join('')}</div>
+          <div class="fr-r">${marks.join('')}</div>
           <div class="fr-s">${cum[i] ?? ''}</div></div>`;
       }).join('');
       const sc = entryScore(g, p.id), hd = toInt(p.hdcp);
@@ -762,12 +783,14 @@
     const rolls = rollsOf(g, p.id), st = frameState(rolls);
     const sc = entryScore(g, p.id);
     const num = (n) => `<button data-act="kp" data-v="${n}" ${!st.done && n < st.standing ? '' : 'disabled'}>${n}</button>`;
+    const sp = splitTarget(rolls), spOn = sp >= 0 && ((g.entries[p.id] && g.entries[p.id].splits) || []).includes(sp);
     el.innerHTML = `<div class="kp-h">${avatar(s, p)}
         <div><div class="pn">${esc(pname(p))}</div><div class="info">${st.done ? t('gameDone') : t('frameRoll', st.frame + 1, st.ball + 1)}</div></div>
+        <button class="kp-split ${spOn ? 'on' : ''}" data-act="kp" data-v="split" aria-pressed="${spOn}" ${sp >= 0 ? '' : 'disabled'}>${t('splitBtn')}</button>
         <div class="sc">${sc ?? 0}</div></div>
       <div class="kp-g">
-        ${num(1)}${num(2)}${num(3)}<button class="sp" data-act="kp" data-v="X" ${!st.done && st.standing === 10 ? '' : 'disabled'}>X</button>
-        ${num(4)}${num(5)}${num(6)}<button class="sp" data-act="kp" data-v="/" ${!st.done && st.standing < 10 ? '' : 'disabled'}>/</button>
+        ${num(1)}${num(2)}${num(3)}<button class="sp" data-act="kp" data-v="X" ${!st.done && st.fresh ? '' : 'disabled'}>X</button>
+        ${num(4)}${num(5)}${num(6)}<button class="sp" data-act="kp" data-v="/" ${!st.done && !st.fresh ? '' : 'disabled'}>/</button>
         ${num(7)}${num(8)}${num(9)}<button class="sp" data-act="kp" data-v="0" ${st.done ? 'disabled' : ''}>-</button>
         <button class="act" data-act="kp" data-v="back" ${rolls.length ? '' : 'disabled'} aria-label="undo">${ic('back')}</button>
         <button class="act" data-act="kp" data-v="next">${t('next')}</button>
@@ -801,17 +824,29 @@
     if (v === 'next') { moveToNextPlayer(s, g); render(); return; }
     const e = g.entries[ui.kp.pid] || (g.entries[ui.kp.pid] = { score: null, rolls: [] });
     e.rolls = e.rolls || [];
-    if (v === 'back') { e.rolls.pop(); commit(s); render(); return; }
+    if (v === 'back') {
+      e.rolls.pop();
+      if (e.splits) { e.splits = e.splits.filter((i) => i < e.rolls.length); if (!e.splits.length) delete e.splits; }
+      commit(s); render(); return;
+    }
+    if (v === 'split') { // toggle the split mark on the frame's first ball
+      const i = splitTarget(e.rolls);
+      if (i < 0) return;
+      const set = new Set(e.splits || []);
+      if (set.has(i)) set.delete(i); else set.add(i);
+      if (set.size) e.splits = [...set].sort((a, b) => a - b); else delete e.splits;
+      commit(s); render(); return;
+    }
     const st = frameState(e.rolls);
     if (st.done) return;
     let pins;
-    if (v === 'X') { if (st.standing !== 10) return; pins = 10; }
-    else if (v === '/') { if (st.standing === 10) return; pins = st.standing; }
+    if (v === 'X') { if (!st.fresh) return; pins = 10; }
+    else if (v === '/') { if (st.fresh) return; pins = st.standing; }
     else { pins = toInt(v); if (pins >= st.standing) return; }
     e.rolls.push(pins);
     commit(s);
-    const ns = frameState(e.rolls);
-    if (ns.done || ns.frame !== st.frame) moveToNextPlayer(s, g);
+    // stay on this bowler frame after frame; move on only when their game is complete ("다음" moves any time)
+    if (frameState(e.rolls).done) moveToNextPlayer(s, g);
     render();
   }
 

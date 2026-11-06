@@ -776,6 +776,14 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .hero-grid .hero-wide { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; }
 
 /* Stats header: Excel export button */
+/* Frame keypad: split toggle in the header; a ball marked as a split is red on the score sheet */
+.kp-split { margin-left: auto; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); font: 700 13px var(--sans); white-space: nowrap; }
+.kp-split + .sc { margin-left: 4px; }
+.kp-split.on { background: #d64545; border-color: #d64545; color: #fff; }
+.kp-split:disabled { opacity: .35; }
+.fr-r span.split { color: #e04848; font-weight: 800; }
+
 /* Settle tab: the selected date, small, next to the title */
 .page-h .h-date { margin-left: 10px; font: 600 14px var(--sans); color: var(--gold); letter-spacing: 0; white-space: nowrap; vertical-align: 2px; }
 .page-h .xlsx-btn { flex: 0 0 auto; height: 34px; padding: 0 12px; font-size: 13px; gap: 6px; }

@@ -128,7 +128,8 @@ window.BB_DOCS = (() => {
   <li><b>첫 경기는 연습</b>: 점수 입력 카드 위쪽 버튼을 켜면 그날 1게임은 연습으로 표시되고 총점·평균·순위에서 빠져요.</li>
   <li><b>게임</b>: 기본으로 4게임이 준비돼 있고, <b>+</b> 버튼으로 더 추가할 수 있어요. 점수가 없는 뒤쪽 게임은 결과와 통계에 나오지 않아요.</li>
   <li><b>최종결과 입력</b>: 사람별로 게임 점수(0~300)만 입력합니다.</li>
-  <li><b>프레임별 입력</b>: 점수판을 누르면 키패드가 열려요. <b>X</b> 스트라이크, <b>/</b> 스페어, <b>-</b> 거터(0), 숫자는 쓰러뜨린 핀 수입니다. 점수는 자동 계산되고, 한 프레임이 끝나면 다음 사람으로 넘어가요. ⌫ 버튼으로 마지막 투구를 지웁니다.</li>
+  <li><b>프레임별 입력</b>: 점수판을 누르면 키패드가 열려요. <b>X</b> 스트라이크, <b>/</b> 스페어, <b>-</b> 거터(0), 숫자는 쓰러뜨린 핀 수입니다. 첫 구가 0이어도 다음 구에서 / 로 스페어를 넣을 수 있어요. 점수는 자동 계산되고, 키패드는 한 사람의 게임이 끝날 때까지 그 사람에게 머물러요(<b>다음 사람</b> 버튼으로 언제든 넘길 수 있어요). ⌫ 버튼으로 마지막 투구를 지웁니다.</li>
+  <li><b>스플릿 표시</b>: 첫 구를 입력한 뒤 키패드 위의 <b>스플릿</b>을 누르면 그 투구가 점수판에 빨간색으로 표시돼요. 다시 누르면 해제됩니다. 두 번째 구까지 넣은 뒤에도 누를 수 있어요.</li>
   <li>입력 방식은 <b>게임마다</b> 따로 정할 수 있고, 두 방식에 넣은 값은 각각 남아 있어요. 프레임으로 입력한 게임을 최종결과로 바꾸면 계산된 점수가 그대로 채워져요.</li>
   <li><b>팀별 보기</b>: 팀전에서는 <b>전체 / A팀 / B팀…</b> 버튼으로 입력할 팀만 골라 볼 수 있어요.</li>
   <li><b>경기 결과</b>: 순위, 게임별 점수, 핸디 합계, 총점, 평균과 팀 결과(1위 팀에 왕관)가 자동으로 정리돼요. 제목 옆에 입력 방식(최종결과 / 프레임별 / 혼합)이 표시돼요.</li>
@@ -357,7 +358,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li><b>1st game is practice</b>: turn this on at the top of the score card to mark game 1 as practice and leave it out of totals, averages and rankings.</li>
   <li><b>Games</b>: 4 games are ready by default; tap <b>+</b> to add more. Empty games at the end don't show in results or stats.</li>
   <li><b>Final Score</b>: just type each player's game score (0–300).</li>
-  <li><b>By Frame</b>: tap a score sheet to open the keypad. <b>X</b> strike, <b>/</b> spare, <b>-</b> gutter (0), numbers are pins knocked down. Scores are calculated automatically and the keypad moves to the next player after each frame. ⌫ undoes the last ball.</li>
+  <li><b>By Frame</b>: tap a score sheet to open the keypad. <b>X</b> strike, <b>/</b> spare, <b>-</b> gutter (0), numbers are pins knocked down. A spare (/) can follow a first-ball miss. Scores are calculated automatically, and the keypad stays with one bowler until their game is complete (tap <b>Next</b> to move on any time). ⌫ undoes the last ball.</li>
+  <li><b>Splits</b>: after the first ball, tap <b>Split</b> above the keypad to show that ball in red on the score sheet. Tap again to clear it; it still works after the second ball is in.</li>
   <li>The input mode is chosen <b>per game</b>, and values entered in either mode are kept. Switching a frame-entered game to Final Score fills in the calculated scores.</li>
   <li><b>Team filter</b>: in team matches, use <b>All / Team A / Team B…</b> to show only the team you're entering.</li>
   <li><b>Results</b>: rankings, per-game scores, handicap, totals, averages and team results (with a crown for the winning team) are summarized automatically. The title shows how scores were entered (final / by frame / mixed).</li>
