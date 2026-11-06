@@ -827,3 +827,6 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .err-card b { color: #d64545; }
 .err-card code { font: 12px/1.5 ui-monospace, Consolas, monospace; word-break: break-all; color: var(--text); }
 .err-card small { font-size: 11px; color: var(--muted); word-break: break-all; }
+
+/* Game trend chart: the selected (tapped) point stands out in blue */
+.chart-pt.on i { background: #3b82f6; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px rgba(59, 130, 246, .35); transform: scale(1.45); }
