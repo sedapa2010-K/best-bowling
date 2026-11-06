@@ -24,7 +24,8 @@
       allPlayers: '전체', extraCosts: '기타 금액', extraAdd: '항목 추가', extraEmpty: '음료, 간식 같은 추가 비용을 넣을 수 있어요.', extraLabelPh: '음료, 간식 등',
       extraSplit: '나눠서 부담', extraOne: '한 사람 부담', extraSplitHint: '{0}명이 1인당 {1}씩 나눠 내요', extraOneHint: '{0} 님이 {1} 모두 부담해요',
       extraPickOne: '부담할 사람을 선택하세요', extraNoOne: '정산에 포함된 사람이 없어요', extraNeedOne: '최소 한 명은 선택해야 해요', extraShort: '기타',
-      extraItem: '항목', extraWhoCol: '부담', extraSplitN: '{0}명 나눠서', pracIncl: '연습 {0}회 포함', modeMixed: '혼합 입력', currency: '금액 단위', curKRW: '원화', curUSD: '달러', curEUR: '유로', curJPY: '엔화', entryHint: '입력한 점수에 따라 아래 경기 결과가 바로 바뀌어요', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
+      extraItem: '항목', extraWhoCol: '부담', extraSplitN: '{0}명 나눠서', pracIncl: '연습 {0}회 포함', modeMixed: '혼합 입력', currency: '금액 단위', curKRW: '원화', curUSD: '달러', curEUR: '유로', curJPY: '엔화', entryHint: '입력한 점수에 따라 아래 경기 결과가 바로 바뀌어요', teamShort: '{0}팀', editTeamName: '팀 이름 수정', editRecord: '수정', lockedHint: '지난 기록이에요. 수정 버튼을 눌러야 바꿀 수 있어요',
+      lockedTap: '위의 수정 버튼을 눌러 주세요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
       noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '볼링 상식 · 사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
       exportXlsx: '엑셀', confirmXlsx: '{0} 기록을 엑셀 파일로 저장할까요?', xlsxSaved: '엑셀 파일을 저장했어요', xlsxGames: '게임 기록', xlsxDays: '날짜별 요약', xlsxMembers: '회원별 통계', xlsxColsGames: '날짜|요일|이름|팀|게임|점수|핸디|합계|연습|입력 방식', xlsxColsDays: '날짜|요일|이름|팀|게임 수|점수 합계|평균|핸디 합계|총점|최고점|순위', xlsxColsMembers: '이름|기본 핸디|참가 일수|게임 수|평균|최고|최저|200점 이상|핸디 포함 평균', xlsxYes: '예', xlsxFinal: '최종 점수', xlsxFrame: '프레임', sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '최종 점수별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
@@ -68,7 +69,8 @@
       allPlayers: 'All', extraCosts: 'Extra costs', extraAdd: 'Add item', extraEmpty: 'Add extras such as drinks or snacks.', extraLabelPh: 'Drinks, snacks…',
       extraSplit: 'Split', extraOne: 'One person', extraSplitHint: '{0} people pay {1} each', extraOneHint: '{0} pays the full {1}',
       extraPickOne: 'Choose who pays', extraNoOne: 'No one is included in the settlement', extraNeedOne: 'Pick at least one person', extraShort: 'Extra',
-      extraItem: 'Item', extraWhoCol: 'Paid by', extraSplitN: 'Split by {0}', pracIncl: 'incl. {0} practice', modeMixed: 'Mixed input', currency: 'Currency', curKRW: 'KRW ₩', curUSD: 'USD $', curEUR: 'EUR €', curJPY: 'JPY ¥', entryHint: 'Results below update as you enter scores', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
+      extraItem: 'Item', extraWhoCol: 'Paid by', extraSplitN: 'Split by {0}', pracIncl: 'incl. {0} practice', modeMixed: 'Mixed input', currency: 'Currency', curKRW: 'KRW ₩', curUSD: 'USD $', curEUR: 'EUR €', curJPY: 'JPY ¥', entryHint: 'Results below update as you enter scores', teamShort: '{0}', editTeamName: 'Rename team', editRecord: 'Edit', lockedHint: 'This is a past record — tap Edit to change it',
+      lockedTap: 'Tap Edit above to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
       noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Bowling basics · guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
       exportXlsx: 'Excel', confirmXlsx: 'Save the records for {0} as an Excel file?', xlsxSaved: 'Excel file saved', xlsxGames: 'Games', xlsxDays: 'By date', xlsxMembers: 'By member', xlsxColsGames: 'Date|Day|Name|Team|Game|Score|HDCP|Total|Practice|Input', xlsxColsDays: 'Date|Day|Name|Team|Games|Scratch|Average|HDCP total|Total|High|Rank', xlsxColsMembers: 'Name|HDCP|Days|Games|Average|High|Low|200+|Avg incl. HDCP', xlsxYes: 'Yes', xlsxFinal: 'Final', xlsxFrame: 'Frame', sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By session', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
@@ -474,7 +476,15 @@
     sec.classList.toggle('locked', locked);
     if (!locked) return;
     $$('input', sec).forEach((i) => { i.readOnly = true; });
-    $$('[data-act]', sec).forEach((b) => { if (EDIT_ACTS.has(b.dataset.act) && 'disabled' in b) b.disabled = true; });
+    // aria-disabled, not disabled: a disabled button swallows the tap, and the tap should say "tap Edit" (lockedNudge)
+    $$('[data-act]', sec).forEach((b) => { if (EDIT_ACTS.has(b.dataset.act) && 'disabled' in b && !b.disabled) b.setAttribute('aria-disabled', 'true'); });
+  }
+  // A tap on a locked past record: a short hint, and the Edit button pulses once.
+  function lockedNudge() {
+    toast(t('lockedTap'));
+    const b = $('#sess [data-act="unlock"]');
+    if (!b) return;
+    b.classList.remove('nudge'); void b.offsetWidth; b.classList.add('nudge');
   }
   // Switching game / filter / input mode re-renders the score card. If a score box had focus, the phone's keyboard
   // closes at that moment and the browser drops the scroll it added to keep the box visible, so the page jumped.
@@ -1739,9 +1749,10 @@
 
   /* ───────── Events ───────── */
   document.addEventListener('click', (e) => {
+    if (ui.tab === 'record' && e.target.closest('#sess.locked input[readonly]')) { lockedNudge(); return; }
     const el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
-    if (ui.tab === 'record' && EDIT_ACTS.has(el.dataset.act) && isLocked(sess())) { toast(t('lockedHint')); return; }
+    if (ui.tab === 'record' && EDIT_ACTS.has(el.dataset.act) && isLocked(sess())) { lockedNudge(); return; }
     const fn = actions[el.dataset.act];
     if (fn) fn(el);
   });
