@@ -644,11 +644,11 @@
         <p class="entry-hint">${ic('info')}${t('entryHint')}</p>
         <button class="mini-toggle ${s.firstPractice ? 'on' : ''}" data-act="practice" aria-pressed="${!!s.firstPractice}">${ic('check')}${t('firstPractice')}</button>
       </div>
+      <div class="gtabs">${tabs}<button class="gtab add" data-act="addGame" aria-label="add game">+</button></div>
       <div class="mode-switch">
         <button class="mode ${g.mode === 'final' ? 'on' : ''}" data-act="mode" data-v="final">${ic('edit')}<span>${t('finalMode')}</span></button>
         <button class="mode ${g.mode === 'frame' ? 'on' : ''}" data-act="mode" data-v="frame">${ic('frames')}<span>${t('frameMode')}</span></button>
       </div>
-      <div class="gtabs">${tabs}<button class="gtab add" data-act="addGame" aria-label="add game">+</button></div>
       ${filter}
       ${g.mode === 'frame' ? frameEntries(s, g) : finalEntries(s, g)}
       ${s.games.length > 1 ? `<button class="link danger" data-act="delGame">${t('deleteGame', s.active + 1)}</button>` : ''}
