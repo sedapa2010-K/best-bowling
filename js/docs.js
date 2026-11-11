@@ -133,6 +133,7 @@ window.BB_DOCS = (() => {
   <li>입력 방식은 <b>게임마다</b> 따로 정할 수 있고, 두 방식에 넣은 값은 각각 남아 있어요. 프레임으로 입력한 게임을 최종결과로 바꾸면 계산된 점수가 그대로 채워져요.</li>
   <li><b>팀별 보기</b>: 팀전에서는 <b>전체 / A팀 / B팀…</b> 버튼으로 입력할 팀만 골라 볼 수 있어요.</li>
   <li><b>경기 결과</b>: 순위, 게임별 점수, 핸디 합계, 총점, 평균과 팀 결과(1위 팀에 왕관)가 자동으로 정리돼요. 제목 옆에 입력 방식(최종결과 / 프레임별 / 혼합)이 표시돼요.</li>
+  <li><b>세로보기</b>: 경기 결과 오른쪽 위의 <b>세로보기</b>를 누르면 게임이 아래로, 사람이 옆으로 놓인 표로 바뀌어요. 사람은 적고 게임이 많을 때 보기 편해요. <b>가로보기</b>로 되돌릴 수 있고, 고른 방식은 기억돼요.</li>
   <li><b>이미지 저장 / 공유하기</b>: 결과를 이미지로 저장하거나 카카오톡 등으로 바로 보낼 수 있어요.</li>
   <li><b>지난 기록 잠금</b>: 오늘 이전 날짜의 기록은 실수로 바뀌지 않게 잠겨 있고, 참가한 사람만 보여요. 고치려면 <b>수정</b> 버튼을 누르세요.</li>
 </ul>
@@ -363,6 +364,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li>The input mode is chosen <b>per game</b>, and values entered in either mode are kept. Switching a frame-entered game to Final Score fills in the calculated scores.</li>
   <li><b>Team filter</b>: in team matches, use <b>All / Team A / Team B…</b> to show only the team you're entering.</li>
   <li><b>Results</b>: rankings, per-game scores, handicap, totals, averages and team results (with a crown for the winning team) are summarized automatically. The title shows how scores were entered (final / by frame / mixed).</li>
+  <li><b>Vertical view</b>: tap <b>Vertical</b> at the top right of Results to list games down the side and bowlers across the top, handy with few bowlers and many games. <b>Horizontal</b> switches back, and your choice is remembered.</li>
   <li><b>Save image / Share</b>: save the results as an image or send it straight to a messaging app.</li>
   <li><b>Locked past records</b>: records before today are locked so they can't change by accident, and only the players who played are shown. Tap <b>Edit</b> to change them.</li>
 </ul>

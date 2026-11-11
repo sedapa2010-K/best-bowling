@@ -37,7 +37,7 @@
       individual: '개인전', teamMatch: '팀전', teamCount: '팀 수', teamHint: '멤버 옆의 팀 버튼(A·B…)을 눌러 팀을 옮길 수 있어요.', teamEmpty: '아직 멤버가 없어요', teamName: '{0}팀',
       pickHint: '참가할 멤버를 선택하면\n사람별로 점수를 입력할 수 있어요.',
       finalMode: '최종결과 입력', frameMode: '프레임별 입력',
-      gameN: '{0}게임', deleteGame: '{0}게임 삭제', confirmDelGame: '{0}게임 기록을 삭제할까요?',
+      gameN: '{0}게임', gameLbl: '게임', vertView: '세로보기', horizView: '가로보기', deleteGame: '{0}게임 삭제', confirmDelGame: '{0}게임 기록을 삭제할까요?',
       tapToInput: '점수판을 누르면 키패드가 열려요',
       frameRoll: '{0}프레임 · {1}구', splitBtn: '스플릿', gameDone: '게임 완료', next: '다음 사람', done: '완료', allDone: '모든 멤버의 게임이 끝났어요',
       results: '경기 결과', name: '이름', total: '총점', avg: '평균', scratch: '스크래치', team: '팀',
@@ -82,7 +82,7 @@
       individual: 'Singles', teamMatch: 'Teams', teamCount: 'Teams', teamHint: 'Tap a team letter next to a player to move them.', teamEmpty: 'No players yet', teamName: 'Team {0}',
       pickHint: 'Select the players\nto start entering scores.',
       finalMode: 'Final Score', frameMode: 'By Frame',
-      gameN: 'Game {0}', deleteGame: 'Delete game {0}', confirmDelGame: 'Delete game {0}?',
+      gameN: 'Game {0}', gameLbl: 'Game', vertView: 'Vertical', horizView: 'Horizontal', deleteGame: 'Delete game {0}', confirmDelGame: 'Delete game {0}?',
       tapToInput: 'Tap a score sheet to open the keypad',
       frameRoll: 'Frame {0} · Ball {1}', splitBtn: 'Split', gameDone: 'Game complete', next: 'Next', done: 'Done', allDone: 'Everyone has finished the game',
       results: 'Results', name: 'Name', total: 'Total', avg: 'Avg', scratch: 'Scratch', team: 'Team',
@@ -175,7 +175,8 @@
         .map((m) => ({ id: m.id, name: str(m.name, 40), handicap: clampInt(m.handicap, 0, HDCP_MAX) })),
       sessions, costs,
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system',
-        ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}) },
+        ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}),
+        ...(st.resultsVert === true ? { resultsVert: true } : {}) },
       feeDefaults: { gameFee: Math.min(MONEY_MAX.fee, money(fee.gameFee, 3000)), shoeFee: Math.min(MONEY_MAX.fee, money(fee.shoeFee, 1500)) },
     };
   }
@@ -702,7 +703,8 @@
   }
   function gameCard(s) {
     const g = curGame(s);
-    const tabs = s.games.map((x, i) => `<button class="gtab ${i === s.active ? 'on' : ''}" data-act="game" data-i="${i}">${t('gameN', i + 1)}${isPractice(s, i) ? `<small class="prac-tag">${t('practice')}</small>` : ''}</button>`).join('');
+    // Number-only tabs after a "게임" label, so more games fit on one line.
+    const tabs = s.games.map((x, i) => `<button class="gtab ${i === s.active ? 'on' : ''}" data-act="game" data-i="${i}" aria-label="${t('gameN', i + 1)}">${i + 1}${isPractice(s, i) ? `<small class="prac-tag">${t('practice')}</small>` : ''}</button>`).join('');
     const filter = s.teamMode ? `<div class="seg entry-filter">
         <button class="${ui.entryTeam === 'all' ? 'on' : ''}" data-act="entryTeam" data-v="all">${t('allPlayers')}</button>
         ${TEAMS.slice(0, s.teamCount).map((L, j) => `<button class="${ui.entryTeam === j ? 'on' : ''}" data-act="entryTeam" data-v="${j}"><span class="tdot t${j}"></span><span class="fl">${s.teamNames && s.teamNames[j] ? esc(s.teamNames[j]) : t('teamShort', L)}</span></button>`).join('')}
@@ -712,7 +714,8 @@
         <p class="entry-hint">${ic('info')}${t('entryHint')}</p>
         <button class="mini-toggle ${s.firstPractice ? 'on' : ''}" data-act="practice" aria-pressed="${!!s.firstPractice}">${ic('check')}${t('firstPractice')}</button>
       </div>
-      <div class="gtabs">${tabs}<button class="gtab add" data-act="addGame" aria-label="add game">+</button></div>
+      <div class="gtabs-row"><span class="gtabs-lbl">${t('gameLbl')}</span>
+        <div class="gtabs">${tabs}<button class="gtab add" data-act="addGame" aria-label="add game">+</button></div></div>
       <div class="mode-switch">
         <button class="mode ${g.mode === 'final' ? 'on' : ''}" data-act="mode" data-v="final">${ic('edit')}<span>${t('finalMode')}</span></button>
         <button class="mode ${g.mode === 'frame' ? 'on' : ''}" data-act="mode" data-v="frame">${ic('frames')}<span>${t('frameMode')}</span></button>
@@ -728,8 +731,11 @@
     // Which input mode the results come from: one mode for every game, or a mix.
     const modes = new Set(usedGames(s).map((g) => g.mode));
     const modeTag = modes.size > 1 ? t('modeMixed') : modes.has('frame') ? t('frameMode') : t('finalMode');
-    let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}<span class="mode-tag">${modeTag}</span></h3></div>
-      <div class="tbl-wrap"><table class="tbl pin2"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
+    const vert = !!db.settings.resultsVert;
+    let h = `<div class="card-h"><h3>${ic('crown')}${t('results')}<span class="mode-tag">${modeTag}</span></h3>
+        <button class="btn sm ghost vert-btn" data-act="sumVert" aria-pressed="${vert}">${ic(vert ? 'right' : 'down')}${t(vert ? 'horizView' : 'vertView')}</button></div>`;
+    if (vert) h += resultsVertical(s, st);
+    else h += `<div class="tbl-wrap"><table class="tbl pin2"><thead><tr><th></th><th class="nm">${t('name')}</th>${gh}<th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
       ${st.map((x, i) => `<tr>
         <td class="rkn ${x.played && i === 0 ? 'top' : ''}">${i + 1}</td>
         <td class="nm"><span class="nm-in">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span>&nbsp;` : ''}${esc(pname(x.p))}</span></td>
@@ -745,6 +751,19 @@
           <div class="tg">${x.games.map((v, i) => `<span class="${isPractice(s, i) ? 'prac' : ''}">${isPractice(s, i) ? t('practice') : `G${i + 1}`} <b>${v ?? '-'}</b></span>`).join('')}</div></div>`).join('')}</div>`;
     }
     return h;
+  }
+  // Results turned on their side: one column per bowler (in rank order), one row per game, then handicap,
+  // total and average. Easier to read with few bowlers and many games.
+  function resultsVertical(s, st) {
+    const games = usedGames(s);
+    const head = st.map((x, i) => `<th class="vh"><span class="vr ${x.played && i === 0 ? 'top' : ''}">${i + 1}</span>
+      <span class="nm-in">${s.teamMode ? `<span class="tl tl${x.p.team}">${TEAMS[x.p.team]}</span> ` : ''}${esc(pname(x.p))}</span></th>`).join('');
+    const rows = games.map((_, gi) => `<tr class="${isPractice(s, gi) ? 'prac' : ''}"><th class="rl">${isPractice(s, gi) ? t('practice') : `G${gi + 1}`}</th>
+      ${st.map((x) => { const v = x.scores[gi]; return `<td class="${v === null || isPractice(s, gi) ? 'dim' : ''}">${v === null ? '-' : v}</td>`; }).join('')}</tr>`).join('');
+    return `<div class="tbl-wrap"><table class="tbl vtbl"><thead><tr><th class="rl"></th>${head}</tr></thead><tbody>${rows}
+      <tr class="vsum vfirst"><th class="rl">${t('hdcp')}</th>${st.map((x) => `<td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td>`).join('')}</tr>
+      <tr class="vsum"><th class="rl">${t('total')}</th>${st.map((x) => `<td class="tot">${x.total}</td>`).join('')}</tr>
+      <tr><th class="rl">${t('avg')}</th>${st.map((x) => `<td>${x.avg}</td>`).join('')}</tr></tbody></table></div>`;
   }
   function renderRecord() {
     const s = sess();
@@ -1698,6 +1717,13 @@
     exportXlsx() { exportXlsx(); },
     doc(el) { showDoc(el.dataset.k); },
     statPick(el) { ui.statId = el.dataset.id; render(); },
+    sumVert() { // results table orientation; a view setting, so allowed on locked records
+      db.settings.resultsVert = !db.settings.resultsVert;
+      if (!db.settings.resultsVert) delete db.settings.resultsVert;
+      save();
+      const sum = $('#summary');
+      if (sum) { sum.innerHTML = summaryInner(sess()); updateScrollBars(); }
+    },
     statView(el) { ui.statView = el.dataset.v; render(); },
     togglePlayer(el) {
       const s = sess(), id = el.dataset.id, i = s.players.findIndex((p) => p.id === id);
