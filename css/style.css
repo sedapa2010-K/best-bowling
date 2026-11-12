@@ -888,3 +888,4 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .cert-slot img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; display: block; }
 .cert-slot .cert-rm { position: absolute; top: 4px; right: 4px; background: rgba(0, 0, 0, .6); color: #fff; }
 .cert-actions { margin-top: 18px; }
+.cert-f > span small { font-weight: 600; opacity: .75; }
