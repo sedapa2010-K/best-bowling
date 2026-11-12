@@ -859,3 +859,32 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .prow .field.hdf { width: 58px; height: 32px; font-size: 15px; border-radius: 9px; }
 .tsec .prow .field.hdf { width: 50px; }
 .prow { min-height: 38px; }
+
+/* Certificate maker (record tab → modal) */
+.cert-btn { margin-top: 12px; border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent); background: var(--gold-soft); color: var(--gold); font-weight: 800; gap: 8px; }
+.cert-btn .crown-art { width: 22px; height: 22px; }
+.cert .doc-h h2 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cert-q { margin: 14px 2px 12px; font-weight: 700; }
+.cert-types { display: flex; flex-direction: column; gap: 10px; }
+.cert-type { display: flex; align-items: center; gap: 14px; padding: 14px 14px; border-radius: 16px; border: 1px solid var(--line-strong); background: var(--surface); text-align: left; }
+.cert-type > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cert-type b { font-size: 16px; }
+.cert-type small { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.cert-type > .ic { color: var(--muted); width: 18px; height: 18px; }
+.cert-ic { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #2b4a72, #0f1d31); box-shadow: inset 0 0 0 2px #d9b459; }
+.cert-ic .ic { width: 30px; height: 30px; }
+.cert-300 { font: 800 16px var(--serif); color: #f3d67f; }
+.cert-prev { margin: 12px 0 14px; border-radius: 14px; overflow: hidden; background: #060a12; box-shadow: 0 10px 30px -14px rgba(0, 0, 0, .7); }
+.cert-prev canvas { display: block; width: 100%; height: auto; }
+.cert-form { display: flex; flex-direction: column; gap: 14px; }
+.cert-f { display: flex; flex-direction: column; gap: 7px; }
+.cert-f > span { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.cert-f .chips { gap: 6px; }
+.cert-f .chip { height: 32px; padding: 0 11px; font-size: 13px; }
+.cert-f .field { width: 100%; }
+.cert-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cert-slot { position: relative; min-height: 116px; border: 1px dashed var(--line-strong); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.cert-slot .btn { width: 100%; height: 36px; font-size: 13px; gap: 6px; }
+.cert-slot img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; display: block; }
+.cert-slot .cert-rm { position: absolute; top: 4px; right: 4px; background: rgba(0, 0, 0, .6); color: #fff; }
+.cert-actions { margin-top: 18px; }

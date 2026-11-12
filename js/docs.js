@@ -134,6 +134,8 @@ window.BB_DOCS = (() => {
   <li><b>팀별 보기</b>: 팀전에서는 <b>전체 / A팀 / B팀…</b> 버튼으로 입력할 팀만 골라 볼 수 있어요.</li>
   <li><b>경기 결과</b>: 순위, 게임별 점수, 핸디 합계, 총점, 평균과 팀 결과(1위 팀에 왕관)가 자동으로 정리돼요. 제목 옆에 입력 방식(최종결과 / 프레임별 / 혼합)이 표시돼요.</li>
   <li><b>세로보기</b>: 경기 결과 오른쪽 위의 <b>세로보기</b>를 누르면 게임이 아래로, 사람이 옆으로 놓인 표로 바뀌어요. 사람은 적고 게임이 많을 때 보기 편해요. <b>가로보기</b>로 되돌릴 수 있고, 고른 방식은 기억돼요.</li>
+  <li><b>인증서 만들기</b>: 기록 화면 맨 아래 버튼으로 <b>퍼펙트게임 · 하이스코어 · 우승</b> 인증서를 만들어요. 대상자, 점수, 함께한 동료가 오늘 기록으로 채워지고(고칠 수 있어요), 갤러리나 카메라로 사진을 두 장까지 넣을 수 있어요. 이미지로 저장하거나 공유하세요. 사진은 앱에 저장되지 않아요.</li>
+  <li><b>뒤로 버튼</b>: 열린 창, 키패드, 달력을 차례로 닫고 기록 화면으로 돌아와요. 기록 화면에서 2초 안에 한 번 더 누르면 앱이 닫혀요.</li>
   <li><b>이미지 저장 / 공유하기</b>: 결과를 이미지로 저장하거나 카카오톡 등으로 바로 보낼 수 있어요.</li>
   <li><b>지난 기록 잠금</b>: 오늘 이전 날짜의 기록은 실수로 바뀌지 않게 잠겨 있고, 참가한 사람만 보여요. 고치려면 <b>수정</b> 버튼을 누르세요.</li>
 </ul>
@@ -365,6 +367,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <li><b>Team filter</b>: in team matches, use <b>All / Team A / Team B…</b> to show only the team you're entering.</li>
   <li><b>Results</b>: rankings, per-game scores, handicap, totals, averages and team results (with a crown for the winning team) are summarized automatically. The title shows how scores were entered (final / by frame / mixed).</li>
   <li><b>Vertical view</b>: tap <b>Vertical</b> at the top right of Results to list games down the side and bowlers across the top, handy with few bowlers and many games. <b>Horizontal</b> switches back, and your choice is remembered.</li>
+  <li><b>Certificates</b>: the button at the bottom of Scores makes a <b>Perfect Game, High Score or Champion</b> certificate. The bowler, score and teammates are filled in from the day (you can change them), and you can add up to two photos from the gallery or the camera. Save or share it as an image; photos are not stored in the app.</li>
+  <li><b>Back button</b>: closes the open dialog, keypad or calendar first, then returns to Scores. On Scores, press it again within 2 seconds to leave the app.</li>
   <li><b>Save image / Share</b>: save the results as an image or send it straight to a messaging app.</li>
   <li><b>Locked past records</b>: records before today are locked so they can't change by accident, and only the players who played are shown. Tap <b>Edit</b> to change them.</li>
 </ul>

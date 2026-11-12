@@ -42,6 +42,13 @@
       frameRoll: '{0}프레임 · {1}구', splitBtn: '스플릿', gameDone: '게임 완료', next: '다음 사람', done: '완료', allDone: '모든 멤버의 게임이 끝났어요',
       results: '경기 결과', name: '이름', total: '총점', avg: '평균', scratch: '스크래치', team: '팀',
       teamResults: '팀 결과', win: '승리', draw: '무승부',
+      backExit: '뒤로 버튼을 한 번 더 누르면 종료돼요', certBtn: '인증서 만들기', certPick: '어떤 인증서를 만들까요?', certPerfect: '퍼펙트게임', certHigh: '하이스코어', certWin: '우승',
+      certSub_perfect: '300점, 열두 번 연속 스트라이크', certSub_high: '오늘의 최고 점수', certSub_win: '오늘의 1위', certHead: '{0} 인증서', certBack: '뒤로',
+      certDate: '날짜', certWho: '대상자', certScore: '점수', certMates: '함께한 동료', certMatesPh: '이름을 쉼표로 구분해 주세요',
+      certPhotos: '사진 (최대 2장)', certGallery: '갤러리', certCamera: '사진 찍기', certRemove: '사진 빼기', certNameReq: '대상자 이름을 넣어 주세요',
+      certBodyPerfect: '위 사람은 {0} 볼링 경기에서 퍼펙트게임을 달성하였기에 그 영예를 기리어 이 인증서를 드립니다.',
+      certBodyHigh: '위 사람은 {0} 볼링 경기에서 {1}점의 하이스코어를 기록하였기에 그 실력을 인정하여 이 인증서를 드립니다.',
+      certBodyWin: '위 사람은 {0} 볼링 경기에서 총점 {1}점으로 우승하였기에 그 영광을 기리어 이 인증서를 드립니다.',
       saveImage: '이미지 저장', share: '공유하기', autosave: '입력한 기록은 이 휴대폰에 자동 저장돼요',
       deleteRecord: '기록 삭제', confirmDelRecord: '{0}\n기록을 삭제할까요?',
       cancel: '취소', delete: '삭제', ok: '확인', save: '저장', close: '닫기',
@@ -87,6 +94,13 @@
       frameRoll: 'Frame {0} · Ball {1}', splitBtn: 'Split', gameDone: 'Game complete', next: 'Next', done: 'Done', allDone: 'Everyone has finished the game',
       results: 'Results', name: 'Name', total: 'Total', avg: 'Avg', scratch: 'Scratch', team: 'Team',
       teamResults: 'Team results', win: 'Win', draw: 'Draw',
+      backExit: 'Press back again to exit', certBtn: 'Make a certificate', certPick: 'Which certificate would you like?', certPerfect: 'Perfect Game', certHigh: 'High Score', certWin: 'Champion',
+      certSub_perfect: '300 — twelve strikes in a row', certSub_high: 'Best game of the day', certSub_win: 'Top of the day', certHead: '{0}', certBack: 'Back',
+      certDate: 'Date', certWho: 'Awarded to', certScore: 'Score', certMates: 'Bowled with', certMatesPh: 'Names, separated by commas',
+      certPhotos: 'Photos (up to 2)', certGallery: 'Gallery', certCamera: 'Camera', certRemove: 'Remove photo', certNameReq: 'Enter a name',
+      certBodyPerfect: 'For bowling a perfect game on {0}.',
+      certBodyHigh: 'For rolling an outstanding high score of {1} on {0}.',
+      certBodyWin: 'For winning the day with a total of {1} on {0}.',
       saveImage: 'Save image', share: 'Share', autosave: 'Scores are saved automatically on this phone',
       deleteRecord: 'Delete record', confirmDelRecord: 'Delete the record for\n{0}?',
       cancel: 'Cancel', delete: 'Delete', ok: 'OK', save: 'Save', close: 'Close',
@@ -783,7 +797,8 @@
         <div class="actions">
           <button class="btn ghost" data-act="recImg" data-mode="save">${ic('download')}${t('saveImage')}</button>
           <button class="btn gold" data-act="recImg" data-mode="share">${ic('share')}${t('share')}</button>
-        </div>`;
+        </div>
+        <button class="btn block cert-btn" data-act="certOpen">${crownArt()}${t('certBtn')}</button>`;
     } else {
       h += `<div class="empty">${esc(t('pickHint')).replace('\n', '<br>')}</div>`;
     }
@@ -1585,6 +1600,334 @@
     try { await fn(); } finally { ui.busy = false; }
   }
 
+  /* ───────── Certificates (record tab: perfect game / high score / champion) ───────── */
+  // A modal of its own: pick a type, fill in the fields (prefilled from the day's scores), add up to two
+  // photos from the gallery or the camera, and save the certificate as an image. Nothing here is stored:
+  // photos stay in memory only, and the modal is self-contained (its own click/input handlers, data-c).
+  const CERT_TYPES = ['perfect', 'high', 'win'];
+  const CERT_MAX_SCORE = 9999;
+  let cert = null;
+  const certTypeName = (k) => t({ perfect: 'certPerfect', high: 'certHigh', win: 'certWin' }[k]);
+  const star = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="#f8c515" stroke="#efa20a" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  const certTypeIcon = (k) => (k === 'win' ? crownArt() : k === 'high' ? star : '<span class="cert-300">300</span>');
+  function certDefaults(type) {
+    const s = sess(), st = playerStats(s);
+    const best = (p) => Math.max(0, ...usedGames(s).map((g, gi) => (isPractice(s, gi) ? null : entryScore(g, p.id))).filter((v) => v !== null));
+    let pick = st[0] ? st[0].p : null;
+    if (type !== 'win' && st.length) {
+      const byBest = st.map((x) => ({ p: x.p, b: best(x.p) })).sort((a, b) => b.b - a.b);
+      pick = (type === 'perfect' && byBest.find((x) => x.b === 300) || byBest[0]).p;
+    }
+    return { pid: pick ? pick.id : null, ...certFor(type, pick) };
+  }
+  // Name, score and teammates for one bowler of today's record.
+  function certFor(type, p) {
+    const s = sess(), st = playerStats(s);
+    if (!p) return { name: '', score: type === 'perfect' ? 300 : '', mates: '' };
+    const row = st.find((x) => x.p.id === p.id);
+    const games = usedGames(s).map((g, gi) => (isPractice(s, gi) ? null : entryScore(g, p.id))).filter((v) => v !== null);
+    const score = type === 'perfect' ? 300 : type === 'high' ? (games.length ? Math.max(...games) : '') : (row ? row.total : '');
+    const mates = playersByName(s).filter((q) => q.id !== p.id).map(pname).join(', ');
+    return { name: pname(p), score, mates };
+  }
+  function openCert() {
+    cert = { type: null, date: ui.date, pid: null, name: '', score: '', mates: '', photos: [null, null] };
+    const m = $('#modal');
+    m.className = 'modal doc-modal';
+    m.hidden = false;
+    m.onclick = certClick;
+    m.oninput = certInput;
+    m.onchange = certChange;
+    renderCert();
+  }
+  function closeCert() {
+    const m = $('#modal');
+    if (cert) cert.photos.forEach((ph) => ph && URL.revokeObjectURL(ph.url));
+    cert = null;
+    m.hidden = true; m.onclick = m.oninput = m.onchange = null; m.className = 'modal'; m.innerHTML = '';
+  }
+  function renderCert() {
+    const m = $('#modal');
+    const head = (title, back) => `<div class="doc-h">${back ? `<button class="icon-btn" data-c="back" aria-label="${t('certBack')}">${ic('left')}</button>` : ''}
+      <h2>${esc(title)}</h2><button class="icon-btn" data-c="close" aria-label="${t('close')}">${ic('x')}</button></div>`;
+    if (!cert.type) {
+      m.innerHTML = `<div class="doc cert" role="dialog" aria-label="${t('certBtn')}">${head(t('certBtn'))}
+        <div class="doc-body"><p class="cert-q">${t('certPick')}</p>
+          <div class="cert-types">${CERT_TYPES.map((k) => `<button class="cert-type" data-c="type" data-k="${k}">
+            <span class="cert-ic">${certTypeIcon(k)}</span><span><b>${certTypeName(k)}</b><small>${t('certSub_' + k)}</small></span>${ic('right')}</button>`).join('')}</div>
+        </div></div>`;
+      return;
+    }
+    const s = sess();
+    const chips = playersByName(s).map((p) => `<button class="chip ${cert.pid === p.id ? 'on' : ''}" data-c="who" data-id="${esc(p.id)}">${esc(pname(p))}</button>`).join('');
+    const slot = (i) => {
+      const ph = cert.photos[i];
+      return `<div class="cert-slot">${ph
+        ? `<img src="${ph.url}" alt=""><button class="icon-btn sm cert-rm" data-c="rm" data-i="${i}" aria-label="${t('certRemove')}">${ic('x')}</button>`
+        : `<label class="btn sm ghost">${ic('upload')}${t('certGallery')}<input type="file" accept="image/*" data-photo="${i}" hidden></label>
+           <label class="btn sm ghost">${ic('plus')}${t('certCamera')}<input type="file" accept="image/*" capture="environment" data-photo="${i}" hidden></label>`}</div>`;
+    };
+    m.innerHTML = `<div class="doc cert" role="dialog" aria-label="${esc(certTypeName(cert.type))}">${head(t('certHead', certTypeName(cert.type)), true)}
+      <div class="doc-body">
+        <div class="cert-prev"><canvas id="certCv"></canvas></div>
+        <div class="cert-form">
+          <label class="cert-f"><span>${t('certDate')}</span><input class="field" type="date" data-cf="date" value="${esc(cert.date)}"></label>
+          <div class="cert-f"><span>${t('certWho')}</span>${chips ? `<div class="chips">${chips}</div>` : ''}
+            <input class="field" maxlength="20" data-cf="name" value="${esc(cert.name)}" placeholder="${t('name')}"></div>
+          <label class="cert-f"><span>${t('certScore')}</span><input class="field num" type="number" inputmode="numeric" min="0" max="${CERT_MAX_SCORE}" data-cf="score" value="${esc(cert.score)}"></label>
+          <label class="cert-f"><span>${t('certMates')}</span><input class="field" maxlength="120" data-cf="mates" value="${esc(cert.mates)}" placeholder="${t('certMatesPh')}"></label>
+          <div class="cert-f"><span>${t('certPhotos')}</span><div class="cert-slots">${slot(0)}${slot(1)}</div></div>
+        </div>
+        <div class="actions cert-actions">
+          <button class="btn ghost" data-c="save" data-mode="save">${ic('download')}${t('saveImage')}</button>
+          <button class="btn gold" data-c="save" data-mode="share">${ic('share')}${t('share')}</button>
+        </div>
+      </div></div>`;
+    drawCertPreview();
+  }
+  function certClick(e) {
+    const m = $('#modal');
+    if (e.target === m) { closeCert(); return; } // also how the phone's back button closes it (backStep)
+    const b = e.target.closest('[data-c]');
+    if (!b) return;
+    const c = b.dataset.c;
+    if (c === 'close') closeCert();
+    else if (c === 'back') { cert.type = null; renderCert(); }
+    else if (c === 'type') { cert.type = b.dataset.k; Object.assign(cert, certDefaults(cert.type)); renderCert(); }
+    else if (c === 'who') {
+      const p = sess().players.find((x) => x.id === b.dataset.id);
+      cert.pid = p ? p.id : null; Object.assign(cert, certFor(cert.type, p)); renderCert();
+    } else if (c === 'rm') {
+      const i = toInt(b.dataset.i), ph = cert.photos[i];
+      if (ph) URL.revokeObjectURL(ph.url);
+      cert.photos[i] = null; renderCert();
+    } else if (c === 'save') saveCert(b.dataset.mode);
+  }
+  let certTimer;
+  function certInput(e) {
+    const f = e.target.dataset.cf;
+    if (!f || !cert) return;
+    let v = e.target.value;
+    if (f === 'score') { v = v === '' ? '' : Math.max(0, Math.min(CERT_MAX_SCORE, toInt(v))); if (v !== '' && String(v) !== e.target.value) e.target.value = v; }
+    if (f === 'date' && !DATE_RE.test(v)) return;
+    cert[f] = v;
+    if (f === 'name') { cert.pid = null; $$('[data-c="who"]').forEach((x) => x.classList.toggle('on', pname(sess().players.find((p) => p.id === x.dataset.id) || {}) === v)); }
+    clearTimeout(certTimer);
+    certTimer = setTimeout(drawCertPreview, 120);
+  }
+  async function certChange(e) {
+    const inp = e.target;
+    if (!inp.matches('input[type=file][data-photo]') || !cert) return;
+    const file = inp.files && inp.files[0];
+    if (!file || !/^image\//.test(file.type)) return;
+    const i = toInt(inp.dataset.photo), url = URL.createObjectURL(file);
+    try {
+      const img = await loadImg(url);
+      if (!cert) { URL.revokeObjectURL(url); return; }
+      if (cert.photos[i]) URL.revokeObjectURL(cert.photos[i].url);
+      cert.photos[i] = { url, img };
+      renderCert();
+    } catch (err) { URL.revokeObjectURL(url); toast(t('badFile')); }
+  }
+  async function drawCertPreview() {
+    const cv = $('#certCv');
+    if (!cv || !cert || !cert.type) return;
+    const src = await drawCert();
+    cv.width = src.width; cv.height = src.height;
+    cv.getContext('2d').drawImage(src, 0, 0);
+  }
+  function saveCert(mode) {
+    if (!cert.name.trim()) { toast(t('certNameReq')); const n = $('[data-cf="name"]'); if (n) n.focus(); return; }
+    withBusy(async () => {
+      const cv = await drawCert();
+      await exportImage(cv, `BowlingSecretary_${cert.type}_${cert.date}.png`, mode);
+    });
+  }
+  function certDateText(k) {
+    const d = parseYmd(k);
+    return lang() === 'ko' ? `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일` : `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+  // Word wrap for canvas text (Korean breaks at spaces too; a very long word is split by characters).
+  function wrapText(x, text, maxW) {
+    const out = []; let line = '';
+    String(text).split(/\s+/).filter(Boolean).forEach((w) => {
+      const tryLine = line ? `${line} ${w}` : w;
+      if (x.measureText(tryLine).width <= maxW) { line = tryLine; return; }
+      if (line) out.push(line);
+      line = '';
+      for (const ch of w) { if (x.measureText(line + ch).width > maxW && line) { out.push(line); line = ''; } line += ch; }
+    });
+    if (line) out.push(line);
+    return out;
+  }
+  function goldGrad(x, x0, y0, x1, y1) {
+    const g = x.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, '#f8e7a8'); g.addColorStop(0.35, '#e2bd62'); g.addColorStop(0.6, '#b8862b'); g.addColorStop(1, '#f3d67f');
+    return g;
+  }
+  // Polaroid-style photo: white mat, cover-cropped picture, slight tilt, soft shadow.
+  function drawPhoto(x, img, cx, cy, w, h, tilt) {
+    const mat = 14;
+    x.save();
+    x.translate(cx, cy); x.rotate(tilt);
+    x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 30; x.shadowOffsetY = 12;
+    x.fillStyle = '#f7f3ea'; x.fillRect(-w / 2 - mat, -h / 2 - mat, w + 2 * mat, h + 2 * mat + 18);
+    x.shadowColor = 'transparent';
+    const r = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const sw = w / r, sh = h / r;
+    x.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) / 2, sw, sh, -w / 2, -h / 2, w, h);
+    x.strokeStyle = 'rgba(184,134,43,.6)'; x.lineWidth = 2; x.strokeRect(-w / 2 - mat, -h / 2 - mat, w + 2 * mat, h + 2 * mat + 18);
+    x.restore();
+  }
+  // Laurel branch: leaves along an arc on one side of the emblem (side = -1 left, 1 right).
+  function drawLaurel(x, cx, cy, R, side) {
+    x.save();
+    for (let i = 0; i < 9; i++) {
+      const a = Math.PI / 2 + side * (0.35 + i * 0.27);
+      const px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R;
+      x.save(); x.translate(px, py); x.rotate(a + side * 0.9);
+      x.fillStyle = i % 2 ? '#d9b459' : '#c49a3e';
+      x.beginPath(); x.ellipse(0, 0, 21, 8, 0, 0, Math.PI * 2); x.fill();
+      x.restore();
+    }
+    x.strokeStyle = '#b98f36'; x.lineWidth = 3;
+    x.beginPath(); x.arc(cx, cy, R, Math.PI / 2 + side * 0.3, Math.PI / 2 + side * 2.55, side < 0); x.stroke();
+    x.restore();
+  }
+  function drawEmblem(x, type, cx, cy) {
+    drawLaurel(x, cx, cy, 104, -1); drawLaurel(x, cx, cy, 104, 1);
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 24;
+    x.fillStyle = goldGrad(x, cx - 80, cy - 80, cx + 80, cy + 80);
+    x.beginPath(); x.arc(cx, cy, 78, 0, Math.PI * 2); x.fill();
+    x.shadowColor = 'transparent';
+    x.fillStyle = '#13233a'; x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = 'rgba(248,231,168,.7)'; x.lineWidth = 2; x.beginPath(); x.arc(cx, cy, 70, 0, Math.PI * 2); x.stroke();
+    if (type === 'win') {
+      const k = 5.2; x.translate(cx - 12 * k, cy - 12.6 * k); x.scale(k, k);
+      CROWN.forEach((p) => {
+        const path = new Path2D();
+        if (p.d) path.addPath(new Path2D(p.d)); else path.arc(p.c[0], p.c[1], p.c[2], 0, Math.PI * 2);
+        x.fillStyle = p.fill; x.fill(path);
+        if (p.stroke) { x.strokeStyle = p.stroke; x.lineWidth = p.w; x.stroke(path); }
+      });
+    } else if (type === 'high') {
+      const k = 4.6; x.translate(cx - 12 * k, cy - 12.2 * k); x.scale(k, k);
+      const path = new Path2D('M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z');
+      x.fillStyle = '#f8c515'; x.fill(path); x.strokeStyle = '#efa20a'; x.lineWidth = 1.2; x.lineJoin = 'round'; x.stroke(path);
+    } else {
+      x.fillStyle = goldGrad(x, cx - 50, cy - 30, cx + 50, cy + 30);
+      x.font = `800 58px ${IMG_SERIF}`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText('300', cx, cy + 3);
+    }
+    x.restore();
+  }
+  async function drawCert() {
+    try { await document.fonts.ready; } catch (e) { /* ignore */ }
+    const W2 = 1080, ko = lang() === 'ko';
+    const photos = cert.photos.filter(Boolean);
+    const m = document.createElement('canvas').getContext('2d');
+    // Measure the wrapped texts first so the canvas height fits them.
+    const score = cert.score === '' ? '' : String(cert.score);
+    const body = t({ perfect: 'certBodyPerfect', high: 'certBodyHigh', win: 'certBodyWin' }[cert.type], certDateText(cert.date), score || '—');
+    m.font = `500 31px ${IMG_SANS}`; const bodyLines = wrapText(m, body, W2 - 260);
+    m.font = `600 28px ${IMG_SANS}`; const mateLines = cert.mates.trim() ? wrapText(m, cert.mates.trim(), W2 - 300).slice(0, 3) : [];
+    const photoH = photos.length === 1 ? 470 : photos.length === 2 ? 380 : 0;
+    let H = 960 + bodyLines.length * 48 + (mateLines.length ? 70 + mateLines.length * 40 : 0) + (photoH ? photoH + 90 : 0) + 170;
+    H = Math.max(H, 1350);
+    const c = document.createElement('canvas'); c.width = W2; c.height = H;
+    const x = c.getContext('2d');
+    // Background: deep navy with a spotlight, gold light rays, scattered sparkles and a lane-board sheen.
+    const bg = x.createRadialGradient(W2 / 2, 330, 40, W2 / 2, 520, H * 0.95);
+    bg.addColorStop(0, '#24426a'); bg.addColorStop(0.45, '#132640'); bg.addColorStop(1, '#060a12');
+    x.fillStyle = bg; x.fillRect(0, 0, W2, H);
+    x.save(); x.translate(W2 / 2, 250);
+    for (let i = 0; i < 36; i++) {
+      x.rotate((Math.PI * 2) / 36);
+      x.fillStyle = i % 2 ? 'rgba(232,196,110,.055)' : 'rgba(232,196,110,.02)';
+      x.beginPath(); x.moveTo(0, 0); x.lineTo(-38, -H); x.lineTo(38, -H); x.closePath(); x.fill();
+    }
+    x.restore();
+    for (let i = 0; i < 26; i++) { // lane boards fading in at the bottom
+      const bx = (i / 26) * W2;
+      x.fillStyle = `rgba(214,180,110,${i % 2 ? 0.025 : 0.045})`;
+      x.fillRect(bx, H * 0.55, W2 / 26, H * 0.45);
+    }
+    let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    for (let i = 0; i < 90; i++) {
+      const sx = 60 + rnd() * (W2 - 120), sy = 60 + rnd() * (H - 120), r = 0.8 + rnd() * 2.2;
+      x.fillStyle = `rgba(248,226,160,${0.15 + rnd() * 0.45})`;
+      x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill();
+    }
+    // Frames: thick gold outer, thin inner, ornaments in the corners.
+    x.strokeStyle = goldGrad(x, 0, 0, W2, H); x.lineWidth = 10; x.strokeRect(30, 30, W2 - 60, H - 60);
+    x.strokeStyle = 'rgba(232,196,110,.65)'; x.lineWidth = 2; x.strokeRect(54, 54, W2 - 108, H - 108);
+    [[54, 54, 1, 1], [W2 - 54, 54, -1, 1], [54, H - 54, 1, -1], [W2 - 54, H - 54, -1, -1]].forEach(([cx, cy, sx, sy]) => {
+      x.save(); x.translate(cx, cy); x.scale(sx, sy);
+      x.strokeStyle = goldGrad(x, 0, 0, 80, 80); x.lineWidth = 4;
+      x.beginPath(); x.moveTo(0, 70); x.lineTo(0, 16); x.quadraticCurveTo(0, 0, 16, 0); x.lineTo(70, 0); x.stroke();
+      x.fillStyle = '#f0d081'; x.beginPath(); x.moveTo(22, 10); x.lineTo(30, 22); x.lineTo(22, 34); x.lineTo(14, 22); x.closePath(); x.fill();
+      x.restore();
+    });
+    x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    drawEmblem(x, cert.type, W2 / 2, 210);
+    let y = 360;
+    x.fillStyle = '#e8c46e'; x.font = `600 25px ${IMG_SERIF}`;
+    x.fillText('C E R T I F I C A T E   O F   A C H I E V E M E N T', W2 / 2, y);
+    y += 100;
+    const title = certTypeName(cert.type);
+    x.font = ko ? `800 86px ${IMG_SANS}` : `italic 700 94px ${IMG_SERIF}`;
+    x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 18; x.shadowOffsetY = 6;
+    x.fillStyle = goldGrad(x, 0, y - 80, 0, y + 10); x.fillText(fit(x, title, W2 - 200), W2 / 2, y);
+    x.shadowColor = 'transparent'; x.shadowBlur = 0; x.shadowOffsetY = 0;
+    y += 44;
+    x.strokeStyle = goldGrad(x, W2 / 2 - 220, 0, W2 / 2 + 220, 0); x.lineWidth = 2;
+    x.beginPath(); x.moveTo(W2 / 2 - 220, y); x.lineTo(W2 / 2 - 22, y); x.moveTo(W2 / 2 + 22, y); x.lineTo(W2 / 2 + 220, y); x.stroke();
+    x.fillStyle = '#e8c46e'; x.beginPath(); x.moveTo(W2 / 2, y - 10); x.lineTo(W2 / 2 + 10, y); x.lineTo(W2 / 2, y + 10); x.lineTo(W2 / 2 - 10, y); x.closePath(); x.fill();
+    y += 120;
+    x.fillStyle = '#ffffff'; x.font = `800 80px ${IMG_SANS}`;
+    const nm = fit(x, cert.name.trim() || t('certWho'), W2 - 240); x.fillText(nm, W2 / 2, y);
+    const nw = Math.min(W2 - 240, x.measureText(nm).width + 120);
+    y += 30;
+    x.fillStyle = goldGrad(x, W2 / 2 - nw / 2, 0, W2 / 2 + nw / 2, 0); x.fillRect(W2 / 2 - nw / 2, y, nw, 3);
+    y += 76;
+    x.fillStyle = '#e8c46e'; x.font = `700 24px ${IMG_SANS}`;
+    x.fillText(cert.type === 'win' ? 'T O T A L' : 'S C O R E', W2 / 2, y);
+    y += 118;
+    x.font = `700 130px ${IMG_SERIF}`;
+    x.shadowColor = 'rgba(232,196,110,.45)'; x.shadowBlur = 30;
+    x.fillStyle = goldGrad(x, 0, y - 110, 0, y); x.fillText(score || '—', W2 / 2, y);
+    x.shadowColor = 'transparent'; x.shadowBlur = 0;
+    y += 74;
+    x.fillStyle = '#ddd6c8'; x.font = `500 31px ${IMG_SANS}`;
+    bodyLines.forEach((l) => { x.fillText(l, W2 / 2, y); y += 48; });
+    if (mateLines.length) {
+      y += 30;
+      x.fillStyle = '#e8c46e'; x.font = `700 23px ${IMG_SANS}`; x.fillText(t('certMates'), W2 / 2, y);
+      y += 44;
+      x.fillStyle = '#f1ece2'; x.font = `600 28px ${IMG_SANS}`;
+      mateLines.forEach((l) => { x.fillText(l, W2 / 2, y); y += 40; });
+    }
+    if (photoH) {
+      y += 50;
+      if (photos.length === 1) drawPhoto(x, photos[0].img, W2 / 2, y + photoH / 2, 620, photoH - 60, -0.015);
+      else {
+        drawPhoto(x, photos[0].img, W2 / 2 - 222, y + photoH / 2, 400, photoH - 70, -0.035);
+        drawPhoto(x, photos[1].img, W2 / 2 + 222, y + photoH / 2 + 6, 400, photoH - 70, 0.03);
+      }
+      y += photoH;
+    }
+    // Footer: date on the left, app name on the right, a thin gold rule above.
+    const fy = H - 110;
+    x.fillStyle = 'rgba(232,196,110,.5)'; x.fillRect(120, fy - 40, W2 - 240, 1.5);
+    x.font = `600 24px ${IMG_SANS}`; x.fillStyle = '#b9c2cf';
+    x.textAlign = 'left'; x.fillText(certDateText(cert.date), 120, fy);
+    x.textAlign = 'right'; x.fillStyle = '#e8c46e';
+    x.font = ko ? `800 28px ${IMG_SANS}` : `italic 700 28px ${IMG_SERIF}`; x.fillText(brandName(), W2 - 120, fy);
+    x.textAlign = 'left';
+    return c;
+  }
+
   /* ───────── Excel export (stats tab) ───────── */
   // Three sheets for the selected stats period: every game (practice flagged, not dropped), one row per player per day
   // (same numbers as the results table), and one row per member (same numbers as the stats tab). Built by js/xlsx.js.
@@ -1765,6 +2108,7 @@
       if (!(await ask(t('confirmDelRecord', dateLong(ui.date)), t('delete'), true))) return;
       delete db.sessions[ui.date]; ui.draft = null; ui.kp = null; save(); render();
     },
+    certOpen() { openCert(); },
     recImg(el) {
       withBusy(async () => {
         const s = sess();
@@ -1959,10 +2303,37 @@
     }
   });
 
+  /* ───────── Phone back button ───────── */
+  // Android's back button used to close the app at once (there was no page history). Keep one extra history
+  // entry: each back press lands in popstate, which closes the top layer (dialog, keypad, calendar), returns
+  // to the record tab, and only on a second press within 2 seconds leaves the app.
+  let lastBack = 0;
+  function backStep() {
+    const m = $('#modal');
+    if (m && !m.hidden) {
+      if (cert && cert.type) { cert.type = null; renderCert(); return true; }
+      m.click(); // every dialog treats a tap on its backdrop as cancel/close
+      return true;
+    }
+    if (ui.kp) { ui.kp = null; render(); return true; }
+    if (ui.calOpen) { ui.calOpen = false; render(); return true; }
+    if (ui.editId !== null && ui.editId !== undefined) { ui.editId = null; render(); return true; }
+    if (ui.tab !== 'record') { ui.tab = 'record'; render(); window.scrollTo(0, 0); return true; }
+    return false;
+  }
+  window.addEventListener('popstate', () => {
+    if (backStep()) { history.pushState({ bb: 1 }, ''); return; }
+    if (Date.now() - lastBack < 2000) { history.back(); return; } // second press: leave
+    lastBack = Date.now();
+    toast(t('backExit'));
+    history.pushState({ bb: 1 }, '');
+  });
+
   /* ───────── Boot ───────── */
   if (window.top !== window.self) { document.documentElement.innerHTML = ''; return; }
   applyTheme();
   render();
+  if (!history.state || !history.state.bb) history.pushState({ bb: 1 }, '');
   const launch = $('#launch');
   if (launch) {
     const closeLaunch = () => { launch.classList.add('hide'); setTimeout(() => launch.remove(), 400); };
