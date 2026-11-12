@@ -889,3 +889,8 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .cert-slot .cert-rm { position: absolute; top: 4px; right: 4px; background: rgba(0, 0, 0, .6); color: #fff; }
 .cert-actions { margin-top: 18px; }
 .cert-f > span small { font-weight: 600; opacity: .75; }
+
+/* Selected-date header: with 오늘 + 완료 + delete the date may need two lines instead of being cut off */
+.sess-h .display { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.2; word-break: keep-all; }
+.sess-btns .today-btn { padding: 0 10px; }
+.sess-h { gap: 10px; }

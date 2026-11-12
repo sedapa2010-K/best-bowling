@@ -784,7 +784,7 @@
     let h = calendarHTML() + recentHTML();
     h += `<section id="sess">
       <div class="sess-h"><div><div class="eyebrow">${t('selectedDate')}</div><h2 class="display">${dateLong(s.date)}</h2></div>
-        <div class="sess-btns">${isLocked(s)
+        <div class="sess-btns">${s.date !== ymd(new Date()) ? `<button class="btn sm ghost today-btn" data-act="goToday">${t('today')}</button>` : ''}${isLocked(s)
           ? `<button class="btn sm ghost" data-act="unlock">${ic('edit')}${t('editRecord')}</button>`
           : `${isPastRecord(s) ? `<button class="btn sm gold" data-act="lock">${ic('check')}${t('done')}</button>` : ''}
              ${hasRecord(s) ? `<button class="icon-btn danger" data-act="delRecord" aria-label="${t('deleteRecord')}">${ic('trash')}</button>` : ''}`}</div></div>
@@ -2120,6 +2120,7 @@
       delete db.sessions[ui.date]; ui.draft = null; ui.kp = null; save(); render();
     },
     certOpen() { openCert(); },
+    goToday() { pickDate(ymd(new Date())); },
     recImg(el) {
       withBusy(async () => {
         const s = sess();
