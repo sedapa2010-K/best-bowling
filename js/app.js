@@ -1827,6 +1827,34 @@
     }
     x.restore();
   }
+  // The app mark at the bottom right: the app icon in a gold ring, then the name with its first part in
+  // pearl white and the second in shining gold (like the logo), with a soft glow.
+  async function drawCertBrand(x, right, base) {
+    const [a, b] = BRAND[lang()], ko = lang() === 'ko';
+    const font = ko ? `800 32px ${IMG_SANS}` : `italic 700 32px ${IMG_SERIF}`;
+    x.save();
+    x.font = font; x.textAlign = 'left';
+    const wa = x.measureText(a).width, wb = x.measureText(b).width, ico = 44, gap = 12;
+    const x0 = right - (ico + gap + wa + wb);
+    try {
+      const im = await loadImg('icons/icon-192.png');
+      const iy = base - 33;
+      x.shadowColor = 'rgba(232,196,110,.55)'; x.shadowBlur = 16;
+      x.fillStyle = goldGrad(x, x0, iy, x0 + ico, iy + ico); rr(x, x0 - 3, iy - 3, ico + 6, ico + 6, 14); x.fill();
+      x.shadowColor = 'transparent'; x.shadowBlur = 0;
+      x.save(); rr(x, x0, iy, ico, ico, 11); x.clip(); x.drawImage(im, x0, iy, ico, ico); x.restore();
+    } catch (e) { /* icon optional */ }
+    const tx = x0 + ico + gap;
+    const pearl = x.createLinearGradient(0, base - 30, 0, base + 4);
+    pearl.addColorStop(0, '#ffffff'); pearl.addColorStop(1, '#d6dde8');
+    x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 8; x.shadowOffsetY = 2;
+    x.fillStyle = pearl; x.fillText(a, tx, base);
+    x.shadowColor = 'rgba(248,210,110,.75)'; x.shadowBlur = 18; x.shadowOffsetY = 0;
+    const shine = x.createLinearGradient(tx + wa, base - 32, tx + wa + wb, base + 4);
+    shine.addColorStop(0, '#fff3c4'); shine.addColorStop(0.45, '#f2c94c'); shine.addColorStop(0.7, '#c8921f'); shine.addColorStop(1, '#ffe08a');
+    x.fillStyle = shine; x.fillText(b, tx + wa, base);
+    x.restore();
+  }
   async function drawCert() {
     try { await document.fonts.ready; } catch (e) { /* ignore */ }
     const W2 = 1080, ko = lang() === 'ko';
@@ -1932,9 +1960,8 @@
     x.fillStyle = 'rgba(232,196,110,.5)'; x.fillRect(120, fy - 40, W2 - 240, 1.5);
     x.font = `600 24px ${IMG_SANS}`; x.fillStyle = '#b9c2cf';
     x.textAlign = 'left'; x.fillText(certDateText(cert.date), 120, fy);
-    if (place) { x.textAlign = 'center'; x.fillStyle = '#f1ece2'; x.font = `700 25px ${IMG_SANS}`; x.fillText(fit(x, place, 330), W2 / 2, fy); }
-    x.textAlign = 'right'; x.fillStyle = '#e8c46e';
-    x.font = ko ? `800 28px ${IMG_SANS}` : `italic 700 28px ${IMG_SERIF}`; x.fillText(brandName(), W2 - 120, fy);
+    if (place) { x.textAlign = 'center'; x.fillStyle = '#f1ece2'; x.font = `700 25px ${IMG_SANS}`; x.fillText(fit(x, place, ko ? 300 : 170), W2 / 2, fy); } // the English app name is wider
+    await drawCertBrand(x, W2 - 120, fy);
     x.textAlign = 'left';
     return c;
   }
