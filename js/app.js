@@ -44,7 +44,7 @@
       teamResults: '팀 결과', win: '승리', draw: '무승부',
       backExit: '뒤로 버튼을 한 번 더 누르면 종료돼요', certBtn: '인증서 만들기', certPick: '어떤 인증서를 만들까요?', certPerfect: '퍼펙트게임', certHigh: '하이스코어', certWin: '우승',
       certSub_perfect: '300점, 열두 번 연속 스트라이크', certSub_high: '오늘의 최고 점수', certSub_win: '오늘의 1위', certHead: '{0} 인증서', certBack: '뒤로',
-      certDate: '날짜', certWho: '대상자', certScore: '점수', certMates: '함께한 동료', certPlace: '볼링장', certEvent: '대회명', certEventPh: '예: 제3회 친선 볼링대회', certPlacePh: '예: OO볼링장', optional: '(선택)', certMatesPh: '이름을 쉼표로 구분해 주세요',
+      certDate: '날짜', certWho: '대상자', certScore: '점수', certMates: '함께한 동료', certPlace: '볼링장', certTheme: '테마', certTheme_navy: '로열 네이비', certTheme_black: '블랙 골드', certTheme_wine: '버건디', certTheme_emerald: '에메랄드', certEvent: '대회명', certEventPh: '예: 제3회 친선 볼링대회', certPlacePh: '예: OO볼링장', optional: '(선택)', certMatesPh: '이름을 쉼표로 구분해 주세요',
       certPhotos: '사진 (최대 2장)', certGallery: '갤러리', certCamera: '사진 찍기', certRemove: '사진 빼기', certNameReq: '대상자 이름을 넣어 주세요',
       certBodyPerfect: '위 사람은 {0} 볼링 경기에서 퍼펙트게임을 달성하였기에 그 영예를 기리어 이 인증서를 드립니다.',
       certBodyHigh: '위 사람은 {0} 볼링 경기에서 {1}점의 하이스코어를 기록하였기에 그 실력을 인정하여 이 인증서를 드립니다.',
@@ -97,7 +97,7 @@
       teamResults: 'Team results', win: 'Win', draw: 'Draw',
       backExit: 'Press back again to exit', certBtn: 'Make a certificate', certPick: 'Which certificate would you like?', certPerfect: 'Perfect Game', certHigh: 'High Score', certWin: 'Champion',
       certSub_perfect: '300 — twelve strikes in a row', certSub_high: 'Best game of the day', certSub_win: 'Top of the day', certHead: '{0}', certBack: 'Back',
-      certDate: 'Date', certWho: 'Awarded to', certScore: 'Score', certMates: 'Bowled with', certPlace: 'Bowling alley', certEvent: 'Event', certEventPh: 'e.g. Autumn Cup', certPlacePh: 'e.g. Sunset Lanes', optional: '(optional)', certMatesPh: 'Names, separated by commas',
+      certDate: 'Date', certWho: 'Awarded to', certScore: 'Score', certMates: 'Bowled with', certPlace: 'Bowling alley', certTheme: 'Theme', certTheme_navy: 'Royal Navy', certTheme_black: 'Black Gold', certTheme_wine: 'Burgundy', certTheme_emerald: 'Emerald', certEvent: 'Event', certEventPh: 'e.g. Autumn Cup', certPlacePh: 'e.g. Sunset Lanes', optional: '(optional)', certMatesPh: 'Names, separated by commas',
       certPhotos: 'Photos (up to 2)', certGallery: 'Gallery', certCamera: 'Camera', certRemove: 'Remove photo', certNameReq: 'Enter a name',
       certBodyPerfect: 'For bowling a perfect game on {0}.',
       certBodyHigh: 'For rolling an outstanding high score of {1} on {0}.',
@@ -1607,6 +1607,15 @@
   // photos from the gallery or the camera, and save the certificate as an image. Nothing here is stored:
   // photos stay in memory only, and the modal is self-contained (its own click/input handlers, data-c).
   const CERT_TYPES = ['perfect', 'high', 'win'];
+  // Background themes: spotlight gradient (centre → edge), the medal's centre, and the ribbon colours.
+  const CERT_THEMES = {
+    navy: { bg: ['#24426a', '#132640', '#060a12'], core: ['#2c4d7d', '#0b182b'], rib: ['#5e0d1c', '#b4253c', '#6b1022'] },
+    black: { bg: ['#3d362c', '#17140f', '#050403'], core: ['#3e3628', '#0d0b08'], rib: ['#5e0d1c', '#b4253c', '#6b1022'] },
+    wine: { bg: ['#74213a', '#3f0f1e', '#14040a'], core: ['#7d2540', '#2a0710'], rib: ['#0f2a4a', '#2a5c96', '#0f2a4a'] },
+    emerald: { bg: ['#226650', '#0f3a2d', '#03120d'], core: ['#287259', '#082219'], rib: ['#5e0d1c', '#b4253c', '#6b1022'] },
+  };
+  let certTheme = 'navy';
+  const certTh = () => CERT_THEMES[cert && cert.theme] || CERT_THEMES.navy;
   const CERT_MAX_SCORE = 9999;
   let cert = null;
   let certPlace = '', certEvent = ''; // the alley / event typed last, offered again while the app stays open
@@ -1634,7 +1643,7 @@
     return { name: pname(p), score, mates };
   }
   function openCert() {
-    cert = { type: null, date: ui.date, pid: null, name: '', score: '', mates: '', place: certPlace, event: certEvent, photos: [null, null] };
+    cert = { type: null, date: ui.date, pid: null, name: '', score: '', mates: '', place: certPlace, event: certEvent, theme: certTheme, photos: [null, null] };
     const m = $('#modal');
     m.className = 'modal doc-modal';
     m.hidden = false;
@@ -1674,6 +1683,12 @@
       <div class="doc-body">
         <div class="cert-prev"><canvas id="certCv"></canvas></div>
         <div class="cert-form">
+          <div class="cert-f"><span>${t('certTheme')}</span><div class="cert-themes">${Object.keys(CERT_THEMES).map((k) => {
+            const th = CERT_THEMES[k];
+            return `<button class="cert-theme ${cert.theme === k ? 'on' : ''}" data-c="theme" data-k="${k}" aria-pressed="${cert.theme === k}">
+              <span class="ct-card" style="background:radial-gradient(circle at 50% 30%, ${th.bg[0]}, ${th.bg[1]} 55%, ${th.bg[2]})"><i style="background:radial-gradient(circle at 40% 35%, #fff3c4, #d4a640 55%, #7a5513)"></i></span>
+              <b>${t('certTheme_' + k)}</b></button>`;
+          }).join('')}</div></div>
           <label class="cert-f"><span>${t('certDate')}</span><input class="field" type="date" data-cf="date" value="${esc(cert.date)}"></label>
           ${cert.type === 'win' ? `<label class="cert-f"><span>${t('certEvent')} <small>${t('optional')}</small></span><input class="field" maxlength="30" data-cf="event" value="${esc(cert.event)}" placeholder="${t('certEventPh')}"></label>` : ''}
           <div class="cert-f"><span>${t('certWho')}</span>${chips ? `<div class="chips">${chips}</div>` : ''}
@@ -1698,7 +1713,11 @@
     const c = b.dataset.c;
     if (c === 'close') closeCert();
     else if (c === 'back') { cert.type = null; renderCert(); }
-    else if (c === 'type') { cert.type = b.dataset.k; Object.assign(cert, certDefaults(cert.type)); renderCert(); }
+    else if (c === 'theme') {
+      cert.theme = certTheme = b.dataset.k;
+      $$('[data-c="theme"]').forEach((x) => { const on = x.dataset.k === cert.theme; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+      drawCertPreview();
+    } else if (c === 'type') { cert.type = b.dataset.k; Object.assign(cert, certDefaults(cert.type)); renderCert(); }
     else if (c === 'who') {
       const p = sess().players.find((x) => x.id === b.dataset.id);
       cert.pid = p ? p.id : null; Object.assign(cert, certFor(cert.type, p)); renderCert();
@@ -1767,6 +1786,19 @@
     if (line) out.push(line);
     return out;
   }
+  // Like wrapText, but two lines are split near the middle so the second line isn't a lone word.
+  function wrapBalanced(x, text, maxW) {
+    const ls = wrapText(x, text, maxW);
+    if (ls.length !== 2) return ls;
+    const words = String(text).split(/\s+/).filter(Boolean);
+    let best = ls, bestW = Infinity;
+    for (let i = 1; i < words.length; i++) {
+      const a = words.slice(0, i).join(' '), b = words.slice(i).join(' ');
+      const w = Math.max(x.measureText(a).width, x.measureText(b).width);
+      if (w <= maxW && w < bestW) { best = [a, b]; bestW = w; }
+    }
+    return best;
+  }
   function goldGrad(x, x0, y0, x1, y1) {
     const g = x.createLinearGradient(x0, y0, x1, y1);
     g.addColorStop(0, '#f8e7a8'); g.addColorStop(0.35, '#e2bd62'); g.addColorStop(0.6, '#b8862b'); g.addColorStop(1, '#f3d67f');
@@ -1825,7 +1857,7 @@
   }
   // The medal on top of the certificate: a glow, crimson ribbon tails, a laurel wreath, a beaded rim and a
   // polished gold disc framing a navy centre with fine rays and the type's sign (300 / star / crown).
-  function drawEmblem(x, type, cx, cy) {
+  function drawEmblem(x, type, cx, cy, th = CERT_THEMES.navy) {
     x.save();
     const halo = x.createRadialGradient(cx, cy, 40, cx, cy, 180);
     halo.addColorStop(0, 'rgba(255,214,120,.35)'); halo.addColorStop(1, 'rgba(255,214,120,0)');
@@ -1835,7 +1867,7 @@
     [-1, 1].forEach((side) => {
       x.save(); x.translate(cx + side * 30, cy + 62); x.rotate(side * 0.34);
       const rg = x.createLinearGradient(-18, 0, 18, 0);
-      rg.addColorStop(0, '#5e0d1c'); rg.addColorStop(0.5, '#b4253c'); rg.addColorStop(1, '#6b1022');
+      rg.addColorStop(0, th.rib[0]); rg.addColorStop(0.5, th.rib[1]); rg.addColorStop(1, th.rib[2]);
       x.fillStyle = rg;
       x.beginPath(); x.moveTo(-18, 0); x.lineTo(18, 0); x.lineTo(18, 46); x.lineTo(0, 36); x.lineTo(-18, 46); x.closePath(); x.fill();
       x.strokeStyle = '#e2bd62'; x.lineWidth = 2.5; x.stroke();
@@ -1860,7 +1892,7 @@
     x.strokeStyle = '#6b4a10'; x.lineWidth = 2; x.beginPath(); x.arc(cx, cy, 66, 0, Math.PI * 2); x.stroke();
     // navy centre with fine gold rays
     const navy = x.createRadialGradient(cx, cy - 20, 4, cx, cy, 64);
-    navy.addColorStop(0, '#2c4d7d'); navy.addColorStop(1, '#0b182b');
+    navy.addColorStop(0, th.core[0]); navy.addColorStop(1, th.core[1]);
     x.fillStyle = navy; x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.fill();
     x.save(); x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.clip();
     x.translate(cx, cy);
@@ -1943,10 +1975,19 @@
     const evPhrase = ko && ev && !/대회$/.test(ev) ? `${ev} 대회` : ev;
     const body = ev ? t('certBodyWinEvent', certDateText(cert.date), evPhrase)
       : t({ perfect: 'certBodyPerfect', high: 'certBodyHigh', win: 'certBodyWin' }[cert.type], certDateText(cert.date), score || '—');
-    m.font = `500 31px ${IMG_SANS}`; let bodyLines = wrapText(m, body, W2 - 260);
-    // Three lines or more: the closing words ("이 인증서를 드립니다.") get a line of their own.
+    // Korean text breaks after "…하였기에" ("그 영광을 기리어…" starts a new line); on three lines or more the
+    // closing words ("이 인증서를 드립니다.") also get a line of their own.
+    m.font = `500 31px ${IMG_SANS}`;
+    const wrapW = W2 - 220, brk = ko ? body.indexOf('기에 ') : -1;
+    const parts = brk > 0 ? [body.slice(0, brk + 2), body.slice(brk + 3)] : [body];
     const tail = ko ? '이 인증서를 드립니다.' : '';
-    if (tail && bodyLines.length >= 3 && body.endsWith(tail)) bodyLines = [...wrapText(m, body.slice(0, -tail.length).trim(), W2 - 260), tail];
+    const wrapLast = (pt) => {
+      const ls = wrapBalanced(m, pt, wrapW);
+      if (!tail || ls.length < 2 || !pt.endsWith(tail)) return ls;
+      const rest = pt.slice(0, -tail.length).trim();
+      return [...(rest ? wrapBalanced(m, rest, wrapW) : []), tail];
+    };
+    const bodyLines = [...parts.slice(0, -1).flatMap((pt) => wrapBalanced(m, pt, wrapW)), ...wrapLast(parts[parts.length - 1])];
     m.font = `600 28px ${IMG_SANS}`; const mateLines = cert.mates.trim() ? wrapText(m, cert.mates.trim(), W2 - 300).slice(0, 3) : [];
     const place = cert.place.trim();
     const photoH = photos.length === 1 ? 470 : photos.length === 2 ? 380 : 0;
@@ -1955,8 +1996,9 @@
     const c = document.createElement('canvas'); c.width = W2; c.height = H;
     const x = c.getContext('2d');
     // Background: deep navy with a spotlight, gold light rays, scattered sparkles and a lane-board sheen.
+    const th = certTh();
     const bg = x.createRadialGradient(W2 / 2, 330, 40, W2 / 2, 520, H * 0.95);
-    bg.addColorStop(0, '#24426a'); bg.addColorStop(0.45, '#132640'); bg.addColorStop(1, '#060a12');
+    bg.addColorStop(0, th.bg[0]); bg.addColorStop(0.45, th.bg[1]); bg.addColorStop(1, th.bg[2]);
     x.fillStyle = bg; x.fillRect(0, 0, W2, H);
     x.save(); x.translate(W2 / 2, 250);
     for (let i = 0; i < 36; i++) {
@@ -1965,10 +2007,11 @@
       x.beginPath(); x.moveTo(0, 0); x.lineTo(-38, -H); x.lineTo(38, -H); x.closePath(); x.fill();
     }
     x.restore();
-    for (let i = 0; i < 26; i++) { // lane boards fading in at the bottom
-      const bx = (i / 26) * W2;
-      x.fillStyle = `rgba(214,180,110,${i % 2 ? 0.025 : 0.045})`;
-      x.fillRect(bx, H * 0.55, W2 / 26, H * 0.45);
+    for (let i = 0; i < 26; i++) { // lane boards fading in gradually towards the bottom
+      const bx = (i / 26) * W2, a = i % 2 ? 0.025 : 0.045;
+      const lg = x.createLinearGradient(0, H * 0.4, 0, H);
+      lg.addColorStop(0, 'rgba(214,180,110,0)'); lg.addColorStop(1, `rgba(214,180,110,${a})`);
+      x.fillStyle = lg; x.fillRect(bx, H * 0.4, W2 / 26, H * 0.6);
     }
     let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
     for (let i = 0; i < 90; i++) {
@@ -1987,7 +2030,7 @@
       x.restore();
     });
     x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-    drawEmblem(x, cert.type, W2 / 2, 210);
+    drawEmblem(x, cert.type, W2 / 2, 210, th);
     let y = 360;
     x.fillStyle = '#e8c46e'; x.font = `600 25px ${IMG_SERIF}`;
     x.fillText('C E R T I F I C A T E   O F   A C H I E V E M E N T', W2 / 2, y);
