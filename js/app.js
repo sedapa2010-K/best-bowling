@@ -44,7 +44,7 @@
       teamResults: '팀 결과', win: '승리', draw: '무승부',
       backExit: '뒤로 버튼을 한 번 더 누르면 종료돼요', certBtn: '인증서 만들기', certPick: '어떤 인증서를 만들까요?', certPerfect: '퍼펙트게임', certHigh: '하이스코어', certWin: '우승',
       certSub_perfect: '300점, 열두 번 연속 스트라이크', certSub_high: '오늘의 최고 점수', certSub_win: '오늘의 1위', certHead: '{0} 인증서', certBack: '뒤로',
-      certDate: '날짜', certWho: '대상자', certScore: '점수', certMates: '함께한 동료', certPlace: '볼링장', certPlacePh: '예: OO볼링장', optional: '(선택)', certMatesPh: '이름을 쉼표로 구분해 주세요',
+      certDate: '날짜', certWho: '대상자', certScore: '점수', certMates: '함께한 동료', certPlace: '볼링장', certEvent: '대회명', certEventPh: '예: 제3회 친선 볼링대회', certPlacePh: '예: OO볼링장', optional: '(선택)', certMatesPh: '이름을 쉼표로 구분해 주세요',
       certPhotos: '사진 (최대 2장)', certGallery: '갤러리', certCamera: '사진 찍기', certRemove: '사진 빼기', certNameReq: '대상자 이름을 넣어 주세요',
       certBodyPerfect: '위 사람은 {0} 볼링 경기에서 퍼펙트게임을 달성하였기에 그 영예를 기리어 이 인증서를 드립니다.',
       certBodyHigh: '위 사람은 {0} 볼링 경기에서 {1}점의 하이스코어를 기록하였기에 그 실력을 인정하여 이 인증서를 드립니다.',
@@ -96,7 +96,7 @@
       teamResults: 'Team results', win: 'Win', draw: 'Draw',
       backExit: 'Press back again to exit', certBtn: 'Make a certificate', certPick: 'Which certificate would you like?', certPerfect: 'Perfect Game', certHigh: 'High Score', certWin: 'Champion',
       certSub_perfect: '300 — twelve strikes in a row', certSub_high: 'Best game of the day', certSub_win: 'Top of the day', certHead: '{0}', certBack: 'Back',
-      certDate: 'Date', certWho: 'Awarded to', certScore: 'Score', certMates: 'Bowled with', certPlace: 'Bowling alley', certPlacePh: 'e.g. Sunset Lanes', optional: '(optional)', certMatesPh: 'Names, separated by commas',
+      certDate: 'Date', certWho: 'Awarded to', certScore: 'Score', certMates: 'Bowled with', certPlace: 'Bowling alley', certEvent: 'Event', certEventPh: 'e.g. Autumn Cup', certPlacePh: 'e.g. Sunset Lanes', optional: '(optional)', certMatesPh: 'Names, separated by commas',
       certPhotos: 'Photos (up to 2)', certGallery: 'Gallery', certCamera: 'Camera', certRemove: 'Remove photo', certNameReq: 'Enter a name',
       certBodyPerfect: 'For bowling a perfect game on {0}.',
       certBodyHigh: 'For rolling an outstanding high score of {1} on {0}.',
@@ -1607,7 +1607,7 @@
   const CERT_TYPES = ['perfect', 'high', 'win'];
   const CERT_MAX_SCORE = 9999;
   let cert = null;
-  let certPlace = ''; // the bowling alley typed last, offered again while the app stays open
+  let certPlace = '', certEvent = ''; // the alley / event typed last, offered again while the app stays open
   const certTypeName = (k) => t({ perfect: 'certPerfect', high: 'certHigh', win: 'certWin' }[k]);
   const star = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="#f8c515" stroke="#efa20a" stroke-width="1.2" stroke-linejoin="round"/></svg>';
   const certTypeIcon = (k) => (k === 'win' ? crownArt() : k === 'high' ? star : '<span class="cert-300">300</span>');
@@ -1632,7 +1632,7 @@
     return { name: pname(p), score, mates };
   }
   function openCert() {
-    cert = { type: null, date: ui.date, pid: null, name: '', score: '', mates: '', place: certPlace, photos: [null, null] };
+    cert = { type: null, date: ui.date, pid: null, name: '', score: '', mates: '', place: certPlace, event: certEvent, photos: [null, null] };
     const m = $('#modal');
     m.className = 'modal doc-modal';
     m.hidden = false;
@@ -1673,11 +1673,12 @@
         <div class="cert-prev"><canvas id="certCv"></canvas></div>
         <div class="cert-form">
           <label class="cert-f"><span>${t('certDate')}</span><input class="field" type="date" data-cf="date" value="${esc(cert.date)}"></label>
+          ${cert.type === 'win' ? `<label class="cert-f"><span>${t('certEvent')} <small>${t('optional')}</small></span><input class="field" maxlength="30" data-cf="event" value="${esc(cert.event)}" placeholder="${t('certEventPh')}"></label>` : ''}
           <div class="cert-f"><span>${t('certWho')}</span>${chips ? `<div class="chips">${chips}</div>` : ''}
             <input class="field" maxlength="20" data-cf="name" value="${esc(cert.name)}" placeholder="${t('name')}"></div>
           <label class="cert-f"><span>${t('certScore')}</span><input class="field num" type="number" inputmode="numeric" min="0" max="${CERT_MAX_SCORE}" data-cf="score" value="${esc(cert.score)}"></label>
-          <label class="cert-f"><span>${t('certPlace')} <small>${t('optional')}</small></span><input class="field" maxlength="30" data-cf="place" value="${esc(cert.place)}" placeholder="${t('certPlacePh')}"></label>
           <label class="cert-f"><span>${t('certMates')}</span><input class="field" maxlength="120" data-cf="mates" value="${esc(cert.mates)}" placeholder="${t('certMatesPh')}"></label>
+          <label class="cert-f"><span>${t('certPlace')} <small>${t('optional')}</small></span><input class="field" maxlength="30" data-cf="place" value="${esc(cert.place)}" placeholder="${t('certPlacePh')}"></label>
           <div class="cert-f"><span>${t('certPhotos')}</span><div class="cert-slots">${slot(0)}${slot(1)}</div></div>
         </div>
         <div class="actions cert-actions">
@@ -1714,6 +1715,7 @@
     if (f === 'date' && !DATE_RE.test(v)) return;
     cert[f] = v;
     if (f === 'place') certPlace = v;
+    if (f === 'event') certEvent = v;
     if (f === 'name') { cert.pid = null; $$('[data-c="who"]').forEach((x) => x.classList.toggle('on', pname(sess().players.find((p) => p.id === x.dataset.id) || {}) === v)); }
     clearTimeout(certTimer);
     certTimer = setTimeout(drawCertPreview, 120);
@@ -1837,7 +1839,7 @@
     m.font = `600 28px ${IMG_SANS}`; const mateLines = cert.mates.trim() ? wrapText(m, cert.mates.trim(), W2 - 300).slice(0, 3) : [];
     const place = cert.place.trim();
     const photoH = photos.length === 1 ? 470 : photos.length === 2 ? 380 : 0;
-    let H = 960 + bodyLines.length * 48 + (mateLines.length ? 70 + mateLines.length * 40 : 0) + (place ? 110 : 0) + (photoH ? photoH + 90 : 0) + 170;
+    let H = 960 + bodyLines.length * 48 + (mateLines.length ? 70 + mateLines.length * 40 : 0) + (photoH ? photoH + 90 : 0) + 170;
     H = Math.max(H, 1350);
     const c = document.createElement('canvas'); c.width = W2; c.height = H;
     const x = c.getContext('2d');
@@ -1879,8 +1881,12 @@
     x.fillStyle = '#e8c46e'; x.font = `600 25px ${IMG_SERIF}`;
     x.fillText('C E R T I F I C A T E   O F   A C H I E V E M E N T', W2 / 2, y);
     y += 100;
-    const title = certTypeName(cert.type);
-    x.font = ko ? `800 86px ${IMG_SANS}` : `italic 700 94px ${IMG_SERIF}`;
+    const ev = cert.type === 'win' ? cert.event.trim() : '';
+    const title = ev ? `${ev} ${certTypeName(cert.type)}` : certTypeName(cert.type);
+    const tFont = (px) => (ko ? `800 ${px}px ${IMG_SANS}` : `italic 700 ${px}px ${IMG_SERIF}`);
+    let tpx = ko ? 86 : 94;
+    x.font = tFont(tpx);
+    while (tpx > 50 && x.measureText(title).width > W2 - 200) { tpx -= 4; x.font = tFont(tpx); }
     x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 18; x.shadowOffsetY = 6;
     x.fillStyle = goldGrad(x, 0, y - 80, 0, y + 10); x.fillText(fit(x, title, W2 - 200), W2 / 2, y);
     x.shadowColor = 'transparent'; x.shadowBlur = 0; x.shadowOffsetY = 0;
@@ -1905,13 +1911,6 @@
     y += 74;
     x.fillStyle = '#ddd6c8'; x.font = `500 31px ${IMG_SANS}`;
     bodyLines.forEach((l) => { x.fillText(l, W2 / 2, y); y += 48; });
-    if (place) {
-      y += 30;
-      x.fillStyle = '#e8c46e'; x.font = `700 23px ${IMG_SANS}`; x.fillText(t('certPlace'), W2 / 2, y);
-      y += 44;
-      x.fillStyle = '#f1ece2'; x.font = `600 28px ${IMG_SANS}`; x.fillText(fit(x, place, W2 - 300), W2 / 2, y);
-      y += 40;
-    }
     if (mateLines.length) {
       y += 30;
       x.fillStyle = '#e8c46e'; x.font = `700 23px ${IMG_SANS}`; x.fillText(t('certMates'), W2 / 2, y);
@@ -1928,11 +1927,12 @@
       }
       y += photoH;
     }
-    // Footer: date on the left, app name on the right, a thin gold rule above.
+    // Footer: date on the left, bowling alley in the middle, app name on the right, a thin gold rule above.
     const fy = H - 110;
     x.fillStyle = 'rgba(232,196,110,.5)'; x.fillRect(120, fy - 40, W2 - 240, 1.5);
     x.font = `600 24px ${IMG_SANS}`; x.fillStyle = '#b9c2cf';
     x.textAlign = 'left'; x.fillText(certDateText(cert.date), 120, fy);
+    if (place) { x.textAlign = 'center'; x.fillStyle = '#f1ece2'; x.font = `700 25px ${IMG_SANS}`; x.fillText(fit(x, place, 330), W2 / 2, fy); }
     x.textAlign = 'right'; x.fillStyle = '#e8c46e';
     x.font = ko ? `800 28px ${IMG_SANS}` : `italic 700 28px ${IMG_SERIF}`; x.fillText(brandName(), W2 - 120, fy);
     x.textAlign = 'left';
