@@ -1496,7 +1496,7 @@
     y += 32;
     for (const b of blocks) y = b.type === 'table' ? drawTable(x, b, y) : drawKV(x, b, y, gold);
     x.fillStyle = '#6f6a60'; x.font = `600 20px ${IMG_SANS}`; x.textAlign = 'center';
-    x.fillText('B E S T   B O W L I N G', W / 2, H - 50);
+    x.fillText(lang() === 'ko' ? brandName().split('').join(' ') : brandName().toUpperCase().split('').join(' '), W / 2, H - 50);
     x.textAlign = 'left';
     return c;
   }
