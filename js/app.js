@@ -1784,32 +1784,96 @@
     x.strokeStyle = 'rgba(184,134,43,.6)'; x.lineWidth = 2; x.strokeRect(-w / 2 - mat, -h / 2 - mat, w + 2 * mat, h + 2 * mat + 18);
     x.restore();
   }
-  // Laurel branch: leaves along an arc on one side of the emblem (side = -1 left, 1 right).
+  // Laurel branch: shaded leaves with a midrib along an arc on one side of the medal, plus a few gold
+  // berries (side = -1 left, 1 right).
   function drawLaurel(x, cx, cy, R, side) {
     x.save();
-    for (let i = 0; i < 9; i++) {
-      const a = Math.PI / 2 + side * (0.35 + i * 0.27);
-      const px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R;
-      x.save(); x.translate(px, py); x.rotate(a + side * 0.9);
-      x.fillStyle = i % 2 ? '#d9b459' : '#c49a3e';
-      x.beginPath(); x.ellipse(0, 0, 21, 8, 0, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = '#9c7425'; x.lineWidth = 3.5; x.lineCap = 'round';
+    x.beginPath(); x.arc(cx, cy, R, Math.PI / 2 + side * 0.22, Math.PI / 2 + side * 2.6, side < 0); x.stroke();
+    for (let i = 0; i < 11; i++) {
+      const a = Math.PI / 2 + side * (0.3 + i * 0.215);
+      const out = i % 2 ? 9 : -9; // leaves alternate outside / inside the stem
+      const px = cx + Math.cos(a) * (R + out), py = cy + Math.sin(a) * (R + out);
+      const len = 24 - i * 0.7;
+      x.save(); x.translate(px, py); x.rotate(a + side * (Math.PI / 2) + side * (i % 2 ? -0.5 : 0.5));
+      const g = x.createLinearGradient(0, -8, 0, 8);
+      g.addColorStop(0, '#fbe7a1'); g.addColorStop(0.5, '#d4a640'); g.addColorStop(1, '#8a6420');
+      x.fillStyle = g;
+      x.beginPath(); x.moveTo(-len, 0); x.quadraticCurveTo(0, -11, len, 0); x.quadraticCurveTo(0, 11, -len, 0); x.closePath(); x.fill();
+      x.strokeStyle = 'rgba(110,75,18,.65)'; x.lineWidth = 1.2;
+      x.beginPath(); x.moveTo(-len + 3, 0); x.lineTo(len - 4, 0); x.stroke();
       x.restore();
+      if (i % 3 === 1) {
+        const bx = cx + Math.cos(a + side * 0.1) * (R - 1), by = cy + Math.sin(a + side * 0.1) * (R - 1);
+        const bg = x.createRadialGradient(bx - 1.5, by - 1.5, 0.5, bx, by, 5);
+        bg.addColorStop(0, '#fff5cf'); bg.addColorStop(1, '#c08a22');
+        x.fillStyle = bg; x.beginPath(); x.arc(bx, by, 4.5, 0, Math.PI * 2); x.fill();
+      }
     }
-    x.strokeStyle = '#b98f36'; x.lineWidth = 3;
-    x.beginPath(); x.arc(cx, cy, R, Math.PI / 2 + side * 0.3, Math.PI / 2 + side * 2.55, side < 0); x.stroke();
     x.restore();
   }
+  // Four-point sparkle.
+  function sparkle(x, sx, sy, r, alpha) {
+    x.save(); x.translate(sx, sy);
+    x.fillStyle = `rgba(255,240,190,${alpha})`;
+    x.beginPath();
+    x.moveTo(0, -r); x.quadraticCurveTo(r * 0.18, -r * 0.18, r, 0); x.quadraticCurveTo(r * 0.18, r * 0.18, 0, r);
+    x.quadraticCurveTo(-r * 0.18, r * 0.18, -r, 0); x.quadraticCurveTo(-r * 0.18, -r * 0.18, 0, -r); x.closePath(); x.fill();
+    x.restore();
+  }
+  // The medal on top of the certificate: a glow, crimson ribbon tails, a laurel wreath, a beaded rim and a
+  // polished gold disc framing a navy centre with fine rays and the type's sign (300 / star / crown).
   function drawEmblem(x, type, cx, cy) {
-    drawLaurel(x, cx, cy, 104, -1); drawLaurel(x, cx, cy, 104, 1);
     x.save();
-    x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 24;
-    x.fillStyle = goldGrad(x, cx - 80, cy - 80, cx + 80, cy + 80);
-    x.beginPath(); x.arc(cx, cy, 78, 0, Math.PI * 2); x.fill();
-    x.shadowColor = 'transparent';
-    x.fillStyle = '#13233a'; x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.fill();
-    x.strokeStyle = 'rgba(248,231,168,.7)'; x.lineWidth = 2; x.beginPath(); x.arc(cx, cy, 70, 0, Math.PI * 2); x.stroke();
+    const halo = x.createRadialGradient(cx, cy, 40, cx, cy, 180);
+    halo.addColorStop(0, 'rgba(255,214,120,.35)'); halo.addColorStop(1, 'rgba(255,214,120,0)');
+    x.fillStyle = halo; x.beginPath(); x.arc(cx, cy, 180, 0, Math.PI * 2); x.fill();
+    drawLaurel(x, cx, cy, 110, -1); drawLaurel(x, cx, cy, 110, 1);
+    // ribbon tails, over the bottom of the wreath
+    [-1, 1].forEach((side) => {
+      x.save(); x.translate(cx + side * 30, cy + 62); x.rotate(side * 0.34);
+      const rg = x.createLinearGradient(-18, 0, 18, 0);
+      rg.addColorStop(0, '#5e0d1c'); rg.addColorStop(0.5, '#b4253c'); rg.addColorStop(1, '#6b1022');
+      x.fillStyle = rg;
+      x.beginPath(); x.moveTo(-18, 0); x.lineTo(18, 0); x.lineTo(18, 46); x.lineTo(0, 36); x.lineTo(-18, 46); x.closePath(); x.fill();
+      x.strokeStyle = '#e2bd62'; x.lineWidth = 2.5; x.stroke();
+      x.strokeStyle = 'rgba(248,231,168,.55)'; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(-11, 4); x.lineTo(-11, 40); x.moveTo(11, 4); x.lineTo(11, 40); x.stroke();
+      x.restore();
+    });
+    // beaded rim
+    x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 26; x.shadowOffsetY = 6;
+    x.fillStyle = '#7a5513'; x.beginPath(); x.arc(cx, cy, 86, 0, Math.PI * 2); x.fill();
+    x.shadowColor = 'transparent'; x.shadowBlur = 0; x.shadowOffsetY = 0;
+    for (let i = 0; i < 40; i++) {
+      const a = (i / 40) * Math.PI * 2, bx = cx + Math.cos(a) * 83, by = cy + Math.sin(a) * 83;
+      const bg = x.createRadialGradient(bx - 1, by - 1, 0.3, bx, by, 3.6);
+      bg.addColorStop(0, '#fff3c4'); bg.addColorStop(1, '#c4932c');
+      x.fillStyle = bg; x.beginPath(); x.arc(bx, by, 3.3, 0, Math.PI * 2); x.fill();
+    }
+    // polished gold disc
+    const disc = x.createRadialGradient(cx - 26, cy - 30, 6, cx, cy, 80);
+    disc.addColorStop(0, '#fff6cf'); disc.addColorStop(0.35, '#f0c75a'); disc.addColorStop(0.75, '#b8862b'); disc.addColorStop(1, '#7a5513');
+    x.fillStyle = disc; x.beginPath(); x.arc(cx, cy, 78, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = '#6b4a10'; x.lineWidth = 2; x.beginPath(); x.arc(cx, cy, 66, 0, Math.PI * 2); x.stroke();
+    // navy centre with fine gold rays
+    const navy = x.createRadialGradient(cx, cy - 20, 4, cx, cy, 64);
+    navy.addColorStop(0, '#2c4d7d'); navy.addColorStop(1, '#0b182b');
+    x.fillStyle = navy; x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.fill();
+    x.save(); x.beginPath(); x.arc(cx, cy, 64, 0, Math.PI * 2); x.clip();
+    x.translate(cx, cy);
+    for (let i = 0; i < 24; i++) {
+      x.rotate((Math.PI * 2) / 24);
+      x.fillStyle = 'rgba(240,200,110,.12)';
+      x.beginPath(); x.moveTo(0, 0); x.lineTo(-5, -64); x.lineTo(5, -64); x.closePath(); x.fill();
+    }
+    x.restore();
+    x.strokeStyle = 'rgba(248,231,168,.8)'; x.lineWidth = 1.5; x.beginPath(); x.arc(cx, cy, 59, 0, Math.PI * 2); x.stroke();
+    // the type's sign
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 10; x.shadowOffsetY = 3;
     if (type === 'win') {
-      const k = 5.2; x.translate(cx - 12 * k, cy - 12.6 * k); x.scale(k, k);
+      const k = 4.6; x.translate(cx - 12 * k, cy - 12.8 * k); x.scale(k, k);
       CROWN.forEach((p) => {
         const path = new Path2D();
         if (p.d) path.addPath(new Path2D(p.d)); else path.arc(p.c[0], p.c[1], p.c[2], 0, Math.PI * 2);
@@ -1817,14 +1881,24 @@
         if (p.stroke) { x.strokeStyle = p.stroke; x.lineWidth = p.w; x.stroke(path); }
       });
     } else if (type === 'high') {
-      const k = 4.6; x.translate(cx - 12 * k, cy - 12.2 * k); x.scale(k, k);
+      const k = 4.2; x.translate(cx - 12 * k, cy - 12.2 * k); x.scale(k, k);
       const path = new Path2D('M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z');
-      x.fillStyle = '#f8c515'; x.fill(path); x.strokeStyle = '#efa20a'; x.lineWidth = 1.2; x.lineJoin = 'round'; x.stroke(path);
+      const sg = x.createLinearGradient(4, 3, 20, 20); sg.addColorStop(0, '#fff3b0'); sg.addColorStop(0.5, '#f8c515'); sg.addColorStop(1, '#d98e06');
+      x.fillStyle = sg; x.fill(path); x.strokeStyle = '#a86a04'; x.lineWidth = 0.9; x.lineJoin = 'round'; x.stroke(path);
     } else {
       x.fillStyle = goldGrad(x, cx - 50, cy - 30, cx + 50, cy + 30);
-      x.font = `800 58px ${IMG_SERIF}`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.font = `800 54px ${IMG_SERIF}`; x.textAlign = 'center'; x.textBaseline = 'middle';
       x.fillText('300', cx, cy + 3);
     }
+    x.restore();
+    // highlight on the disc and sparkles above the wreath
+    x.save(); x.beginPath(); x.arc(cx, cy, 78, 0, Math.PI * 2); x.clip();
+    const hl = x.createLinearGradient(cx - 70, cy - 80, cx + 10, cy);
+    hl.addColorStop(0, 'rgba(255,255,255,.35)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = hl; x.beginPath(); x.ellipse(cx - 28, cy - 40, 52, 24, -0.6, 0, Math.PI * 2); x.fill();
+    x.restore();
+    sparkle(x, cx, cy - 118, 13, 0.95); sparkle(x, cx - 40, cy - 106, 7, 0.75); sparkle(x, cx + 40, cy - 106, 7, 0.75);
+    sparkle(x, cx + 70, cy - 62, 5, 0.6);
     x.restore();
   }
   // The app mark at the bottom right: the app icon in a gold ring, then the name with its first part in
