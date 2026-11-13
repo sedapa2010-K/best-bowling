@@ -49,6 +49,7 @@
       certBodyPerfect: '위 사람은 {0} 볼링 경기에서 퍼펙트게임을 달성하였기에 그 영예를 기리어 이 인증서를 드립니다.',
       certBodyHigh: '위 사람은 {0} 볼링 경기에서 {1}점의 하이스코어를 기록하였기에 그 실력을 인정하여 이 인증서를 드립니다.',
       certBodyWin: '위 사람은 {0} 볼링 경기에서 우승하였기에 그 영광을 기리어 이 인증서를 드립니다.',
+      certBodyWinEvent: '위 사람은 {0} {1}에서 우승하였기에 그 영광을 기리어 이 인증서를 드립니다.',
       saveImage: '이미지 저장', share: '공유하기', autosave: '입력한 기록은 이 휴대폰에 자동 저장돼요',
       deleteRecord: '기록 삭제', confirmDelRecord: '{0}\n기록을 삭제할까요?',
       cancel: '취소', delete: '삭제', ok: '확인', save: '저장', close: '닫기',
@@ -101,6 +102,7 @@
       certBodyPerfect: 'For bowling a perfect game on {0}.',
       certBodyHigh: 'For rolling an outstanding high score of {1} on {0}.',
       certBodyWin: 'For winning the day on {0}.',
+      certBodyWinEvent: 'For winning {1} on {0}.',
       saveImage: 'Save image', share: 'Share', autosave: 'Scores are saved automatically on this phone',
       deleteRecord: 'Delete record', confirmDelRecord: 'Delete the record for\n{0}?',
       cancel: 'Cancel', delete: 'Delete', ok: 'OK', save: 'Save', close: 'Close',
@@ -1936,8 +1938,15 @@
     const m = document.createElement('canvas').getContext('2d');
     // Measure the wrapped texts first so the canvas height fits them.
     const score = cert.score === '' ? '' : String(cert.score);
-    const body = t({ perfect: 'certBodyPerfect', high: 'certBodyHigh', win: 'certBodyWin' }[cert.type], certDateText(cert.date), score || '—');
-    m.font = `500 31px ${IMG_SANS}`; const bodyLines = wrapText(m, body, W2 - 260);
+    const ev = cert.type === 'win' ? cert.event.trim() : '';
+    // With an event name the champion text names it: "제3회 친선 볼링대회에서" (or "OO배 대회에서" when the name has no 대회).
+    const evPhrase = ko && ev && !/대회$/.test(ev) ? `${ev} 대회` : ev;
+    const body = ev ? t('certBodyWinEvent', certDateText(cert.date), evPhrase)
+      : t({ perfect: 'certBodyPerfect', high: 'certBodyHigh', win: 'certBodyWin' }[cert.type], certDateText(cert.date), score || '—');
+    m.font = `500 31px ${IMG_SANS}`; let bodyLines = wrapText(m, body, W2 - 260);
+    // Three lines or more: the closing words ("이 인증서를 드립니다.") get a line of their own.
+    const tail = ko ? '이 인증서를 드립니다.' : '';
+    if (tail && bodyLines.length >= 3 && body.endsWith(tail)) bodyLines = [...wrapText(m, body.slice(0, -tail.length).trim(), W2 - 260), tail];
     m.font = `600 28px ${IMG_SANS}`; const mateLines = cert.mates.trim() ? wrapText(m, cert.mates.trim(), W2 - 300).slice(0, 3) : [];
     const place = cert.place.trim();
     const photoH = photos.length === 1 ? 470 : photos.length === 2 ? 380 : 0;
@@ -1983,7 +1992,6 @@
     x.fillStyle = '#e8c46e'; x.font = `600 25px ${IMG_SERIF}`;
     x.fillText('C E R T I F I C A T E   O F   A C H I E V E M E N T', W2 / 2, y);
     y += 100;
-    const ev = cert.type === 'win' ? cert.event.trim() : '';
     const title = ev ? `${ev} ${certTypeName(cert.type)}` : certTypeName(cert.type);
     const tFont = (px) => (ko ? `800 ${px}px ${IMG_SANS}` : `italic 700 ${px}px ${IMG_SERIF}`);
     let tpx = ko ? 86 : 94;
