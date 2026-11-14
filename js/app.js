@@ -32,7 +32,8 @@
       gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
       finalTable: '날짜별 최종 점수', tapRowHint: '날짜를 누르면 그날 기록으로 이동해요', leaderboard: '전체 순위', byAvg: '평균 기준',
       today: '오늘', recent: '최근 기록', noRecent: '아직 저장된 기록이 없어요', gamesPeople: '{0}게임 · {1}명',
-      selectedDate: '선택한 날짜', participants: '참가 멤버', nPeople: '{0}명',
+      selectedDate: '선택한 날짜', participants: '참가 멤버', nPeople: '{0}명', rosterShow: '펼치기', rosterHide: '접기',
+      paid: '입금', unpaidLeft: '미입금 {0}명', allPaid: '모두 입금',
       noMembers: '등록된 멤버가 없어요. 아래에서 바로 추가해 보세요.', newMemberPh: '새 멤버 이름', hdcp: '핸디', add: '추가',
       individual: '개인전', teamMatch: '팀전', teamCount: '팀 수', teamHint: '멤버 옆의 팀 버튼(A·B…)을 눌러 팀을 옮길 수 있어요.', teamEmpty: '아직 멤버가 없어요', teamName: '{0}팀',
       pickHint: '참가할 멤버를 선택하면\n사람별로 점수를 입력할 수 있어요.',
@@ -85,7 +86,8 @@
       gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
       finalTable: 'Final scores by date', tapRowHint: 'Tap a date to open that day\'s scores', leaderboard: 'Leaderboard', byAvg: 'by average',
       today: 'Today', recent: 'Recent', noRecent: 'No saved records yet', gamesPeople: '{0} games · {1}',
-      selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players',
+      selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players', rosterShow: 'Show', rosterHide: 'Hide',
+      paid: 'Paid', unpaidLeft: 'Unpaid: {0}', allPaid: 'All paid',
       noMembers: 'No members yet. Add one right below.', newMemberPh: 'Name', hdcp: 'HDCP', add: 'Add',
       individual: 'Singles', teamMatch: 'Teams', teamCount: 'Teams', teamHint: 'Tap a team letter next to a player to move them.', teamEmpty: 'No players yet', teamName: 'Team {0}',
       pickHint: 'Select the players\nto start entering scores.',
@@ -173,7 +175,7 @@
     return {
       date, gameFee: capMoney(x.gameFee, 'fee'), shoeFee: capMoney(x.shoeFee, 'fee'),
       rows: (Array.isArray(x.rows) ? x.rows : []).filter((r) => isObj(r) && ID_RE.test(r.id))
-        .map((r) => ({ id: r.id, name: str(r.name, 40), on: r.on !== false, games: clampInt(r.games, 0, 99), shoes: !!r.shoes })),
+        .map((r) => ({ id: r.id, name: str(r.name, 40), on: r.on !== false, games: clampInt(r.games, 0, 99), shoes: !!r.shoes, ...(r.paid === true ? { paid: true } : {}) })),
       extras: (Array.isArray(x.extras) ? x.extras : []).slice(0, 30).filter((e) => isObj(e) && ID_RE.test(e.id))
         .map((e) => ({ id: e.id, label: str(e.label, 20), amount: capMoney(e.amount, 'extra'), mode: e.mode === 'one' ? 'one' : 'split',
           who: (Array.isArray(e.who) ? e.who : []).filter((id) => typeof id === 'string' && ID_RE.test(id)).slice(0, 60) })),
@@ -222,6 +224,7 @@
     calM: now.getMonth(),
     calOpen: false,    // month calendar expanded
     kp: null,          // { pid } while the frame keypad is open
+    roster: null,      // { date, open }: participants card expanded or folded to a summary for that date
     kpScroll: false,
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
@@ -632,14 +635,37 @@
     return `<div class="sec-label"><span>${t('recent')}</span></div>
       <div class="recent">${chips || `<div class="recent-empty">${t('noRecent')}</div>`}</div>`;
   }
+  // The participants card folds to a short summary once a day has scores, so the score entry sits near the top.
+  // Decided once per date (not on every render) so the card never folds under the user while they type.
+  function rosterOpen(s) {
+    if (!ui.roster || ui.roster.date !== s.date) ui.roster = { date: s.date, open: !s.players.length || !s.games.some((g) => gameHasScore(s, g)) };
+    return ui.roster.open;
+  }
+  function rosterSummary(s) {
+    const names = (ps) => ps.map((p) => esc(pname(p))).join(', ');
+    const body = s.teamMode
+      ? Array.from({ length: s.teamCount }, (_, ti) => {
+        const ps = playersByName(s).filter((p) => p.team === ti);
+        return `<div class="rs-line"><span class="team-badge t${ti}">${TEAMS[ti]}</span><b>${esc(teamLabel(s, ti))}</b><span class="rs-names">${names(ps) || '—'}</span></div>`;
+      }).join('')
+      : `<div class="rs-line"><span class="rs-mode">${ic('pin')}${t('individual')}</span><span class="rs-names">${names(playersByName(s))}</span></div>`;
+    return `<div class="card roster-sum">
+      <div class="card-h"><h3>${ic('users')}${t('participants')}<span class="muted rs-n">${t('nPeople', s.players.length)}</span></h3>
+        <button class="btn sm ghost" data-act="roster" data-v="1" aria-expanded="false">${ic('down')}${t('rosterShow')}</button></div>
+      <button class="rs-body" data-act="roster" data-v="1">${body}</button>
+    </div>`;
+  }
   function playersCard(s) {
+    if (s.players.length && !rosterOpen(s)) return rosterSummary(s);
     const sel = new Set(s.players.map((p) => p.id));
     const chips = isLocked(s)
       ? playersByName(s).map((p) => `<span class="chip on">${ic('check')}${esc(pname(p))}</span>`).join('')
       : membersByName().map((m) =>
       `<button class="chip ${sel.has(m.id) ? 'on' : ''}" data-act="togglePlayer" data-id="${esc(m.id)}">${sel.has(m.id) ? ic('check') : ''}${esc(m.name)}</button>`).join('');
     let h = `<div class="card">
-      <div class="card-h"><h3>${ic('users')}${t('participants')}</h3><span class="muted">${t('nPeople', s.players.length)}</span></div>
+      <div class="card-h"><h3>${ic('users')}${t('participants')}${s.players.length ? `<span class="muted rs-n">${t('nPeople', s.players.length)}</span>` : ''}</h3>${s.players.length
+        ? `<button class="btn sm ghost" data-act="roster" data-v="0" aria-expanded="true">${ic('up')}${t('rosterHide')}</button>`
+        : `<span class="muted">${t('nPeople', 0)}</span>`}</div>
       ${chips ? `<div class="chips">${chips}</div>` : `<p class="hint">${t('noMembers')}</p>`}
       <div class="quick">
         <input id="qName" class="field" placeholder="${t('newMemberPh')}" maxlength="20" enterkeyhint="done">
@@ -652,8 +678,8 @@
           <button class="${!s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="0">${ic('pin')}${t('individual')}</button>
           <button class="${s.teamMode ? 'on' : ''}" data-act="matchMode" data-v="1">${ic('users')}${t('teamMatch')}</button>
         </div>`;
-      // Same look as the quick-add 핸디 box: plain field, label as placeholder, empty when the handicap is 0
-      const hdInput = (p) => `<input class="field num hdf" type="number" inputmode="numeric" placeholder="${t('hdcp')}" aria-label="${t('hdcp')}" min="0" max="100" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp) || ''}">`;
+      // Same look as the quick-add 핸디 box; a handicap of 0 shows as 0 (an empty box looked like "not entered yet")
+      const hdInput = (p) => `<input class="field num hdf" type="number" inputmode="numeric" placeholder="${t('hdcp')}" aria-label="${t('hdcp')}" min="0" max="100" data-inp="hdcp" data-id="${esc(p.id)}" value="${toInt(p.hdcp)}">`;
       if (s.teamMode) {
         h += `<div class="row between" style="margin-top:12px">
             <span class="label">${t('teamCount')}</span>
@@ -997,7 +1023,9 @@
   const rowName = (r) => (memberById(r.id) ? memberById(r.id).name : r.name);
   function costTotals(c) {
     const on = c.rows.filter((r) => r.on);
-    return { people: on.length, games: on.reduce((a, r) => a + r.games, 0), total: Math.round(on.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 };
+    const unpaid = on.filter((r) => !r.paid);
+    return { people: on.length, games: on.reduce((a, r) => a + r.games, 0), total: Math.round(on.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100,
+      unpaid: unpaid.length, unpaidSum: Math.round(unpaid.reduce((a, r) => a + rowAmount(r, c), 0) * 100) / 100 };
   }
   // Team view of the cost sheet: rows grouped by the team each person played on that day.
   function costTeams(c) {
@@ -1018,7 +1046,7 @@
         <div class="tsec-h">${g.ti >= 0 ? `<span class="team-badge t${g.ti}">${TEAMS[g.ti]}</span>` : ''}<b>${esc(costTeamLabel(c, g.ti))}</b>
           <span class="amt">${fmtMoney(g.total)}</span></div>
         <div class="tcost-meta">${t('nPeople', g.rows.length)} · ${g.games}${t('gUnit')}</div>
-        ${g.rows.length ? `<div class="tcost-list">${g.rows.map((r) => `<div class="tcost-row"><span class="pname">${esc(rowName(r))}</span>
+        ${g.rows.length ? `<div class="tcost-list">${g.rows.map((r) => `<div class="tcost-row ${r.paid ? 'is-paid' : ''}"><span class="pname">${r.paid ? ic('check') : ''}${esc(rowName(r))}</span>
           <small>${r.games}G${r.shoes ? ' · ' + t('shoes') : ''}</small><b>${fmtMoney(rowAmount(r, c))}</b></div>`).join('')}</div>`
           : `<div class="tsec-empty">${t('teamEmpty')}</div>`}
       </div>`).join('')}</div>`;
@@ -1057,16 +1085,18 @@
     return `<div class="eyebrow">${t('grandTotal')}</div>
       <div class="hero-total">${fmtMoney(x.total)}</div>
       <div class="hero-grid"><div><small>${t('people')}</small><b>${x.people}</b></div><div><small>${t('totalGames')}</small><b>${x.games}</b></div>
-        ${extrasTotal(c) ? `<div class="hero-wide"><small>${t('extraCosts')}</small><b>${fmtMoney(extrasTotal(c))}</b></div>` : ''}</div>`;
+        ${extrasTotal(c) ? `<div class="hero-wide"><small>${t('extraCosts')}</small><b>${fmtMoney(extrasTotal(c))}</b></div>` : ''}
+        ${x.people ? `<div class="hero-wide paid-sum ${x.unpaid ? '' : 'done'}"><small>${x.unpaid ? t('unpaidLeft', x.unpaid) : t('allPaid')}</small><b>${x.unpaid ? fmtMoney(x.unpaidSum) : ic('check')}</b></div>` : ''}</div>`;
   }
   function renderCost() {
     const c = costDoc();
     const inRows = new Set(c.rows.map((r) => r.id));
-    const rows = rowsByName(c.rows).map((r) => `<div class="crow ${r.on ? '' : 'off'}">
+    const rows = rowsByName(c.rows).map((r) => `<div class="crow ${r.on ? '' : 'off'} ${r.on && r.paid ? 'is-paid' : ''}">
         <div class="crow-top">
           <button class="check ${r.on ? 'on' : ''}" data-act="costToggle" data-id="${esc(r.id)}" aria-label="include">${ic('check')}</button>
           <span class="pname">${esc(rowName(r))}<small class="xshare" id="xs-${esc(r.id)}">${extraShare(r, c) ? `${t('extraShort')} +${fmtMoney(extraShare(r, c))}` : ''}</small></span>
           <span class="amt" id="amt-${esc(r.id)}">${fmtMoney(rowAmount(r, c))}</span>
+          ${r.on ? `<button class="paid-btn ${r.paid ? 'on' : ''}" data-act="costPaid" data-id="${esc(r.id)}" aria-pressed="${!!r.paid}">${ic('check')}${t('paid')}</button>` : ''}
         </div>
         <div class="crow-bot">
           <div class="stepper"><button data-act="costGames" data-id="${esc(r.id)}" data-d="-1">−</button><b>${r.games}</b><small>G</small><button data-act="costGames" data-id="${esc(r.id)}" data-d="1">+</button></div>
@@ -2180,6 +2210,7 @@
 
   const actions = {
     tab(el) { ui.tab = el.dataset.tab; ui.kp = null; ui.editId = null; render(); window.scrollTo(0, 0); },
+    roster(el) { ui.roster = { date: ui.date, open: el.dataset.v === '1' }; render(); },
     calToggle() {
       ui.calOpen = !ui.calOpen;
       if (ui.calOpen) { const d = parseYmd(ui.date); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); }
@@ -2301,9 +2332,12 @@
       if (!hasRecord(s)) { toast(t('noRecordForDate')); return; }
       const c = costDoc();
       if (c.rows.length && !(await ask(t('confirmReload')))) return;
-      c.rows = rowsFromSession(s); commitCost(c); render(); toast(t('loaded'));
+      // Reloading from the record keeps who has already paid
+      const paid = new Set(c.rows.filter((r) => r.paid).map((r) => r.id));
+      c.rows = rowsFromSession(s).map((r) => (paid.has(r.id) ? { ...r, paid: true } : r)); commitCost(c); render(); toast(t('loaded'));
     },
     costToggle(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.on = !r.on; commitCost(c); render(); },
+    costPaid(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); if (!r) return; r.paid = !r.paid; commitCost(c); render(); },
     costShoe(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.shoes = !r.shoes; commitCost(c); render(); },
     costGames(el) { const c = costDoc(), r = c.rows.find((x) => x.id === el.dataset.id); r.games = Math.min(99, Math.max(0, r.games + toInt(el.dataset.d))); commitCost(c); render(); },
     extraAdd() {

@@ -906,3 +906,27 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 .cert-theme b { font-size: 11.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .cert-theme.on .ct-card { transform: translateY(-2px); box-shadow: inset 0 0 0 3px #f3d67f, inset 0 0 0 5px rgba(0, 0, 0, .35), inset 0 0 0 6px rgba(243, 214, 127, .9), 0 0 0 2px var(--gold), 0 8px 20px -6px rgba(214, 180, 110, .7); }
 .cert-theme.on b { color: var(--gold); }
+
+/* ───────── Participants card folded to a summary; paid check on the settle tab ───────── */
+.card-h h3 .rs-n { margin-left: 6px; font-size: 13px; font-weight: 600; }
+.roster-sum .rs-body { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; }
+.rs-line { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13.5px; }
+.rs-line b { flex: 0 0 auto; white-space: nowrap; }
+.rs-line .team-badge { flex: 0 0 auto; }
+.rs-mode { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; font-weight: 700; }
+.rs-mode .ic { width: 15px; height: 15px; }
+.rs-names { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.paid-btn {
+  flex: 0 0 auto; height: 30px; padding: 0 9px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface);
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap;
+}
+.paid-btn .ic { width: 14px; height: 14px; }
+.paid-btn.on { background: var(--gold-grad); color: var(--accent-ink); border-color: transparent; }
+.crow-top .pname { flex: 1 1 auto; min-width: 0; }
+.crow.is-paid .amt { opacity: .55; }
+.tcost-row.is-paid .pname { display: inline-flex; align-items: center; gap: 4px; }
+.tcost-row.is-paid .pname .ic { width: 14px; height: 14px; color: var(--gold); }
+.tcost-row.is-paid b { opacity: .55; }
+.hero-grid .paid-sum b { font-size: 16px; }
+.hero-grid .paid-sum.done b { color: var(--gold); }
+.hero-grid .paid-sum .ic { width: 18px; height: 18px; }
