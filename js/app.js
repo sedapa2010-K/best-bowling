@@ -71,7 +71,7 @@
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
-      storageErr: '저장 공간이 부족해 저장하지 못했어요', scoreMax: '점수는 300점까지예요', frameStats: '스트라이크 · 스페어', frameGamesN: '프레임 입력 {0}게임', frameStatsEmpty: '프레임별로 입력한 게임이 있으면 스트라이크율과 스페어 처리율이 여기에 보여요.', strikeRate: '스트라이크', spareRate: '스페어 처리', openPerGame: '오픈 / 게임', openTotal: '오픈 {0}회', splitMade: '스플릿 처리', frameOnly: '프레임 입력만 · 연습 제외', kpTurnLabel: '키패드 순서', kpTurnGame: '한 사람씩', kpTurnFrame: '프레임마다 교대', kpTurnFrameHint: '한 프레임을 마치면 다음 사람으로 넘어가요', minGames: '최소 게임', minGamesNone: '제한 없음', minGamesN: '{0}게임+', minGamesUnder: '{0}게임 미만 · 순위 제외', openShort: '오픈', splitShort: '스플릿', fee: '경기비 {0} · 신발비 {1}',
+      storageErr: '저장 공간이 부족해 저장하지 못했어요', scoreMax: '점수는 300점까지예요', frameStats: '스트라이크 · 스페어', frameGamesN: '프레임 입력 {0}게임', frameStatsEmpty: '프레임별로 입력한 게임이 있으면 스트라이크율과 스페어 처리율이 여기에 보여요.', strikeRate: '스트라이크', spareRate: '스페어 처리', openPerGame: '오픈 / 게임', openTotal: '오픈 {0}회', splitMade: '스플릿 처리', frameOnly: '프레임 입력만 · 연습 제외', kpTurnLabel: '키패드 순서', kpTurnGame: '한 사람씩', kpTurnFrame: '프레임마다 교대', kpTurnFrameHint: '한 프레임을 마치면 다음 사람으로 넘어가요', openShort: '오픈', splitShort: '스플릿', fee: '경기비 {0} · 신발비 {1}',
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
@@ -125,7 +125,7 @@
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
-      storageErr: 'Storage is full — could not save', scoreMax: 'Scores go up to 300', frameStats: 'Strikes & spares', frameGamesN: 'Frame games: {0}', frameStatsEmpty: 'Enter games frame by frame to see strike and spare rates here.', strikeRate: 'Strikes', spareRate: 'Spares', openPerGame: 'Opens / game', openTotal: '{0} opens', splitMade: 'Splits made', frameOnly: 'Frame entries · no practice', kpTurnLabel: 'Keypad order', kpTurnGame: 'One bowler', kpTurnFrame: 'Each frame', kpTurnFrameHint: 'Moves to the next bowler after each frame', minGames: 'Min. games', minGamesNone: 'Any', minGamesN: '{0}+', minGamesUnder: 'Under {0} games · not ranked', openShort: 'Opens', splitShort: 'Splits', fee: 'Game {0} · Shoes {1}',
+      storageErr: 'Storage is full — could not save', scoreMax: 'Scores go up to 300', frameStats: 'Strikes & spares', frameGamesN: 'Frame games: {0}', frameStatsEmpty: 'Enter games frame by frame to see strike and spare rates here.', strikeRate: 'Strikes', spareRate: 'Spares', openPerGame: 'Opens / game', openTotal: '{0} opens', splitMade: 'Splits made', frameOnly: 'Frame entries · no practice', kpTurnLabel: 'Keypad order', kpTurnGame: 'One bowler', kpTurnFrame: 'Each frame', kpTurnFrameHint: 'Moves to the next bowler after each frame', openShort: 'Opens', splitShort: 'Splits', fee: 'Game {0} · Shoes {1}',
     },
   };
   const WD = { ko: ['일', '월', '화', '수', '목', '금', '토'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
@@ -195,8 +195,7 @@
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system',
         ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}),
         ...(st.resultsVert === true ? { resultsVert: true } : {}),
-        ...(st.kpTurn === 'frame' ? { kpTurn: 'frame' } : {}),
-        ...(clampInt(st.minGames, 0, 30) > 0 ? { minGames: clampInt(st.minGames, 0, 30) } : {}) },
+        ...(st.kpTurn === 'frame' ? { kpTurn: 'frame' } : {}) },
       feeDefaults: { gameFee: Math.min(MONEY_MAX.fee, money(fee.gameFee, 3000)), shoeFee: Math.min(MONEY_MAX.fee, money(fee.shoeFee, 1500)) },
     };
   }
@@ -1379,17 +1378,10 @@
       return { m, n: sc.length, avg: avgOf(sc), high: Math.max(...sc) };
     }).sort((a, b) => b.avg - a.avg || b.high - a.high);
     if (!rows.length) return '';
-    // Bowlers under the minimum game count (settings.minGames) stay listed below the ranking, without a rank.
-    const min = toInt(db.settings.minGames), ranked = rows.filter((x) => x.n >= min), rest = rows.filter((x) => x.n < min);
-    const row = (x, i) => `<tr class="link-row ${x.m.id === ui.statId ? 'sel' : ''} ${i < 0 ? 'unranked' : ''}" data-act="statPick" data-id="${esc(x.m.id)}"><td>${i < 0
-      ? '<span class="rk">–</span>' : `<span class="rk ${i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span>`}</td>
-        <td class="nm">${esc(x.m.name)}</td><td>${x.n}</td><td class="${i < 0 ? '' : 'tot'}">${x.avg}</td><td>${x.high}</td></tr>`;
     return `<div class="card"><div class="card-h"><h3>${ic('users')}${t('leaderboard')}</h3><span class="muted">${t('byAvg')}</span></div>
-      <div class="lb-min"><span>${t('minGames')}</span><div class="seg">${[0, 3, 6, 10].map((n) =>
-        `<button class="${min === n ? 'on' : ''}" data-act="lbMin" data-v="${n}" aria-pressed="${min === n}">${n ? t('minGamesN', n) : t('minGamesNone')}</button>`).join('')}</div></div>
       <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th class="nm">${t('name')}</th><th>${t('games')}</th><th>${t('avg')}</th><th>${t('high')}</th></tr></thead><tbody>
-      ${ranked.map((x, i) => row(x, i)).join('')}
-      ${rest.length ? `<tr class="lb-sep"><td colspan="5">${t('minGamesUnder', min)}</td></tr>${rest.map((x) => row(x, -1)).join('')}` : ''}
+      ${rows.map((x, i) => `<tr class="link-row ${x.m.id === ui.statId ? 'sel' : ''}" data-act="statPick" data-id="${esc(x.m.id)}"><td><span class="rk ${i < 3 ? 'rk' + (i + 1) : ''}">${i + 1}</span></td>
+        <td class="nm">${esc(x.m.name)}</td><td>${x.n}</td><td class="tot">${x.avg}</td><td>${x.high}</td></tr>`).join('')}
       </tbody></table></div></div>`;
   }
 
@@ -2335,11 +2327,6 @@
     statPick(el) { ui.statId = el.dataset.id; render(); },
     kpTurn(el) { // keypad order: one bowler's whole game, or take turns each frame; a view setting, allowed on locked records
       if (el.dataset.v === 'frame') db.settings.kpTurn = 'frame'; else delete db.settings.kpTurn;
-      save(); render();
-    },
-    lbMin(el) { // leaderboard minimum games
-      const n = clampInt(el.dataset.v, 0, 30);
-      if (n) db.settings.minGames = n; else delete db.settings.minGames;
       save(); render();
     },
     sumVert() { // results table orientation; a view setting, so allowed on locked records

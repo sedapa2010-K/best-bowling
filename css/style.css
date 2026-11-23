@@ -949,10 +949,3 @@ body.kp-open .toast { bottom: calc(340px + env(safe-area-inset-bottom)); }
 /* Record tab: keypad order (one bowler / each frame) */
 .seg.kp-turn { margin: 0 0 8px; }
 .seg.kp-turn button { height: 32px; font-size: 13px; }
-/* Stats tab: leaderboard minimum games */
-.lb-min { display: flex; align-items: center; gap: 10px; margin: -2px 0 10px; }
-.lb-min > span { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
-.lb-min .seg { flex: 1; padding: 3px; border-radius: 12px; }
-.lb-min .seg button { height: 28px; font-size: 12px; border-radius: 9px; white-space: nowrap; }
-.tbl tr.lb-sep td { font-size: 11px; color: var(--muted); text-align: left; padding-top: 10px; font-weight: 600; }
-.tbl tr.unranked td { color: var(--muted); }
