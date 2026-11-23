@@ -71,7 +71,7 @@
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
-      storageErr: '저장 공간이 부족해 저장하지 못했어요', fee: '경기비 {0} · 신발비 {1}',
+      storageErr: '저장 공간이 부족해 저장하지 못했어요', scoreMax: '점수는 300점까지예요', frameStats: '스트라이크 · 스페어', frameGamesN: '프레임 입력 {0}게임', frameStatsEmpty: '프레임별로 입력한 게임이 있으면 스트라이크율과 스페어 처리율이 여기에 보여요.', strikeRate: '스트라이크', spareRate: '스페어 처리', openPerGame: '오픈 / 게임', openTotal: '오픈 {0}회', splitMade: '스플릿 처리', frameOnly: '프레임 입력만 · 연습 제외', openShort: '오픈', splitShort: '스플릿', fee: '경기비 {0} · 신발비 {1}',
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
@@ -125,7 +125,7 @@
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
-      storageErr: 'Storage is full — could not save', fee: 'Game {0} · Shoes {1}',
+      storageErr: 'Storage is full — could not save', scoreMax: 'Scores go up to 300', frameStats: 'Strikes & spares', frameGamesN: 'Frame games: {0}', frameStatsEmpty: 'Enter games frame by frame to see strike and spare rates here.', strikeRate: 'Strikes', spareRate: 'Spares', openPerGame: 'Opens / game', openTotal: '{0} opens', splitMade: 'Splits made', frameOnly: 'Frame entries · no practice', openShort: 'Opens', splitShort: 'Splits', fee: 'Game {0} · Shoes {1}',
     },
   };
   const WD = { ko: ['일', '월', '화', '수', '목', '금', '토'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
@@ -717,7 +717,7 @@
       const e = g.entries[p.id];
       const v = e && e.score !== null && e.score !== undefined ? e.score : '';
       return `<div class="erow">${avatar(s, p)}<span class="pname">${esc(pname(p))}</span>
-        <input class="score-in" type="number" inputmode="numeric" min="0" max="300" placeholder="0" enterkeyhint="next" data-inp="score" data-id="${esc(p.id)}" value="${esc(v)}">
+        <input class="score-in" type="number" inputmode="numeric" min="0" max="300" placeholder="–" enterkeyhint="next" data-inp="score" data-id="${esc(p.id)}" value="${esc(v)}">
         <span class="etot" id="et-${esc(p.id)}">${totHTML(entryScore(g, p.id), toInt(p.hdcp))}</span></div>`;
     }).join('')}</div>`;
   }
@@ -820,7 +820,7 @@
       ${playersCard(s)}`;
     if (s.players.length) {
       h += gameCard(s);
-      h += `<div class="card" id="summary">${summaryInner(s)}</div>
+      h += `<div class="card" id="summary">${summaryInner(s)}</div><div id="dayFrames">${dayFramesHTML(s)}</div>
         <div class="autosave">${ic('shield')}${t('autosave')}</div>
         <div class="actions">
           <button class="btn ghost" data-act="recImg" data-mode="save">${ic('download')}${t('saveImage')}</button>
@@ -861,6 +861,8 @@
     s.players.forEach((p) => { const el = $(`#et-${p.id}`); if (el) el.innerHTML = totHTML(entryScore(g, p.id), toInt(p.hdcp)); });
     const sum = $('#summary');
     if (sum) { sum.innerHTML = summaryInner(s); updateScrollBars(); }
+    const df = $('#dayFrames');
+    if (df) df.innerHTML = dayFramesHTML(s);
   }
 
   /* ───────── Frame keypad ───────── */
@@ -1185,6 +1187,66 @@
     return [...map.values()].map((x) => ({ ...x, final: x.sum + x.hdcp, avg: Math.round(x.sum / x.games) }));
   }
   const avgOf = (arr) => (arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0);
+  // Strike / spare figures from a member's games entered frame by frame and finished, in the stats period, practice excluded.
+  // Every ball thrown at a full rack is a strike chance (10th-frame fill balls included); a non-strike full-rack ball
+  // followed by another ball is a spare chance (anything left standing after it is an open frame); marked splits count
+  // as split chances, converted when the next ball clears the rest.
+  const blankTally = () => ({ games: 0, racks: 0, strikes: 0, chances: 0, spares: 0, splits: 0, splitMade: 0 });
+  function tallyRolls(r, e) {
+    const rolls = e.rolls;
+    r.games++;
+    rolls.forEach((v, i) => {
+      if (!frameState(rolls.slice(0, i)).fresh) return;
+      r.racks++;
+      if (v === 10) { r.strikes++; return; }
+      if (rolls[i + 1] === undefined) return;
+      const made = v + rolls[i + 1] === 10;
+      r.chances++; if (made) r.spares++;
+      if ((e.splits || []).includes(i)) { r.splits++; if (made) r.splitMade++; }
+    });
+  }
+  function frameStats(id) {
+    const r = blankTally(), from = periodFrom();
+    Object.values(db.sessions).forEach((s) => {
+      if (s.date < from || !s.players.some((p) => p.id === id)) return;
+      usedGames(s).forEach((g, gi) => {
+        const e = g.entries[id];
+        if (isPractice(s, gi) || !e || !e.rolls || !e.rolls.length || !frameState(e.rolls).done) return;
+        tallyRolls(r, e);
+      });
+    });
+    return r;
+  }
+  // One day's strike / spare table on the record tab: every bowler with frame-by-frame balls that day (practice game
+  // excluded). Unlike the stats tab it counts games still in progress, so it fills in live while the day is bowled.
+  function dayFramesHTML(s) {
+    const rows = s.players.map((p) => {
+      const r = blankTally();
+      usedGames(s).forEach((g, gi) => { const e = g.entries[p.id]; if (!isPractice(s, gi) && e && e.rolls && e.rolls.length) tallyRolls(r, e); });
+      return { p, r };
+    }).filter((x) => x.r.racks).sort((a, b) => b.r.strikes - a.r.strikes || pct(b.r.spares, b.r.chances) - pct(a.r.spares, a.r.chances) || byName(pname(a.p), pname(b.p)));
+    if (!rows.length) return '';
+    const best = rows[0].r.strikes;
+    const cell = (n, of) => `<b>${n}</b><small>${of ? `/${of}` : ''}${of ? ` · ${pct(n, of)}%` : ''}</small>`;
+    return `<div class="card day-frames"><div class="card-h"><h3>${ic('frames')}${t('frameStats')}</h3><span class="muted">${t('frameOnly')}</span></div>
+      <div class="tbl-wrap"><table class="tbl dft"><thead><tr><th class="nm">${t('name')}</th><th>${t('strikeRate')}</th><th>${t('spareRate')}</th><th>${t('openShort')}</th><th>${t('splitShort')}</th></tr></thead><tbody>
+      ${rows.map(({ p, r }) => `<tr><td class="nm"><span class="nm-in">${s.teamMode ? `<span class="tl tl${p.team}">${TEAMS[p.team]}</span>&nbsp;` : ''}${esc(pname(p))}</span></td>
+        <td class="${best && r.strikes === best ? 'tot' : ''}">${cell(r.strikes, r.racks)}</td><td>${cell(r.spares, r.chances)}</td>
+        <td><b>${r.chances - r.spares}</b></td><td>${r.splits ? `<b>${r.splitMade}</b><small>/${r.splits}</small>` : '<span class="dim">–</span>'}</td></tr>`).join('')}
+      </tbody></table></div></div>`;
+  }
+  const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+  function frameStatsCard(id) {
+    const f = frameStats(id);
+    const head = `<div class="card-h"><h3>${ic('frames')}${t('frameStats')}</h3>${f.games ? `<span class="muted">${t('frameGamesN', f.games)}</span>` : ''}</div>`;
+    if (!f.games) return `<div class="card">${head}<p class="hint">${t('frameStatsEmpty')}</p></div>`;
+    return `<div class="card">${head}<div class="fstat-grid">
+        <div><small>${t('strikeRate')}</small><b>${pct(f.strikes, f.racks)}<i>%</i></b><span>${f.strikes}/${f.racks}</span></div>
+        <div><small>${t('spareRate')}</small><b>${pct(f.spares, f.chances)}<i>%</i></b><span>${f.spares}/${f.chances}</span></div>
+        <div><small>${t('openPerGame')}</small><b>${(Math.round(((f.chances - f.spares) / f.games) * 10) / 10).toFixed(1)}</b><span>${t('openTotal', f.chances - f.spares)}</span></div>
+        <div><small>${t('splitMade')}</small><b>${f.splits ? pct(f.splitMade, f.splits) + '<i>%</i>' : '–'}</b><span>${f.splitMade}/${f.splits}</span></div>
+      </div></div>`;
+  }
 
   // Single-series bar chart (baseline 0, thin rounded bars, max value labelled, tap/hover for value).
   // Single-series line chart: SVG path stretched to the plot box, dots/labels as HTML so they stay round.
@@ -1278,6 +1340,7 @@
       const bestAvg = Math.max(...order.filter(Boolean).map(avgOf));
       h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
           ${lineChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
+        ${frameStatsCard(m.id)}
         <div class="card"><div class="card-h"><h3>${ic('frames')}${t('gameOrder')}</h3></div>
           <div class="order-list">${order.map((arr, i) => (arr ? `<div class="order-row">
             <span class="order-n">${t('gameN', i + 1)}</span>
@@ -2447,6 +2510,13 @@
       commit(s); refreshRecordNumbers();
     } else if (k === 'score') {
       const s = sess(), g = curGame(s);
+      // A score over 300 is a typo (999 meant 199), not a perfect game: drop the digit that pushed it over and say so,
+      // rather than clamping it to 300.
+      if (el.value !== '' && toInt(el.value) > 300) {
+        let w = el.value;
+        while (w !== '' && toInt(w) > 300) w = w.slice(0, -1);
+        el.value = w; toast(t('scoreMax'));
+      }
       let v = el.value === '' ? null : Math.max(0, Math.min(300, toInt(el.value)));
       if (v !== null && String(v) !== el.value) el.value = v;
       (g.entries[el.dataset.id] || (g.entries[el.dataset.id] = { score: null, rolls: [] })).score = v;
