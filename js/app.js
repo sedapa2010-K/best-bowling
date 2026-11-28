@@ -28,9 +28,9 @@
       lockedTap: '위의 수정 버튼을 눌러 주세요', periodAll: '전체', periodMonth: '이번 달', period3m: '3개월', periodYear: '올해',
       noStatsPeriod: '이 기간에는 경기 기록이 없어요', appInfo: '앱 정보', appInfoSub: '볼링 상식 · 사용설명서 · 정책 · 라이선스', byPerson: '개인별', byTeam: '팀별', teamSettle: '팀별 정산', noTeam: '팀 없음', practice: '연습', firstPractice: '첫 경기는 연습',
       statsTitle: '통계', noStats: '아직 경기 기록이 없어요', high: '최고', low: '최저', over200: '200점 이상', hdcpAvg: '핸디 포함 평균',
-      exportXlsx: '엑셀', confirmXlsx: '{0} 기록을 엑셀 파일로 저장할까요?', xlsxSaved: '엑셀 파일을 저장했어요', xlsxGames: '게임 기록', xlsxDays: '날짜별 요약', xlsxMembers: '회원별 통계', xlsxColsGames: '날짜|요일|이름|팀|게임|점수|핸디|합계|연습|입력 방식', xlsxColsDays: '날짜|요일|이름|팀|게임 수|점수 합계|평균|핸디 합계|총점|최고점|순위', xlsxColsMembers: '이름|기본 핸디|참가 일수|게임 수|평균|최고|최저|200점 이상|핸디 포함 평균', xlsxYes: '예', xlsxFinal: '최종 점수', xlsxFrame: '프레임', sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '날짜별', trendGames: '게임별 점수 추이', trendFinal: '날짜별 평균 추이', lastN: '최근 {0}개',
-      gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '전체 게임 기록', game: '게임', score: '점수',
-      finalTable: '날짜별 최종 점수', tapRowHint: '날짜를 누르면 그날 기록으로 이동해요', leaderboard: '전체 순위', byAvg: '평균 기준',
+      exportXlsx: '엑셀', confirmXlsx: '{0} 기록을 엑셀 파일로 저장할까요?', xlsxSaved: '엑셀 파일을 저장했어요', xlsxGames: '게임 기록', xlsxDays: '날짜별 요약', xlsxMembers: '회원별 통계', xlsxColsGames: '날짜|요일|이름|팀|게임|점수|핸디|합계|연습|입력 방식', xlsxColsDays: '날짜|요일|이름|팀|게임 수|점수 합계|평균|핸디 합계|총점|최고점|순위', xlsxColsMembers: '이름|기본 핸디|참가 일수|게임 수|평균|최고|최저|200점 이상|핸디 포함 평균', xlsxYes: '예', xlsxFinal: '최종 점수', xlsxFrame: '프레임', sessionsN: '{0}회 출전', byGame: '게임별', byFinal: '날짜별', trendGames: '점수 추이', trendFinal: '평균 추이', lastGames: '최근 {0}게임', lastDays: '최근 {0}회',
+      gameOrder: '게임 순서별 평균', highShort: '최고 {0}', gUnit: '게임', allGames: '게임 기록', game: '게임', score: '점수',
+      finalTable: '날짜별 기록', tapRowHint: '날짜를 누르면 그날 기록으로 이동해요', leaderboard: '멤버 순위', byAvg: '평균 기준',
       today: '오늘', recent: '최근 기록', noRecent: '아직 저장된 기록이 없어요', gamesPeople: '{0}게임 · {1}명',
       selectedDate: '선택한 날짜', participants: '참가 멤버', nPeople: '{0}명', rosterShow: '펼치기', rosterHide: '접기',
       paid: '입금', unpaidLeft: '미입금 {0}명', allPaid: '모두 입금',
@@ -71,7 +71,11 @@
       confirmImport: '백업 파일로 현재 데이터를 덮어쓸까요?', imported: '백업을 불러왔어요', badFile: '올바른 백업 파일이 아니에요',
       confirmReset: '모든 멤버와 기록을 삭제할까요?\n되돌릴 수 없어요.', resetDone: '모든 데이터를 삭제했어요', exported: '백업 파일을 저장했어요',
       savedImg: '이미지를 저장했어요', shareFallback: '공유를 지원하지 않아 이미지로 저장했어요', longPress: '이미지를 길게 눌러 사진에 저장하세요',
-      storageErr: '저장 공간이 부족해 저장하지 못했어요', scoreMax: '점수는 300점까지예요', frameStats: '스트라이크 · 스페어', frameGamesN: '프레임 입력 {0}게임', frameStatsEmpty: '프레임별로 입력한 게임이 있으면 스트라이크율과 스페어 처리율이 여기에 보여요.', strikeRate: '스트라이크', spareRate: '스페어 처리', openPerGame: '오픈 / 게임', openTotal: '오픈 {0}회', splitMade: '스플릿 처리', frameOnly: '프레임 입력만 · 연습 제외', kpTurnLabel: '키패드 순서', kpTurnGame: '한 사람씩', kpTurnFrame: '프레임마다 교대', kpTurnFrameHint: '한 프레임을 마치면 다음 사람으로 넘어가요', openShort: '오픈', splitShort: '스플릿', fee: '경기비 {0} · 신발비 {1}',
+      storageErr: '저장 공간이 부족해 저장하지 못했어요', scoreMax: '점수는 300점까지예요', frameStats: '프레임 분석', frameGamesN: '프레임 입력 {0}게임', frameStatsEmpty: '프레임별로 입력한 게임이 있으면 스트라이크·스페어·클린 게임 같은 분석이 여기에 보여요.', strikeRate: '스트라이크', spareRate: '스페어 처리', openPerGame: '게임당 오픈', openTotal: '오픈 {0}회', splitMade: '스플릿 처리', frameOnly: '프레임 입력만 · 연습 제외', kpTurnLabel: '키패드 순서', kpTurnGame: '한 사람씩', kpTurnFrame: '프레임마다 교대', kpTurnFrameHint: '한 프레임을 마치면 다음 사람으로 넘어가요', openShort: '오픈', splitShort: '스플릿', fee: '경기비 {0} · 신발비 {1}',
+      cleanGames: '클린 게임', firstBall: '첫 투구 평균', firstBallSub: '프레임당 쓰러뜨린 핀',
+      hcTitle: '핸디 자동 계산', hcBase: '기준 점수', hcPct: '비율 (%)', hcGames: '최근 게임 수', hcFormula: '핸디 = (기준 점수 − 최근 평균) × 비율 · 0~{0}', hcNote: '바꾼 핸디는 앞으로 추가하는 참가자부터 쓰여요. 이미 저장된 기록의 핸디는 그대로예요.', hcApply: '적용', hcApplyAll: '모두 적용', hcApplied: '{0}명의 핸디를 바꿨어요', hcNone: '바꿀 핸디가 없어요', hcConfirm: '{0}명의 핸디를 제안값으로 바꿀까요?', hcRow: '평균 {0} · {1}게임', hcNoGames: '기록 없음', hcSame: '같음',
+      recTitle: '개인 기록 · 배지', recAll: '전체 기간 기준 · 연습 게임 제외', recBest: '개인 최고점', recBestDay: '하루 최고 합계', recOver: '{0}점 이상', recPerfect: '퍼펙트 게임', recPlus50: '평균 +50점', recPlus50Sub: '그때까지 평균 기준', recFirstOn: '첫 달성 {0}', recNotYet: '아직', recTurkey: '터키 게임', recStreak: '최다 연속 스트라이크 {0}', recClean: '클린 게임', recCleanSub: '{0}게임 중', recSplit: '스플릿 처리', recXXX: '10프레임 XXX', recFrameNote: '여기부터는 프레임 입력이 끝난 게임 기준', recGamesN: '{0}게임',
+      todayRec: '오늘의 기록', dayRec: '이날의 기록', evPb: '개인 최고점 {0}', evFirst: '첫 {0}점 돌파', evPerfect: '퍼펙트 게임!', evBestDay: '하루 최고 합계 {0}', evPlus50: '평균보다 +{0}점', evTurkey: '터키', evBagger: '{0}배거', evClean: '클린 게임', evSplit: '스플릿 처리', evXXX: '10프레임 올 스트라이크',
     },
     en: {
       tabRecord: 'Scores', tabMembers: 'Members', tabCost: 'Settle', tabStats: 'Stats', tabSettings: 'Settings',
@@ -82,9 +86,9 @@
       lockedTap: 'Tap Edit above to change it', periodAll: 'All', periodMonth: 'This month', period3m: '3 months', periodYear: 'This year',
       noStatsPeriod: 'No games in this period', appInfo: 'About', appInfoSub: 'Bowling basics · guide · policies · licenses', byPerson: 'Per person', byTeam: 'Per team', teamSettle: 'Per team', noTeam: 'No team', practice: 'Practice', firstPractice: '1st game is practice',
       statsTitle: 'Statistics', noStats: 'No games recorded yet', high: 'High', low: 'Low', over200: '200+ games', hdcpAvg: 'Avg with HDCP',
-      exportXlsx: 'Excel', confirmXlsx: 'Save the records for {0} as an Excel file?', xlsxSaved: 'Excel file saved', xlsxGames: 'Games', xlsxDays: 'By date', xlsxMembers: 'By member', xlsxColsGames: 'Date|Day|Name|Team|Game|Score|HDCP|Total|Practice|Input', xlsxColsDays: 'Date|Day|Name|Team|Games|Scratch|Average|HDCP total|Total|High|Rank', xlsxColsMembers: 'Name|HDCP|Days|Games|Average|High|Low|200+|Avg incl. HDCP', xlsxYes: 'Yes', xlsxFinal: 'Final', xlsxFrame: 'Frame', sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By date', trendGames: 'Game scores', trendFinal: 'Average by date', lastN: 'Last {0}',
-      gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'All games', game: 'Game', score: 'Score',
-      finalTable: 'Final scores by date', tapRowHint: 'Tap a date to open that day\'s scores', leaderboard: 'Leaderboard', byAvg: 'by average',
+      exportXlsx: 'Excel', confirmXlsx: 'Save the records for {0} as an Excel file?', xlsxSaved: 'Excel file saved', xlsxGames: 'Games', xlsxDays: 'By date', xlsxMembers: 'By member', xlsxColsGames: 'Date|Day|Name|Team|Game|Score|HDCP|Total|Practice|Input', xlsxColsDays: 'Date|Day|Name|Team|Games|Scratch|Average|HDCP total|Total|High|Rank', xlsxColsMembers: 'Name|HDCP|Days|Games|Average|High|Low|200+|Avg incl. HDCP', xlsxYes: 'Yes', xlsxFinal: 'Final', xlsxFrame: 'Frame', sessionsN: '{0} sessions', byGame: 'By game', byFinal: 'By date', trendGames: 'Score trend', trendFinal: 'Average trend', lastGames: 'Last {0} games', lastDays: 'Last {0} days',
+      gameOrder: 'Average by game order', highShort: 'High {0}', gUnit: 'g', allGames: 'Game log', game: 'Game', score: 'Score',
+      finalTable: 'Results by date', tapRowHint: 'Tap a date to open that day\'s scores', leaderboard: 'Member ranking', byAvg: 'by average',
       today: 'Today', recent: 'Recent', noRecent: 'No saved records yet', gamesPeople: '{0} games · {1}',
       selectedDate: 'Selected date', participants: 'Players', nPeople: '{0} players', rosterShow: 'Show', rosterHide: 'Hide',
       paid: 'Paid', unpaidLeft: 'Unpaid: {0}', allPaid: 'All paid',
@@ -125,7 +129,11 @@
       confirmImport: 'Replace current data with this backup?', imported: 'Backup imported', badFile: 'Not a valid backup file',
       confirmReset: 'Delete all members and records?\nThis cannot be undone.', resetDone: 'All data erased', exported: 'Backup saved',
       savedImg: 'Image saved', shareFallback: 'Sharing isn\'t supported, so the image was saved', longPress: 'Long-press the image to save it to Photos',
-      storageErr: 'Storage is full — could not save', scoreMax: 'Scores go up to 300', frameStats: 'Strikes & spares', frameGamesN: 'Frame games: {0}', frameStatsEmpty: 'Enter games frame by frame to see strike and spare rates here.', strikeRate: 'Strikes', spareRate: 'Spares', openPerGame: 'Opens / game', openTotal: '{0} opens', splitMade: 'Splits made', frameOnly: 'Frame entries · no practice', kpTurnLabel: 'Keypad order', kpTurnGame: 'One bowler', kpTurnFrame: 'Each frame', kpTurnFrameHint: 'Moves to the next bowler after each frame', openShort: 'Opens', splitShort: 'Splits', fee: 'Game {0} · Shoes {1}',
+      storageErr: 'Storage is full — could not save', scoreMax: 'Scores go up to 300', frameStats: 'Frame analysis', frameGamesN: 'Frame games: {0}', frameStatsEmpty: 'Enter games frame by frame to see strikes, spares, clean games and more here.', strikeRate: 'Strikes', spareRate: 'Spares', openPerGame: 'Opens per game', openTotal: '{0} opens', splitMade: 'Splits made', frameOnly: 'Frame entries · no practice', kpTurnLabel: 'Keypad order', kpTurnGame: 'One bowler', kpTurnFrame: 'Each frame', kpTurnFrameHint: 'Moves to the next bowler after each frame', openShort: 'Opens', splitShort: 'Splits', fee: 'Game {0} · Shoes {1}',
+      cleanGames: 'Clean games', firstBall: 'First-ball avg', firstBallSub: 'pins per frame',
+      hcTitle: 'Auto handicap', hcBase: 'Base score', hcPct: 'Percent', hcGames: 'Recent games', hcFormula: 'Handicap = (base − recent average) × percent · 0–{0}', hcNote: 'New handicaps apply to players added from now on. Saved records keep theirs.', hcApply: 'Apply', hcApplyAll: 'Apply all', hcApplied: 'Updated {0} handicap(s)', hcNone: 'Nothing to change', hcConfirm: 'Change {0} handicap(s) to the suggested values?', hcRow: 'Avg {0} · {1} g', hcNoGames: 'No games', hcSame: 'Same',
+      recTitle: 'Records & badges', recAll: 'All time · practice games left out', recBest: 'High game', recBestDay: 'Best day total', recOver: '{0}+ games', recPerfect: 'Perfect games', recPlus50: 'Avg +50', recPlus50Sub: 'vs. average so far', recFirstOn: 'First {0}', recNotYet: 'Not yet', recTurkey: 'Turkey games', recStreak: 'Best streak {0}', recClean: 'Clean games', recCleanSub: 'of {0} games', recSplit: 'Splits made', recXXX: '10th-frame XXX', recFrameNote: 'From here: finished frame-by-frame games', recGamesN: '{0} g',
+      todayRec: "Today's records", dayRec: "Day's records", evPb: 'New high game {0}', evFirst: 'First {0}+ game', evPerfect: 'Perfect game!', evBestDay: 'Best day total {0}', evPlus50: '+{0} over average', evTurkey: 'Turkey', evBagger: '{0}-bagger', evClean: 'Clean game', evSplit: 'Split converted', evXXX: 'Strike-out in the 10th',
     },
   };
   const WD = { ko: ['일', '월', '화', '수', '목', '금', '토'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
@@ -195,7 +203,8 @@
       settings: { lang: ['ko', 'en'].includes(st.lang) ? st.lang : ko ? 'ko' : 'en', theme: ['light', 'dark', 'system'].includes(st.theme) ? st.theme : 'system',
         ...(['KRW', 'USD', 'EUR', 'JPY'].includes(st.currency) ? { currency: st.currency } : {}),
         ...(st.resultsVert === true ? { resultsVert: true } : {}),
-        ...(st.kpTurn === 'frame' ? { kpTurn: 'frame' } : {}) },
+        ...(st.kpTurn === 'frame' ? { kpTurn: 'frame' } : {}),
+        ...(isObj(st.hdcpCalc) ? { hdcpCalc: { base: clampInt(st.hdcpCalc.base, 0, 300, 200), pct: clampInt(st.hdcpCalc.pct, 0, 100, 80), games: clampInt(st.hdcpCalc.games, 1, 200, 20) } } : {}) },
       feeDefaults: { gameFee: Math.min(MONEY_MAX.fee, money(fee.gameFee, 3000)), shoeFee: Math.min(MONEY_MAX.fee, money(fee.shoeFee, 1500)) },
     };
   }
@@ -226,6 +235,7 @@
     calOpen: false,    // month calendar expanded
     kp: null,          // { pid } while the frame keypad is open
     roster: null,      // { date, open }: participants card expanded or folded to a summary for that date
+    statOpen: { order: true, all: true, rec: true }, // foldable cards that are open: stats 'order' / 'all' / 'rec'; members 'hc' (folded until opened)
     kpScroll: false,
     editId: null,      // member being edited
     statId: null,      // member shown on the stats tab
@@ -825,7 +835,7 @@
       ${playersCard(s)}`;
     if (s.players.length) {
       h += gameCard(s);
-      h += `<div class="card" id="summary">${summaryInner(s)}</div><div id="dayFrames">${dayFramesHTML(s)}</div>
+      h += `<div class="card" id="summary">${summaryInner(s)}</div><div id="dayFrames">${dayFramesHTML(s)}</div><div id="dayBadges">${dayBadgesHTML(s)}</div>
         <div class="autosave">${ic('shield')}${t('autosave')}</div>
         <div class="actions">
           <button class="btn ghost" data-act="recImg" data-mode="save">${ic('download')}${t('saveImage')}</button>
@@ -868,6 +878,8 @@
     if (sum) { sum.innerHTML = summaryInner(s); updateScrollBars(); }
     const df = $('#dayFrames');
     if (df) df.innerHTML = dayFramesHTML(s);
+    const badges = $('#dayBadges');
+    if (badges) badges.innerHTML = dayBadgesHTML(s);
   }
 
   /* ───────── Frame keypad ───────── */
@@ -952,6 +964,40 @@
     render();
   }
 
+  /* ───────── Members: automatic handicap ───────── */
+  // Suggested handicap per member: (base − average of the last N games) × percent, rounded, within 0–HDCP_MAX.
+  // Practice games are left out; the member's stored handicap changes only when the user applies it.
+  const hcCfg = () => db.settings.hdcpCalc || { base: 200, pct: 80, games: 20 };
+  function hcSuggest(id) {
+    const c = hcCfg(), sc = [];
+    Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
+      if (!s.players.some((p) => p.id === id)) return;
+      usedGames(s).forEach((g, gi) => { const v = entryScore(g, id); if (v !== null && !isPractice(s, gi)) sc.push(v); });
+    });
+    const last = sc.slice(-c.games);
+    if (!last.length) return null;
+    const avg = last.reduce((a, b) => a + b, 0) / last.length;
+    return { avg: Math.round(avg), n: last.length, hd: toHdcp(Math.round((Math.max(0, c.base - avg) * c.pct) / 100)) };
+  }
+  function hcListHTML() {
+    return membersByName().map((m) => {
+      const x = hcSuggest(m.id), cur = toInt(m.handicap);
+      return `<div class="hc-row"><div class="hc-info"><b>${esc(m.name)}</b><small>${x ? t('hcRow', x.avg, x.n) : t('hcNoGames')}</small></div>
+        <span class="hc-chg">${cur}${x ? ` → <b>${x.hd}</b>` : ''}</span>
+        ${x && x.hd !== cur ? `<button class="btn sm ghost" data-act="hcApply" data-id="${esc(m.id)}">${t('hcApply')}</button>` : `<span class="hc-same">${x ? t('hcSame') : ''}</span>`}</div>`;
+    }).join('');
+  }
+  function hcCardHTML() {
+    if (!db.members.length) return '';
+    const c = hcCfg();
+    const f = (k, label, max) => `<div><label class="field-l" for="hc-${k}">${label}</label><input id="hc-${k}" class="field num" type="number" min="0" max="${max}" inputmode="numeric" data-inp="hc" data-k="${k}" value="${c[k]}"></div>`;
+    return `<div class="card hc-card"><div class="card-h"><h3>${ic('chart')}${t('hcTitle')}</h3>${foldBtn('hc')}</div>
+      ${!ui.statOpen.hc ? '' : `<div class="hc-grid">${f('base', t('hcBase'), 300)}${f('pct', t('hcPct'), 100)}${f('games', t('hcGames'), 200)}</div>
+      <p class="hint">${t('hcFormula', HDCP_MAX)}</p>
+      <div class="hc-list" id="hcList">${hcListHTML()}</div>
+      <button class="btn gold block" data-act="hcApplyAll">${ic('check')}${t('hcApplyAll')}</button>
+      <p class="hint hc-note">${t('hcNote')}</p>`}</div>`;
+  }
   /* ───────── Render: members tab ───────── */
   function renderMembers() {
     const list = membersByName().map((m) => {
@@ -978,6 +1024,7 @@
         </div>
         <button class="btn gold block" data-act="addMember">${ic('plus')}${t('addMember')}</button>
       </div>
+      ${hcCardHTML()}
       ${db.members.length ? `<div class="mlist">${list}</div>` : `<div class="empty">${esc(t('noMembersYet')).replace('\n', '<br>')}</div>`}`;
   }
   function addMember(name, hd) {
@@ -1199,10 +1246,22 @@
   // Every ball thrown at a full rack is a strike chance (10th-frame fill balls included); a non-strike full-rack ball
   // followed by another ball is a spare chance (anything left standing after it is an open frame); marked splits count
   // as split chances, converted when the next ball clears the rest.
-  const blankTally = () => ({ games: 0, racks: 0, strikes: 0, chances: 0, spares: 0, splits: 0, splitMade: 0 });
+  // A finished game with a strike or spare in every frame (the 10th counts by its first two balls).
+  const isClean = (rolls) => frameState(rolls).done && splitFrames(rolls).every((f) => f[0] === 10 || f[0] + f[1] === 10);
+  // Longest run of strikes in a game (balls thrown at a full rack; any other full-rack ball ends the run).
+  function strikeStreak(rolls) {
+    let best = 0, cur = 0;
+    rolls.forEach((v, i) => { if (!frameState(rolls.slice(0, i)).fresh) return; cur = v === 10 ? cur + 1 : 0; best = Math.max(best, cur); });
+    return best;
+  }
+  const isXXX = (rolls) => { const f = splitFrames(rolls)[9]; return f[0] === 10 && f[1] === 10 && f[2] === 10; };
+  const blankTally = () => ({ games: 0, racks: 0, strikes: 0, chances: 0, spares: 0, splits: 0, splitMade: 0, done: 0, clean: 0, firstSum: 0, firstN: 0 });
   function tallyRolls(r, e) {
     const rolls = e.rolls;
     r.games++;
+    // first-ball average: pins on the first ball of each frame (frames 1-10)
+    splitFrames(rolls).forEach((f) => { if (f.length) { r.firstSum += f[0]; r.firstN++; } });
+    if (frameState(rolls).done) { r.done++; if (isClean(rolls)) r.clean++; }
     rolls.forEach((v, i) => {
       if (!frameState(rolls.slice(0, i)).fresh) return;
       r.racks++;
@@ -1252,8 +1311,102 @@
         <div><small>${t('strikeRate')}</small><b>${pct(f.strikes, f.racks)}<i>%</i></b><span>${f.strikes}/${f.racks}</span></div>
         <div><small>${t('spareRate')}</small><b>${pct(f.spares, f.chances)}<i>%</i></b><span>${f.spares}/${f.chances}</span></div>
         <div><small>${t('openPerGame')}</small><b>${(Math.round(((f.chances - f.spares) / f.games) * 10) / 10).toFixed(1)}</b><span>${t('openTotal', f.chances - f.spares)}</span></div>
+        <div><small>${t('cleanGames')}</small><b>${pct(f.clean, f.done)}<i>%</i></b><span>${f.clean}/${f.done}</span></div>
+        <div><small>${t('firstBall')}</small><b>${f.firstN ? (f.firstSum / f.firstN).toFixed(1) : '–'}</b><span>${t('firstBallSub')}</span></div>
         <div><small>${t('splitMade')}</small><b>${f.splits ? pct(f.splitMade, f.splits) + '<i>%</i>' : '–'}</b><span>${f.splitMade}/${f.splits}</span></div>
       </div></div>`;
+  }
+
+  /* ───────── Personal records & badges ───────── */
+  // A member's records over all time (practice games excluded), walked in date order so each game is compared with
+  // the games before it. Score badges use every game; frame badges (turkey, clean, split, 10th XXX) only finished
+  // frame-by-frame games. `events` lists what each game achieved (for the record tab's "today's records").
+  function memberRecords(id) {
+    const R = { n: 0, best: null, bestDay: null, over: {}, plus50: 0, frameGames: 0, turkeys: 0, streak: 0, clean: 0, splitMade: 0, xxx: 0, events: [] };
+    let sum = 0;
+    Object.values(db.sessions).sort((a, b) => a.date.localeCompare(b.date)).forEach((s) => {
+      if (!s.players.some((p) => p.id === id)) return;
+      let day = 0, dayN = 0;
+      usedGames(s).forEach((g, gi) => {
+        const v = entryScore(g, id);
+        if (v === null || isPractice(s, gi)) return;
+        const ev = (type, value) => R.events.push({ date: s.date, gi, type, value });
+        if (R.n && v > R.best.score) ev('pb', v);
+        const first = [300, 250, 200].find((th) => v >= th && !R.over[th]);
+        if (first) ev(first === 300 ? 'perfect' : 'first', first);
+        [200, 250, 300].forEach((th) => { if (v >= th) (R.over[th] = R.over[th] || { date: s.date, n: 0 }).n++; });
+        if (R.n >= 5 && v - sum / R.n >= 50) { R.plus50++; ev('plus50', Math.round(v - sum / R.n)); }
+        const e = g.entries[id];
+        if (e && e.rolls && e.rolls.length && frameState(e.rolls).done) {
+          R.frameGames++;
+          const st = strikeStreak(e.rolls);
+          R.streak = Math.max(R.streak, st);
+          if (st >= 3) { R.turkeys++; ev('turkey', st); }
+          if (isClean(e.rolls)) { R.clean++; ev('clean', 1); }
+          const sm = (e.splits || []).filter((i) => e.rolls[i] + e.rolls[i + 1] === 10).length;
+          if (sm) { R.splitMade += sm; ev('split', sm); }
+          if (isXXX(e.rolls)) { R.xxx++; ev('xxx', 1); }
+        }
+        if (!R.best || v > R.best.score) R.best = { score: v, date: s.date, gi };
+        R.n++; sum += v; day += v; dayN++;
+      });
+      if (!dayN) return;
+      if (R.bestDay && day > R.bestDay.sum) R.events.push({ date: s.date, gi: -1, type: 'bestDay', value: day });
+      if (!R.bestDay || day > R.bestDay.sum) R.bestDay = { sum: day, games: dayN, date: s.date };
+    });
+    return R;
+  }
+  const dotDate = (k) => k.replace(/-/g, '.');
+  function recordsCard(id) {
+    const R = memberRecords(id);
+    if (!R.n) return '';
+    const tile = (label, val, sub, on, fr) => `<div class="rec-tile${on ? '' : ' off'}${fr ? ' fr' : ''}"><small>${label}</small><b>${val}</b><span>${sub}</span></div>`;
+    const over = (th) => { const o = R.over[th]; return tile(th === 300 ? t('recPerfect') : t('recOver', th), o ? o.n : 0, o ? t('recFirstOn', dotDate(o.date)) : t('recNotYet'), !!o); };
+    const count = (label, n, sub) => tile(label, n, sub, n > 0, true);
+    return `<div class="card rec-card"><div class="card-h"><h3>${ic('crown')}${t('recTitle')}</h3>${foldBtn('rec')}</div>
+      ${!ui.statOpen.rec ? '' : `<p class="rec-note top">${ic('calendar')}${t('recAll')}</p><div class="rec-grid">
+        ${tile(t('recBest'), R.best.score, `${dotDate(R.best.date)} · G${R.best.gi + 1}`, true)}
+        ${tile(t('recBestDay'), R.bestDay.sum, `${dotDate(R.bestDay.date)} · ${t('recGamesN', R.bestDay.games)}`, true)}
+        ${over(200)}${over(250)}${over(300)}
+        ${tile(t('recPlus50'), R.plus50, t('recPlus50Sub'), R.plus50 > 0)}
+      </div>
+      <p class="rec-note">${ic('frames')}${t('recFrameNote')}</p>
+      ${R.frameGames ? `<div class="rec-grid">
+        ${count(t('recTurkey'), R.turkeys, t('recStreak', R.streak))}
+        ${count(t('recClean'), R.clean, t('recCleanSub', R.frameGames))}
+        ${count(t('recSplit'), R.splitMade, '')}
+        ${count(t('recXXX'), R.xxx, '')}
+      </div>` : `<p class="hint">${t('frameStatsEmpty')}</p>`}`}</div>`;
+  }
+  // Record tab: what each bowler achieved on that day (new high game, first 200, turkey, clean game…).
+  function dayBadgesHTML(s) {
+    const rows = playersByName(s).map((p) => {
+      const ev = memberRecords(p.id).events.filter((x) => x.date === s.date);
+      if (!ev.length) return null;
+      const of = (type) => ev.filter((x) => x.type === type);
+      const top = (list) => list.reduce((a, b) => (b.value > a.value ? b : a));
+      const gs = (list) => list.filter((x) => x.gi >= 0).map((x) => `G${x.gi + 1}`).join(' ');
+      const items = [];
+      if (of('perfect').length) items.push([t('evPerfect'), gs(of('perfect'))]);
+      else {
+        if (of('first').length) { const x = top(of('first')); items.push([t('evFirst', x.value), gs([x])]); }
+        if (of('pb').length) { const x = top(of('pb')); items.push([t('evPb', x.value), gs([x])]); }
+      }
+      if (of('bestDay').length) items.push([t('evBestDay', of('bestDay')[0].value), '']);
+      if (of('plus50').length) { const x = top(of('plus50')); items.push([t('evPlus50', x.value), gs([x])]); }
+      const tk = of('turkey');
+      if (tk.length) { const x = top(tk); items.push([x.value >= 4 ? t('evBagger', x.value) : t('evTurkey'), gs(tk), 1]); }
+      if (of('clean').length) items.push([t('evClean'), gs(of('clean')), 1]);
+      if (of('split').length) { const n = of('split').reduce((a, x) => a + x.value, 0); items.push([t('evSplit') + (n > 1 ? ` ×${n}` : ''), gs(of('split')), 1]); }
+      if (of('xxx').length) items.push([t('evXXX'), gs(of('xxx')), 1]);
+      return { p, items };
+    }).filter(Boolean);
+    if (!rows.length) return '';
+    return `<div class="card day-rec"><div class="card-h"><h3>${ic('crown')}${s.date === ymd(new Date()) ? t('todayRec') : t('dayRec')}</h3></div>
+      <div class="drec-list">${rows.map(({ p, items }) => `<div class="drec-row">
+        <b class="drec-name">${s.teamMode ? `<span class="tl tl${p.team}">${TEAMS[p.team]}</span>&nbsp;` : ''}${esc(pname(p))}</b>
+        <div class="drec-items">${items.map(([label, g, fr]) => `<span class="badge-pill${fr ? ' fr' : ''}">${esc(label)}${g ? `<small>${g}</small>` : ''}</span>`).join('')}</div>
+      </div>`).join('')}</div></div>`;
   }
 
   // Single-series bar chart (baseline 0, thin rounded bars, max value labelled, tap/hover for value).
@@ -1305,6 +1458,10 @@
       <div class="chart-x">${points.map((p, i) => `<span>${(points.length - 1 - i) % every === 0 ? esc(p.label) : ''}</span>`).join('')}</div>
     </div>`;
   }
+  function foldBtn(k) {
+    const open = !!ui.statOpen[k];
+    return `<button class="btn sm ghost" data-act="statFold" data-v="${k}" aria-expanded="${open}">${ic(open ? 'up' : 'down')}${t(open ? 'rosterHide' : 'rosterShow')}</button>`;
+  }
   function renderStats() {
     const withGames = membersByName().map((m) => ({ m, games: memberGames(m.id) }));
     if (!ui.statId || !memberById(ui.statId)) {
@@ -1346,31 +1503,31 @@
       const order = [], pracN = [];
       memberGames(m.id, true).forEach((g) => { (order[g.gi] = order[g.gi] || []).push(g.score); if (g.prac) pracN[g.gi] = (pracN[g.gi] || 0) + 1; });
       const bestAvg = Math.max(...order.filter(Boolean).map(avgOf));
-      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
+      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendGames')}</h3><span class="muted">${t('lastGames', recent.length)}</span></div>
           ${lineChart(recent.map((g) => ({ value: g.score, label: sd(g.date), tip: `${sd(g.date)} · ${t('gameN', g.gi + 1)} · ${g.score}` })), t('trendGames'))}</div>
-        ${frameStatsCard(m.id)}
-        <div class="card"><div class="card-h"><h3>${ic('frames')}${t('gameOrder')}</h3></div>
-          <div class="order-list">${order.map((arr, i) => (arr ? `<div class="order-row">
+        <div class="card"><div class="card-h"><h3>${ic('next')}${t('gameOrder')}</h3>${foldBtn('order')}</div>
+          ${!ui.statOpen.order ? '' : `<div class="order-list">${order.map((arr, i) => (arr ? `<div class="order-row">
             <span class="order-n">${t('gameN', i + 1)}</span>
             <div class="order-bar"><i style="width:${(avgOf(arr) / 300) * 100}%"></i></div>
             <span class="order-v ${avgOf(arr) === bestAvg ? 'best' : ''}">${avgOf(arr)}</span>
-            <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}${pracN[i] ? ` · ${t('pracIncl', pracN[i])}` : ''}</small></div>` : '')).join('')}</div></div>
-        <div class="card"><div class="card-h"><h3>${ic('pin')}${t('allGames')}</h3><span class="muted">${games.length}</span></div>
-          <div class="tbl-wrap ${games.length > 10 ? 'tbl-scroll' : ''}"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
+            <small>${t('highShort', Math.max(...arr))} · ${arr.length}${t('gUnit')}${pracN[i] ? ` · ${t('pracIncl', pracN[i])}` : ''}</small></div>` : '')).join('')}</div>`}</div>
+        <div class="card"><div class="card-h"><h3>${ic('fileText')}${t('allGames')}<span class="muted rs-n">${games.length}</span></h3>${foldBtn('all')}</div>
+          ${!ui.statOpen.all ? '' : `<div class="tbl-wrap ${games.length > 10 ? 'tbl-scroll' : ''}"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('game')}</th><th>${t('score')}</th><th>${t('hdcp')}</th><th>${t('total')}</th></tr></thead><tbody>
           ${games.slice().reverse().map((g) => `<tr><td class="nm">${sd(g.date)} <small class="muted">${dateShort(g.date).wd}</small></td><td>G${g.gi + 1}</td>
             <td class="${g.score >= 200 ? 'tot' : ''}">${g.score}</td><td class="dim">${g.hdcp ? '+' + g.hdcp : 0}</td><td><b>${g.score + g.hdcp}</b></td></tr>`).join('')}
-          </tbody></table></div></div>`;
+          </tbody></table></div>`}</div>`;
     } else {
       const recent = sessions.slice(-12);
-      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendFinal')}</h3><span class="muted">${t('lastN', recent.length)}</span></div>
+      h += `<div class="card"><div class="card-h"><h3>${ic('chart')}${t('trendFinal')}</h3><span class="muted">${t('lastDays', recent.length)}</span></div>
           ${barChart(recent.map((x) => ({ value: x.avg, label: sd(x.date), tip: `${sd(x.date)} · ${t('avg')} ${x.avg} · ${t('total')} ${x.final}` })), t('trendFinal'))}</div>
-        <div class="card"><div class="card-h"><h3>${ic('crown')}${t('finalTable')}</h3><span class="muted">${t('sessionsN', sessions.length)}</span></div>
+        <div class="card"><div class="card-h"><h3>${ic('calendar')}${t('finalTable')}</h3><span class="muted">${t('sessionsN', sessions.length)}</span></div>
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="nm">${t('date')}</th><th>${t('games')}</th><th>${t('scratch')}</th><th>${t('hdcp')}</th><th>${t('total')}</th><th>${t('avg')}</th></tr></thead><tbody>
           ${sessions.slice().reverse().map((x) => `<tr class="link-row" data-act="pick" data-date="${esc(x.date)}" data-goto="record"><td class="nm">${sd(x.date)} <small class="muted">${dateShort(x.date).wd}</small></td><td>${x.games}</td><td>${x.sum}</td>
             <td class="dim">${x.hdcp ? '+' + x.hdcp : 0}</td><td class="tot">${x.final}</td><td>${x.avg}</td></tr>`).join('')}
           </tbody></table></div><p class="hint" style="margin-top:8px">${t('tapRowHint')}</p></div>`;
     }
-    return h + leaderboard(withGames);
+    // Then what doesn't depend on the by-game / by-date switch: frame analysis (period), records (all time), ranking (period).
+    return h + frameStatsCard(m.id) + recordsCard(m.id) + leaderboard(withGames);
   }
   function leaderboard(withGames) {
     const rows = withGames.filter((x) => x.games.length).map(({ m, games }) => {
@@ -2282,6 +2439,7 @@
   const actions = {
     tab(el) { ui.tab = el.dataset.tab; ui.kp = null; ui.editId = null; render(); window.scrollTo(0, 0); },
     roster(el) { ui.roster = { date: ui.date, open: el.dataset.v === '1' }; render(); },
+    statFold(el) { const k = el.dataset.v; ui.statOpen[k] = !ui.statOpen[k]; render(); },
     calToggle() {
       ui.calOpen = !ui.calOpen;
       if (ui.calOpen) { const d = parseYmd(ui.date); ui.calY = d.getFullYear(); ui.calM = d.getMonth(); }
@@ -2391,6 +2549,18 @@
     },
     editMember(el) { ui.editId = el.dataset.id; render(); const n = $('#eName'); if (n) n.focus(); },
     cancelEdit() { ui.editId = null; render(); },
+    hcApply(el) {
+      const m = memberById(el.dataset.id), x = m && hcSuggest(m.id);
+      if (!x) return;
+      m.handicap = x.hd; save(); render(); toast(t('hcApplied', 1));
+    },
+    async hcApplyAll() {
+      const list = db.members.map((m) => ({ m, x: hcSuggest(m.id) })).filter(({ m, x }) => x && x.hd !== toInt(m.handicap));
+      if (!list.length) { toast(t('hcNone')); return; }
+      if (!(await ask(t('hcConfirm', list.length)))) return;
+      list.forEach(({ m, x }) => { m.handicap = x.hd; });
+      save(); render(); toast(t('hcApplied', list.length));
+    },
     saveMember(el) {
       const m = memberById(el.dataset.id), name = $('#eName').value.trim();
       if (!name) { toast(t('nameRequired')); return; }
@@ -2537,6 +2707,15 @@
       const c = costDoc(), v = readMoneyInput(el, 'fee');
       c[el.dataset.k] = v; db.feeDefaults[el.dataset.k] = v;
       commitCost(c); refreshCostNumbers();
+    } else if (k === 'hc') {
+      // Auto-handicap settings: an empty box keeps the last value until something is typed; over the limit is cut back.
+      const key = el.dataset.k, max = { base: 300, pct: 100, games: 200 }[key];
+      if (!max || el.value === '') return;
+      const v = clampInt(el.value, key === 'games' ? 1 : 0, max);
+      if (toInt(el.value) > max) el.value = v;
+      db.settings.hdcpCalc = { ...hcCfg(), [key]: v };
+      save();
+      const list = $('#hcList'); if (list) list.innerHTML = hcListHTML();
     } else if (k === 'extraAmt' || k === 'extraLabel') {
       const c = costDoc(), x = (c.extras || []).find((e) => e.id === el.dataset.id);
       if (!x) return;
