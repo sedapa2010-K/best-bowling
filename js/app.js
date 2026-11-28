@@ -1579,7 +1579,7 @@
   }
 
   /* ───────── Documents (guide, policies) ───────── */
-  const APP_VERSION = '1.0.7'; // the Play Store app version (keep in step with appVersionName in tools/make-twa.mjs)
+  const APP_VERSION = '1.0.8'; // the Play Store app version (keep in step with appVersionName in tools/make-twa.mjs)
   const docOf = (k) => (window.BB_DOCS[lang()] || window.BB_DOCS.ko)[k];
   function showDoc(k) {
     const d = docOf(k), m = $('#modal');
